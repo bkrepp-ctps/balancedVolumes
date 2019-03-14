@@ -11,6 +11,8 @@ var DATA = {};
 VIZ = {};
 // Google Maps map object
 var map; 
+// Polyline features (should only ever be one) on GoogleMap
+aPolylines = [];
 
 $(document).ready(function() {
     var q = d3.queue()
@@ -75,39 +77,198 @@ function generateSvgWireframe(wireframe_data, div_id, year) {
     .attr("height", height);
 
    var svgRouteSegs = svgContainer
-    .selectAll("line")
-    .data(wireframe_data)
-    .enter()
-    .append("line")
-        .attr("id", function(d, i) { return d.unique_id; })
-        .attr("x1", function(d, i) { return d.x1; })
-        .attr("y1", function(d, i) { return d.y1; })
-        .attr("x2", function(d, i) { return d.x2; })
-        .attr("y2", function(d, i) { return d.y2; })
-        .attr("class", function(d, i) { return "volume " + d.type; })
-        // .style("stroke", function(d, i) { return (( d.type === 'ramp') ? "red" : "blue"); })
-        // .style("stroke-width", "2px")
-        .on("click", function(d, i) 
-            { 
-                console.log(d.unique_id); 
-                var lineFeature = _.find(DATA.geojson.features, function(f) { return f.properties['unique_id'] == d.unique_id; } );
-                if (lineFeature == null) {
-                    alert('Something is rotten in the State of Denmark: segment ' + d.unique_id + ' not found.');
-                    return;
-                }
-                var style = { strokeColor : '#ff0000', strokeOpacity : 0.7, strokeWeight: 3.0 }
-                ctpsGoogleMapsUtils.drawPolylineFeature(lineFeature, map, style);
-                // Now pan/zoom map to selected feature
-                var bbox = turf.bbox(lineFeature);
-                // Return value of turf.bbox() has the form: [minX, minY, maxX, maxY]
-                // Morph this into a form Google Maps can digest
-                var googleBounds = new google.maps.LatLngBounds();
-                googleBounds.extend({ lat : bbox[1], lng : bbox[0] });
-                googleBounds.extend({ lat : bbox[3], lng : bbox[2] });
-                map.fitBounds(googleBounds);
-            });   
+        .selectAll("line")
+        .data(wireframe_data)
+        .enter()
+        .append("line")
+            .attr("id", function(d, i) { return d.unique_id; })
+            .attr("class", function(d, i) { return "volume " + d.type; })            
+            .attr("x1", function(d, i) { return d.x1; })
+            .attr("y1", function(d, i) { return d.y1; })
+            .attr("x2", function(d, i) { return d.x2; })
+            .attr("y2", function(d, i) { return d.y2; })
+            // .style("stroke", function(d, i) { return (( d.type === 'ramp') ? "red" : "blue"); })
+            // .style("stroke-width", "2px")
+            .on("click", function(d, i) 
+                { 
+                    console.log('On-click handler: ' + d.unique_id); 
+                    var lineFeature = _.find(DATA.geojson.features, function(f) { return f.properties['unique_id'] == d.unique_id; } );
+                    if (lineFeature == null) {
+                        alert('Segment ' + d.unique_id + ' not found in GeoJSON.');
+                        console.log('Segment ' + d.unique_id + ' not found in GeoJSON.');
+                        return;
+                    }
+                    // First, clear any polylines currently on the map
+                    aPolylines.forEach(function(pl) { pl.setMap(null); });
+                    // Create pollyline feature and add it to the map
+                    var style = { strokeColor : '#ff0000', strokeOpacity : 0.7, strokeWeight: 3.0 }
+                    var polyline = ctpsGoogleMapsUtils.drawPolylineFeature(lineFeature, map, style);
+                    aPolylines.push(polyline);
+                    // Now pan/zoom map to selected feature
+                    var bbox = turf.bbox(lineFeature);
+                    // Return value of turf.bbox() has the form: [minX, minY, maxX, maxY]
+                    // Morph this into a form Google Maps can digest
+                    var googleBounds = new google.maps.LatLngBounds();
+                    googleBounds.extend({ lat : bbox[1], lng : bbox[0] });
+                    googleBounds.extend({ lat : bbox[3], lng : bbox[2] });
+                    map.fitBounds(googleBounds);
+                }); 
+
+    var mainline_xOffset = 150;
+    var volumeText_xOffset = 250;
     
-    var retval = { lines : svgRouteSegs, txt : null };
+    var svgVolumeText = svgContainer
+        .selectAll("text")
+        .data(wireframe_data)
+        .enter()
+        .append("text")
+            .attr("id", function(d, i) { return 'txt_' +d.unique_id; })
+            .attr("class", function(d, i) { return 'txt_' + d.type; })
+            // .attr("x", function(d, i) { return d.x1 + ((d.x2 - d.x1)/2); })
+            .attr("x", function(d, i) {
+                    var tmp, retval;
+                    switch(d.type) {
+                    case 'main':
+                        retval = volumeText_xOffset;
+                        break;
+                    case 'mainleft':
+                        retval = d.x1 - 30;
+                        break;
+                    case 'mainright':
+                        retval = d.x1 + 30;
+                        break;
+                    case 'hovleft':
+                        retval = d.x1; // - 10;
+                        break;
+                    case 'hovright':
+                        retval = d.x1; // + 10;
+                        break;
+                    case 'rampleft':
+                        // Since the ramp is to the left, use the x-coordinate with the lesser value
+                        tmp = (d.x1 < d.x2) ? d.x1 - 10 : d.x2 - 10;
+                        retval = tmp;
+                        break;
+                    case 'rampright': 
+                        // Since the ramp is the right, use the x-coordinat with the greater value
+                        tmp = (d.x1 > d.x2) ? d.x1 + 10 : d.x2 + 10;
+                        retval = tmp;
+                        break;
+                    /* OLD CODE - common with 'rampleft' 
+                        if (d.x1 === mainline_xOffset) {
+                            // (x2,y2) is the "lose end" of the ramp
+                            retval = d.x2;
+                        } else {
+                            // (x1,y1) is the "loose end" of the ramp
+                            retval = d.x1;
+                        }
+                        return retval;                        
+                    */
+                    case 'ramphov':
+                        // Fallthrough is deliberate
+                    default:
+                        // Unlabeled segments, e.g., HOV 'ramps' - x and y ccordinates are abritrary (since these segments are unlabeled)
+                        console.log(d.unique_id + ' : segment type is: ' + d.type);
+                        retval = d.x1;
+                        break;
+                    } // switch 
+                    return retval;
+                 })
+            .attr("y", function(d, i) { 
+                    var tmp, retval;
+                    switch(d.type) {
+                    case 'main':
+                        retval = d.y1 + ((d.y2 - d.y1)/2);
+                        break;
+                    case 'mainleft':
+                        retval = d.y1 + ((d.y2 - d.y1)/2);     // TEMP - should be OK
+                        break;
+                    case 'mainright':
+                         retval = d.y1 + ((d.y2 - d.y1)/2);     // TEMP - should be OK
+                        break;
+                    case 'hovleft':
+                        // Fallthrough is deliberate
+                    case 'hovright':
+                        retval = d.y1 + ((d.y2 - d.y1)/2);     
+                        break;
+                    case 'rampleft':
+                        // Since the ramp is to the left, the x-coordinate with the lesser value indicates the 'loose end' of the ramp
+                        tmp = (d.x1 < d.x2) ? d.y1 - 10 : d.y2 - 10;
+                        retval = tmp;
+                        break;
+                    case 'rampright': 
+                        // Since the ramp is the right, the x-coordinate with the greater value indicates the 'loose end' of the ramp
+                        tmp = (d.x1 > d.x2) ? d.y1 + 10 : d.y2 + 10;
+                        retval = tmp;
+                        break;
+                    /* OLD CODE - common with 'rampleft' 
+                        // Note: if (d.x1 == mainine_xOffset) then (x2,y2) is the "lose end" of the ramp
+                        //       else (x1,y1) is the "loose end" of the ramp
+                        //
+                        if (d.x1 === mainline_xOffset) {
+                            // (x2,y2) is the "lose end" of the ramp
+                            retval = d.y2;
+                        } else {
+                            // (x1,y1) is the "loose end" of the ramp
+                            retval = d.y1;
+                        } 
+                        return retval;
+                    */
+                    case 'ramphov':
+                        // Fallthrough is deliberate
+                    default:
+                        // Unlabeled segments, e.g., HOV 'ramps' - x and y ccordinates are abritrary (since these are unlabeled)
+                        retval = d.y1 + ((d.y2 - d.y1)/2);
+                        break;
+                    } // switch                   
+                    return retval;
+                })
+            .attr("text-anchor", function(d, i) {
+                    var retval; 
+                    switch(d.type) {
+                    case 'main':
+                    case 'mainleft':
+                    case 'mainright':
+                    case 'hovright':
+                    case 'hovleft':
+                        // Fallthroughs above are deliberate
+                        retval = "middle";
+                        break;
+                    case 'rampleft':
+                        retval = "end";
+                        break;
+                    case 'rampright':
+                        retval = "start";
+                        break;
+                    case 'ramphov':
+                        // Fallthrough is deliberate
+                    default:
+                        // Unlabeled segments, e.g., HOV 'ramps' - text-anchor value is arbitrary (since these are unlabeled)
+                        retval = "middle";
+                        break;
+                    }
+                    return retval;
+                    })
+            .attr("transform", function(d, i) 
+                {
+                    var retval;
+                    if (d.type !== 'hovleft' && d.type !== 'hovright') {
+                        retval = 'rotate(0,0,0)';
+                    } else {
+                        // Rotate HOV labels 90 degrees counter-clockwise, i.e., -90 degrees in SVG-speak
+                        // The (x,y) point around which the rotation is performed is the (x,y) midpoint of the line in question
+                        // For reference, the syntax of the SVG rotate transform in pseudo-BNF form is:
+                        //      transform='rotate(<degrees>, <x_origin>, <y_origin>)'
+                        retval = 'rotate(-90,' ;
+                        retval += d.x1 + ((d.x2 - d.x1)/2);
+                        retval += ',';
+                        retval += d.y1 + ((d.y2 - d.y1)/2);
+                        retval += ')' ;
+                    }
+                    return retval;
+                }) 
+            .text('');
+    
+    var retval = { lines : svgRouteSegs, volume_txt : svgVolumeText };
     return retval;
 } // generateSvgWireframe()
 
@@ -140,16 +301,26 @@ function symbolizeSvgWireframe(vizWireframe, metric) {
     }
     vizWireframe.lines
         .style("stroke", function(d, i) { 
-            var _DEBUG_HOOK = 0;
             var retval = colorPalette(d[metric]);
-            console.log('Segment ' + d['unique_id'] + ' color: ' + retval);
+            // console.log('Segment ' + d['unique_id'] + ' color: ' + retval);
             return retval;
             }) 
         .style("stroke-width", function(d, i) { return widthPalette(d[metric]); });
         
-   //  vizWireframe['volumeText']
-            // 'Label' for NO DATA values should be blank
-        // .text(function(d, i) { return (d.volumes[metric] <= 0) ? '' : d.volumes[metric].toLocaleString(); });    
+   vizWireframe.volume_txt
+        // 'Label' for NO DATA values should be blank
+        .text(function(d, i) { 
+            var retval;
+            // Do not 'lablel':
+            //     1. segments with NO DATA values (i.e., <= 0)
+            //     2. segments with type 'ramp_hov'
+            if (d[metric] <= 0 || d.type == 'ramphov') {
+                retval = '';
+            } else {
+                retval = d[metric].toLocaleString();
+            }
+            return retval;
+        });    
     
 } // symbolizeSvgWireframe()
 
@@ -182,45 +353,3 @@ function initMap(data) {
     // Larry and Sergey: How did you let this one through the cracks??
     map.setCenter(new google.maps.LatLng(lat + 0.000000001, lng + 0.000000001));
 } // initMap()
-
-
-/*
-function drawPolylineFeature(lineFeature, gMap, style) {
-    var gmPolyline = {}, aFeatCoords = [], point = {}, aAllPoints = [];
-    var i, j;
-    if (lineFeature.geometry.type === 'MultiLineString') {
-        // console.log('Rendering MultiLintString feature.');
-        aFeatCoords = lineFeature.geometry.coordinates;
-        for (i = 0; i < aFeatCoords.length; i++) {
-            aAllPoints = [];
-            // Render each LineString in the MultiLineString individually
-            for (j = 0; j < aFeatCoords[i].length; j++) {
-                aCoord = aFeatCoords[i][j];
-                point = new google.maps.LatLng({ 'lat': aCoord[1], 'lng': aCoord[0] });
-                aAllPoints.push(point);
-            } // for j in aFeatCoords[i]
-            gmPolyline = new google.maps.Polyline({ path            : aAllPoints,
-                                                    map             : gMap,
-                                                    strokeColor     : style.strokeColor,
-                                                    strokeOpacity   : style.strokeOpacity,
-                                                    strokeWeight    : style.strokeWeight });
-        } // for i in aFeatureCoords.length
-    } else if (lineFeature.geometry.type === 'LineString') {
-        // console.log('Rendering LineString feature.');
-        aFeatCoords = lineFeature.geometry.coordinates;
-        for (i = 0; i < aFeatCoords.length; i++ ) {
-            aCoord = aFeatCoords[i];
-            point = new google.maps.LatLng({ 'lat': aCoord[1], 'lng': aCoord[0] });
-            aAllPoints.push(point);
-        } // for i in aFeatureCoords.length
-        gmPolyline = new google.maps.Polyline({ path            : aAllPoints,
-                                                map             : gMap,
-                                                strokeColor     : style.strokeColor,
-                                                strokeOpacity   : style.strokeOpacity,
-                                                strokeWeight    : style.strokeWeight });
-    } else {
-        console.log('Feature has unrecognized geometry type: ' + lineFeature.geometry.type);
-        return;
-    }
-} //drawPolylineFeature()
-*/

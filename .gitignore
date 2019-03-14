@@ -1,4 +1,4 @@
 # .gitignore
 data/wireframe
 data/volumes
-libs
+libs/*

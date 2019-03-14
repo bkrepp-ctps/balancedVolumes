@@ -9,7 +9,11 @@
 	// *** Public API of the library begins here. ***
 	return ctpsGoogleMapsUtils = {
 		version : "1.0",
-        //
+        // function: drawPolylineFeature
+        // parameters: 1. polylineFeature (GeoJSON)
+        //             2. GoogleMaps map object
+        //             3. object containing styling info
+        // return value: the GoogleMaps polyline feature added to the map
         drawPolylineFeature : function(lineFeature, gMap, style) {
             var gmPolyline = {}, aFeatCoords = [], point = {}, aAllPoints = [];
             var i, j;
@@ -44,13 +48,18 @@
                                                         strokeOpacity   : style.strokeOpacity,
                                                         strokeWeight    : style.strokeWeight });
             } else {
-                console.log('Feature has unrecognized geometry type: ' + lineFeature.geometry.type);
-                return;
+                console.log('Feature has unrecognized geometry type: ' + lineFeature.geometry.type); 
             }
+            return gmPolyline;
         }, //drawPolylineFeature()
         //
+        // function: drawPolygonFeature
+        // parameters: 1. polygonFeature (GeoJSON)
+        //             2. GoogleMaps map object
+        //             3. object containing styling info
+        // return value: the GoogleMaps polygon feature added to the map
         drawPolygonFeature : function (polygonFeature, gMap, style) {
-            var i, j, k, l, name, pt, part, path, paths;
+            var i, j, k, l, name, pt, part, path, paths, gmPolygon = {};
             name = polygonFeature.properties['name'];
             if (polygonFeature.geometry.type == 'MultiPolygon' ) {
                 paths = [];
@@ -66,7 +75,7 @@
                         paths.push(path);
                     } 
                 } 
-                polygon = new google.maps.Polygon({
+                gmPolygon = new google.maps.Polygon({
                     paths           : paths,
                     strokeColor     : style.strokeColor,
                     strokeOpacity   : style.strokeOpacity,
@@ -74,7 +83,7 @@
                     fillColor       : style.fillColor,
                     fillOpacity     : style.fillOpacity                            
                 });               
-                polygon.setMap(gMap);                
+                gmPolygon.setMap(gMap);                
             } else {
             // geometry.type == 'Polygon'
                 path = [];
@@ -83,7 +92,7 @@
                            lat : polygonFeature.geometry.coordinates[0][j][1] };
                     path.push(pt);
                 } 
-                polygon = new google.maps.Polygon({
+                gmPolygon = new google.maps.Polygon({
                     paths           : path,
                     strokeColor     : style.strokeColor,
                     strokeOpacity   : style.strokeOpacity,
@@ -91,8 +100,9 @@
                     fillColor       : style.fillColor,
                     fillOpacity     : style.fillOpacity                            
                 });
-                polygon.setMap(gMap);
-            } // end-if over geometry.type    
+                gmPolygon.setMap(gMap);
+            } // end-if over geometry.type   
+            return gmPolygon;
         } // drawPolygonFeature())
 	}; // return value (i.e., API object)
 })();
