@@ -144,25 +144,17 @@ function generateSvgWireframe(wireframe_data, div_id, year) {
                         retval = d.x1; // + 10;
                         break;
                     case 'rampleft':
+                        // Fallthrough is deliberate
+                    case 'rampleftmain':
                         // Since the ramp is to the left, use the x-coordinate with the lesser value
                         tmp = (d.x1 < d.x2) ? d.x1 - 10 : d.x2 - 10;
                         retval = tmp;
-                        break;
+                        break;                   
                     case 'rampright': 
                         // Since the ramp is the right, use the x-coordinat with the greater value
                         tmp = (d.x1 > d.x2) ? d.x1 + 10 : d.x2 + 10;
                         retval = tmp;
                         break;
-                    /* OLD CODE - common with 'rampleft' 
-                        if (d.x1 === mainline_xOffset) {
-                            // (x2,y2) is the "lose end" of the ramp
-                            retval = d.x2;
-                        } else {
-                            // (x1,y1) is the "loose end" of the ramp
-                            retval = d.x1;
-                        }
-                        return retval;                        
-                    */
                     case 'ramphov':
                         // Fallthrough is deliberate
                     default:
@@ -191,8 +183,13 @@ function generateSvgWireframe(wireframe_data, div_id, year) {
                         retval = d.y1 + ((d.y2 - d.y1)/2);     
                         break;
                     case 'rampleft':
-                        // Since the ramp is to the left, the x-coordinate with the lesser value indicates the 'loose end' of the ramp
+                         // Since the ramp is to the left, the x-coordinate with the lesser value indicates the 'loose end' of the ramp
                         tmp = (d.x1 < d.x2) ? d.y1 - 10 : d.y2 - 10;
+                        retval = tmp;
+                        break;              
+                    case 'rampleftmain':
+                        // Place the label below the 'loose end' of 'vertical ramps'
+                        tmp = (d.y1 > d.y2) ? d.y1 + 10 : d.y2 + 10;
                         retval = tmp;
                         break;
                     case 'rampright': 
@@ -200,19 +197,6 @@ function generateSvgWireframe(wireframe_data, div_id, year) {
                         tmp = (d.x1 > d.x2) ? d.y1 + 10 : d.y2 + 10;
                         retval = tmp;
                         break;
-                    /* OLD CODE - common with 'rampleft' 
-                        // Note: if (d.x1 == mainine_xOffset) then (x2,y2) is the "lose end" of the ramp
-                        //       else (x1,y1) is the "loose end" of the ramp
-                        //
-                        if (d.x1 === mainline_xOffset) {
-                            // (x2,y2) is the "lose end" of the ramp
-                            retval = d.y2;
-                        } else {
-                            // (x1,y1) is the "loose end" of the ramp
-                            retval = d.y1;
-                        } 
-                        return retval;
-                    */
                     case 'ramphov':
                         // Fallthrough is deliberate
                     default:
@@ -230,6 +214,7 @@ function generateSvgWireframe(wireframe_data, div_id, year) {
                     case 'mainright':
                     case 'hovright':
                     case 'hovleft':
+                    case 'rampleftmain':
                         // Fallthroughs above are deliberate
                         retval = "middle";
                         break;
@@ -313,7 +298,7 @@ function symbolizeSvgWireframe(vizWireframe, metric) {
             var retval;
             // Do not 'lablel':
             //     1. segments with NO DATA values (i.e., <= 0)
-            //     2. segments with type 'ramp_hov'
+            //     2. segments with type 'ramphov'
             if (d[metric] <= 0 || d.type == 'ramphov') {
                 retval = '';
             } else {
