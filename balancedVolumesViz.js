@@ -63,7 +63,15 @@ function initializeApp(error, results) {
     symbolizeSvgWireframe(VIZ.nb, 'awdt_2018');    
     
     // Initialize Google Map
-    initMap(DATA); // No need to pass DATA as parm, but doing so anyway     
+    initMap(DATA); // No need to pass DATA as parm, but doing so anyway  
+
+    // Arm event handler for combo box
+    $('#select_metric').change(function(e) {
+        var metric = $("#select_metric option:selected").attr('metric');
+        symbolizeSvgWireframe(VIZ.sb, metric);
+        symbolizeSvgWireframe(VIZ.nb, metric);
+        var _DEBUG_HOOK = 0;
+    });
 } // initializeApp
 
 function generateSvgWireframe(wireframe_data, div_id, year) {	
@@ -92,6 +100,12 @@ function generateSvgWireframe(wireframe_data, div_id, year) {
             .on("click", function(d, i) 
                 { 
                     console.log('On-click handler: ' + d.unique_id); 
+                    // HACK!
+                    if (d.unique_id === 'R12111') { 
+                        d.unique_id = 'R12193'; 
+                    } else if (d.unique_id === 'R12117_01') {
+                        d.unique_id = 'R12116';
+                    }
                     var lineFeature = _.find(DATA.geojson.features, function(f) { return f.properties['unique_id'] == d.unique_id; } );
                     if (lineFeature == null) {
                         alert('Segment ' + d.unique_id + ' not found in GeoJSON.');
