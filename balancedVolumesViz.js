@@ -99,14 +99,8 @@ function generateSvgWireframe(wireframe_data, div_id, year) {
             // .style("stroke-width", "2px")
             .on("click", function(d, i) 
                 { 
-                    console.log('On-click handler: ' + d.unique_id); 
-                    // HACK!
-                    if (d.unique_id === 'R12111') { 
-                        d.unique_id = 'R12193'; 
-                    } else if (d.unique_id === 'R12117_01') {
-                        d.unique_id = 'R12116';
-                    }
-                    var lineFeature = _.find(DATA.geojson.features, function(f) { return f.properties['unique_id'] == d.unique_id; } );
+                    console.log('On-click handler: unique_id = ' + d.unique_id + ' data_id = ' + d.data_id); 
+                    var lineFeature = _.find(DATA.geojson.features, function(f) { return f.properties['data_id'] == d.data_id; } );
                     if (lineFeature == null) {
                         alert('Segment ' + d.unique_id + ' not found in GeoJSON.');
                         console.log('Segment ' + d.unique_id + ' not found in GeoJSON.');
