@@ -269,7 +269,7 @@ function generateSvgWireframe(wireframe_data, div_id, year) {
         .enter()
         .append("text")
             .attr("id", function(d, i) { return 'label_txt_' +d.unique_id; })
-            .attr("class", "label_txt")
+            .attr("class", "label_text")
             .attr("font-size", 12)
             .attr("x", function(d, i) { 
                 var retval;
@@ -285,10 +285,20 @@ function generateSvgWireframe(wireframe_data, div_id, year) {
                     var retval; 
                     retval = "start";   // temp hack during dev - may be OK for prod
                     return retval;
-            })
-            .text(''); // Placeholder value
+            });
+    // First line of label text
+    var line1 = svgLabelText.append("tspan")
+        .attr("class", "label_tspan_1")
+        .text(''); // Placeholder     
+    // Second line of label text
+    var line2 = svgLabelText.append("tspan")
+        .attr("class", "label_tspan_2")
+        .attr("x", 5)
+        .attr("y", function(d, i) { return d.y1; })
+        .attr("dy", 10)
+        .text(''); // Placeholder
             
-    var retval = { lines : svgRouteSegs, volume_txt : svgVolumeText, label_txt : svgLabelText };
+    var retval = { lines : svgRouteSegs, volume_txt : svgVolumeText, label_txt_1 : line1, label_txt_2 : line2 };
     return retval;
 } // generateSvgWireframe()
 
@@ -342,10 +352,16 @@ function symbolizeSvgWireframe(vizWireframe, metric) {
             return retval;
         });    
         
-    vizWireframe.label_txt
+    vizWireframe.label_txt_1
         .text(function(d,i) {
             var retval;
             retval = d.description;
+            return retval;
+        });
+    vizWireframe.label_txt_2
+        .text(function(d,i) {
+            var retval;
+            retval = d.description2;
             return retval;
         });
     
