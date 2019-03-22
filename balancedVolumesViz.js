@@ -11,8 +11,8 @@ var DATA = {};
 VIZ = {};
 // Google Maps map object
 var map; 
-// Polyline features (should only ever be one) on GoogleMap
-aPolylines = [];
+// 'Southbound' and 'northbound' polyline features on GoogleMap
+aPolylines_sb = [], aPolylines_nb = [];
 
 $(document).ready(function() {
     var q = d3.queue()
@@ -100,18 +100,32 @@ function generateSvgWireframe(wireframe_data, div_id, year) {
             .on("click", function(d, i) 
                 { 
                     console.log('On-click handler: unique_id = ' + d.unique_id + ' data_id = ' + d.data_id); 
+                    var color;
                     var lineFeature = _.find(DATA.geojson.features, function(f) { return f.properties['data_id'] == d.data_id; } );
                     if (lineFeature == null) {
                         alert('Segment ' + d.unique_id + ' not found in GeoJSON.');
                         console.log('Segment ' + d.unique_id + ' not found in GeoJSON.');
                         return;
                     }
-                    // First, clear any polylines currently on the map
-                    aPolylines.forEach(function(pl) { pl.setMap(null); });
+                    if (lineFeature.properties.backbone_rte === "i93_sr3_sb") {
+                        // Clear any 'southbound' polylines on the map
+                        aPolylines_sb.forEach(function(pl) { pl.setMap(null); });  
+                        color = '#ff0000'
+                    } else if (lineFeature.properties.backbone_rte === "i93_sr3_nb")  {
+                        // Clear any 'northbound' polylines on the map
+                        aPolylines_nb.forEach(function(pl) { pl.setMap(null); });  
+                        color = '#0000ff'
+                    } else {
+                        return;
+                    }    
                     // Create pollyline feature and add it to the map
-                    var style = { strokeColor : '#ff0000', strokeOpacity : 0.7, strokeWeight: 3.0 }
+                    var style = { strokeColor : color, strokeOpacity : 0.7, strokeWeight: 3.0 }
                     var polyline = ctpsGoogleMapsUtils.drawPolylineFeature(lineFeature, map, style);
-                    aPolylines.push(polyline);
+                    if (lineFeature.properties.backbone_rte === "i93_sr3_sb") {
+                        aPolylines_sb.push(polyline);
+                    } else {
+                        aPolylines_nb.push(polyline);
+                    }
                     // Now pan/zoom map to selected feature
                     var bbox = turf.bbox(lineFeature);
                     // Return value of turf.bbox() has the form: [minX, minY, maxX, maxY]
