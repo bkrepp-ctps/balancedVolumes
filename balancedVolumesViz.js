@@ -126,12 +126,12 @@ function generateSvgWireframe(wireframe_data, div_id, year) {
     var volumeText_xOffset = 250;
     
     var svgVolumeText = svgContainer
-        .selectAll("text")
+        .selectAll("text.vol_txt")
         .data(wireframe_data)
         .enter()
         .append("text")
-            .attr("id", function(d, i) { return 'txt_' +d.unique_id; })
-            .attr("class", function(d, i) { return 'txt_' + d.type; })
+            .attr("id", function(d, i) { return 'vol_txt_' +d.unique_id; })
+            .attr("class", "vol_txt")
             // .attr("x", function(d, i) { return d.x1 + ((d.x2 - d.x1)/2); })
             .attr("x", function(d, i) {
                     var tmp, retval;
@@ -259,9 +259,36 @@ function generateSvgWireframe(wireframe_data, div_id, year) {
                     }
                     return retval;
                 }) 
-            .text('');
-    
-    var retval = { lines : svgRouteSegs, volume_txt : svgVolumeText };
+            .text('');  // Placeholder value
+
+
+    var filtered_wireframe_data = _.filter(wireframe_data, function(rec) { return (rec.type === 'rampleft' || rec.type === 'rampright'); });
+    var svgLabelText = svgContainer
+        .selectAll("text.label_txt")
+        .data(filtered_wireframe_data)
+        .enter()
+        .append("text")
+            .attr("id", function(d, i) { return 'label_txt_' +d.unique_id; })
+            .attr("class", "label_txt")
+            .attr("font-size", 12)
+            .attr("x", function(d, i) { 
+                var retval;
+                retval = 5;     // temp hack during dev
+                return retval;
+             })
+            .attr("y", function(d, i) { 
+                var retval;
+                retval = d.y1;  // temp hack during dev
+                return retval;
+            })
+            .attr("text-anchor", function(d, i) {
+                    var retval; 
+                    retval = "start";   // temp hack during dev - may be OK for prod
+                    return retval;
+            })
+            .text(''); // Placeholder value
+            
+    var retval = { lines : svgRouteSegs, volume_txt : svgVolumeText, label_txt : svgLabelText };
     return retval;
 } // generateSvgWireframe()
 
@@ -314,6 +341,13 @@ function symbolizeSvgWireframe(vizWireframe, metric) {
             }
             return retval;
         });    
+        
+    vizWireframe.label_txt
+        .text(function(d,i) {
+            var retval;
+            retval = d.description;
+            return retval;
+        });
     
 } // symbolizeSvgWireframe()
 
