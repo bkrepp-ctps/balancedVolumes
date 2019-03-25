@@ -76,15 +76,21 @@ function initializeApp(error, results) {
 
 function generateSvgWireframe(wireframe_data, div_id, year) {	
     var verticalPadding = 10;
-    var width = 380;
+    var width = 450;
     var height = d3.max([d3.max(wireframe_data, function(d) { return d.y1; }),
                          d3.max(wireframe_data, function(d) { return d.y2; })]) + verticalPadding; 
     
-   var svgContainer = d3.select('#' + div_id).append("svg")
-    .attr("width", width)
-    .attr("height", height);
+   var svgContainer = d3.select('#' + div_id)
+        .append("svg")
+            .attr("width", width)
+            .attr("height", height);
 
-   var svgRouteSegs = svgContainer
+    // The x-offset of the main barrel is 150; with an SVG drawing area width of 250, add 75px to center the main barrel.
+    var svgRouteSegs_g = svgContainer
+        .append("g")
+            .attr("transform", "translate(75,0)");  
+            
+    var svgRouteSegs = svgRouteSegs_g     
         .selectAll("line")
         .data(wireframe_data)
         .enter()
@@ -139,7 +145,11 @@ function generateSvgWireframe(wireframe_data, div_id, year) {
     var mainline_xOffset = 150;
     var volumeText_xOffset = 250;
     
-    var svgVolumeText = svgContainer
+    var svgVolumeText_g = svgContainer
+            .append("g")
+            .attr("transform", "translate(75,0)");  
+    
+    var svgVolumeText = svgVolumeText_g
         .selectAll("text.vol_txt")
         .data(wireframe_data)
         .enter()
@@ -277,7 +287,10 @@ function generateSvgWireframe(wireframe_data, div_id, year) {
 
 
     var filtered_wireframe_data = _.filter(wireframe_data, function(rec) { return (rec.type === 'rampleft' || rec.type === 'rampright'); });
-    var svgLabelText = svgContainer
+    
+    var svgLabelText_g = svgContainer.append("g");
+    
+    var svgLabelText = svgLabelText_g
         .selectAll("text.label_txt")
         .data(filtered_wireframe_data)
         .enter()
