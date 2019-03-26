@@ -85,7 +85,8 @@ function generateSvgWireframe(wireframe_data, div_id, year) {
             .attr("width", width)
             .attr("height", height);
 
-    // The x-offset of the main barrel is 150; with an SVG drawing area width of 250, add 75px to center the main barrel.
+    // The x-offset of the main barrel is 150;
+    // Given an SVG drawing area width of 250, translate x +75px to center the main barrel
     var svgRouteSegs_g = svgContainer
         .append("g")
             .attr("transform", "translate(75,0)");  
@@ -101,8 +102,6 @@ function generateSvgWireframe(wireframe_data, div_id, year) {
             .attr("y1", function(d, i) { return d.y1; })
             .attr("x2", function(d, i) { return d.x2; })
             .attr("y2", function(d, i) { return d.y2; })
-            // .style("stroke", function(d, i) { return (( d.type === 'ramp') ? "red" : "blue"); })
-            // .style("stroke-width", "2px")
             .on("click", function(d, i) 
                 { 
                     console.log('On-click handler: unique_id = ' + d.unique_id + ' data_id = ' + d.data_id); 
@@ -148,7 +147,6 @@ function generateSvgWireframe(wireframe_data, div_id, year) {
     var svgVolumeText_g = svgContainer
             .append("g")
             .attr("transform", "translate(75,0)");  
-    
     var svgVolumeText = svgVolumeText_g
         .selectAll("text.vol_txt")
         .data(wireframe_data)
@@ -183,7 +181,7 @@ function generateSvgWireframe(wireframe_data, div_id, year) {
                         retval = tmp;
                         break;                   
                     case 'rampright': 
-                        // Since the ramp is the right, use the x-coordinat with the greater value
+                        // Since the ramp is the right, use the x-coordinate with the greater value
                         tmp = (d.x1 > d.x2) ? d.x1 + 10 : d.x2 + 10;
                         retval = tmp;
                         break;
@@ -285,11 +283,8 @@ function generateSvgWireframe(wireframe_data, div_id, year) {
                 }) 
             .text('');  // Placeholder value
 
-
     var filtered_wireframe_data = _.filter(wireframe_data, function(rec) { return (rec.type === 'rampleft' || rec.type === 'rampright'); });
-    
     var svgLabelText_g = svgContainer.append("g");
-    
     var svgLabelText = svgLabelText_g
         .selectAll("text.label_txt")
         .data(filtered_wireframe_data)
