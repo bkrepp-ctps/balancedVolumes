@@ -27,31 +27,22 @@
 <div id="wrapper">
     <span>
         Select metric:
-        <select id="select_metric">
-            <option metric="awdt_2018"selected>2018 Average Weekday Daily Traffic</option>
-            <option metric="peak_2018_6_to_7_am">2018 Volume 6 to 7 AM</option>
-            <option metric="peak_2018_7_to_8_am">2018 Volume 7 to 8 AM</option>
-            <option metric="peak_2018_8_to_9_am">2018 Volume 8 to 9 AM</option>
-            <option metric="peak_2018_9_to_10_am">2018 Volume 9 to 10 AM</option>
-            <option metric="peak_2018_3_to_4_pm">2018 Volume 3 to 4 PM</option>
-            <option metric="peak_2018_4_to_5_pm">2018 Volume 4 to 5 PM</option>
-            <option metric="peak_2018_5_to_6_pm">2018 Volume 5 to 6 PM</option>
-            <option metric="peak_2018_6_to_7_pm">2018 Volume 6 to 7 PM</option>        
-            <option metric="awdt_2010">2010 Average Weekday Daily Traffic</option>
-            <option metric="peak_2010_6_to_7_am">2010 Volume 6 to 7 AM</option>
-            <option metric="peak_2010_7_to_8_am">2010 Volume 7 to 8 AM</option>
-            <option metric="peak_2010_8_to_9_am">2010 Volume 8 to 9 AM</option>
-            <option metric="peak_2010_9_to_10_am">2010 Volume 9 to 10 AM</option>
-            <option metric="peak_2010_3_to_4_pm">2010 Volume 3 to 4 PM</option>
-            <option metric="peak_2010_4_to_5_pm">2010 Volume 4 to 5 PM</option>
-            <option metric="peak_2010_5_to_6_pm">2010 Volume 5 to 6 PM</option>
-            <option metric="peak_2010_6_to_7_pm">2010 Volume 6 to 7 PM</option>
+        <select id="select_metric" class="app_select_box">
+            <option metric="awdt"selected>Average Weekday Daily Traffic</option>
+            <option metric="6_to_7_am">2018 Volume 6 to 7 AM</option>
+            <option metric="7_to_8_am">2018 Volume 7 to 8 AM</option>
+            <option metric="8_to_9_am">2018 Volume 8 to 9 AM</option>
+            <option metric="9_to_10_am">2018 Volume 9 to 10 AM</option>
+            <option metric="3_to_4_pm">2018 Volume 3 to 4 PM</option>
+            <option metric="4_to_5_pm">2018 Volume 4 to 5 PM</option>
+            <option metric="5_to_6_pm">2018 Volume 5 to 6 PM</option>
+            <option metric="6_to_7_pm">2018 Volume 6 to 7 PM</option>        
         </select>
         &nbsp;&nbsp;Select year:
-        <select id="select_year">
+        <select id="select_year" class="app_select_box">
             <option year="2018" selected>2018</option>
             <option year="2010">2010</option>
-            <option year="2018_vs_2010">Change between 2018 and 2010</option>
+            <!-- <option year="delta_2018_2010">Change between 2018 and 2010</option> -->
         </select>
     </span>
     <!-- Gross, but effective, table layout... for now -->

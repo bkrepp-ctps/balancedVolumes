@@ -57,19 +57,20 @@ function initializeApp(error, results) {
     
     // Generate wireframe for southbound route
     VIZ.sb = generateSvgWireframe(DATA.sb_wireframe, 'sb_viz', 0 /* placeholder for now */);
-    symbolizeSvgWireframe(VIZ.sb, 'awdt_2018');
+    symbolizeSvgWireframe(VIZ.sb, 'awdt', '2018');
     // Generate wireframe for northbound route
     VIZ.nb = generateSvgWireframe(DATA.nb_wireframe, 'nb_viz', 0 /* placeholder for now */);  
-    symbolizeSvgWireframe(VIZ.nb, 'awdt_2018');    
+    symbolizeSvgWireframe(VIZ.nb, 'awdt', '2018');    
     
     // Initialize Google Map
     initMap(DATA); // No need to pass DATA as parm, but doing so anyway  
 
-    // Arm event handler for combo box
-    $('#select_metric').change(function(e) {
+    // Arm event handler for combo boxes
+    $('.app_select_box').change(function(e) {
         var metric = $("#select_metric option:selected").attr('metric');
-        symbolizeSvgWireframe(VIZ.sb, metric);
-        symbolizeSvgWireframe(VIZ.nb, metric);
+        var year = $("#select_year option:selected").attr('year');
+        symbolizeSvgWireframe(VIZ.sb, metric, year);
+        symbolizeSvgWireframe(VIZ.nb, metric, year);
         var _DEBUG_HOOK = 0;
     });
 } // initializeApp
@@ -343,8 +344,17 @@ var widthPalettes = {
 };
 
 // Work-in-progress 3/11/2019
-function symbolizeSvgWireframe(vizWireframe, metric) {
-    if (metric.search('awdt') !== -1) {
+function symbolizeSvgWireframe(vizWireframe, metric, year) {
+    var attrName, colorPalette, widthPalette;
+    if (metric === 'awdt') {
+        attrName = metric + '_' + year;
+    } else {
+        attrName = 'peak' + '_' + year + '_' + metric;
+    }
+    
+    console.log('attrName = ' + attrName);
+    
+    if (attrName.search('awdt') !== -1) {
         colorPalette = colorPalettes.awdt;
         widthPalette = widthPalettes.awdt;
     } else {
@@ -353,23 +363,23 @@ function symbolizeSvgWireframe(vizWireframe, metric) {
     }
     vizWireframe.lines
         .style("stroke", function(d, i) { 
-            var retval = colorPalette(d[metric]);
+            var retval = colorPalette(d[attrName]);
             // console.log('Segment ' + d['unique_id'] + ' color: ' + retval);
             return retval;
             }) 
-        .style("stroke-width", function(d, i) { return widthPalette(d[metric]); });
+        .style("stroke-width", function(d, i) { return widthPalette(d[attrName]); });
         
    vizWireframe.volume_txt
-        // 'Label' for NO DATA values should be blank
+        // Textual display of NO DATA values should be blank
         .text(function(d, i) { 
             var retval;
             // Do not 'lablel':
             //     1. segments with NO DATA values (i.e., <= 0)
             //     2. segments with type 'ramphov'
-            if (d[metric] <= 0 || d.type == 'ramphov') {
+            if (d[attrName] <= 0 || d.type == 'ramphov') {
                 retval = '';
             } else {
-                retval = d[metric].toLocaleString();
+                retval = d[attrName].toLocaleString();
             }
             return retval;
         });    
@@ -386,7 +396,6 @@ function symbolizeSvgWireframe(vizWireframe, metric) {
             retval = d.description2;
             return retval;
         });
-    
 } // symbolizeSvgWireframe()
 
 function initMap(data) {
