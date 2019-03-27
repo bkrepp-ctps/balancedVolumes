@@ -343,59 +343,116 @@ var widthPalettes = {
                     .range(["2px", "3px", "4px", "5px", "6px", "7px"])
 };
 
-// Work-in-progress 3/11/2019
+// function: symbolizeSvgWireframe
+// parameters:
+//      vizWireframe : 'wireframe' of SVG <line> elements, as well as assocated <text. and <tspan> elements for labels
+//      metric : the metric to be displayed, e.g., 'awdt' or '6_to_7_am' (6 - 7 am peak period volume)
+//      year : may be either the string for a single year, e.g., "2018" or a string beginning with "delta", 
+//             followed an underscore, and the strings for 2 years delimited by another underscore, e.g., "delta_2018_2010".
+//             The former is self-explanatory; the latter indicates that a comparison of the data for the relevant metric for
+//             the 2 years (first - last) is to be rendered.
+//  return value : none
 function symbolizeSvgWireframe(vizWireframe, metric, year) {
-    var attrName, colorPalette, widthPalette;
-    if (metric === 'awdt') {
-        attrName = metric + '_' + year;
-    } else {
-        attrName = 'peak' + '_' + year + '_' + metric;
-    }
+    // Work-in-progress for function to extract either singleton or "delta" data attribute values,
+    // which could simplify the code for 'symbolizeSvgWireframe' greatly.
+    // Currently not used. 
+    var get = function(obj, attr1, attr2) {
+        var _DEBUG_HOOK = 0;
+        if (arguments.length < 2 || arguments.length > 3) return null;
+        if (arguments.length === 2) {
+            return obj[attr1];
+        } else {
+            return obj[attr1] - obj[attr2];
+        }
+    };
     
-    console.log('attrName = ' + attrName);
+    var attrName1, attrName2, parts, year1, year2, colorPalette, widthPalette;    
     
-    if (attrName.search('awdt') !== -1) {
-        colorPalette = colorPalettes.awdt;
-        widthPalette = widthPalettes.awdt;
+    // Bifurcated world - there HAS to be a more elegant way to do this...
+    if (year.includes('delta')) {
+        // Data value to be displayed is the delta between two values in the table, i.e., needs to be computed
+        parts = year.split('_');
+        year1 = parts[1], year2 = parts[2];
+        if (metric === 'awdt') {
+            attrName1 = metric + '_' + year1;
+            attrName2 = metric + '_' + year2;
+        } else {
+            attrName1 = 'peak_' + year1 + '_' + metric;
+            attrName2 = 'peak_' + year2 + '_' + metric;
+        }
+        console.log('attrName1 = ' + attrName1 + ' attrName2 = ' + attrName2);
+        if (attrName1.search('awdt') !== -1) {
+            colorPalette = colorPalettes.awdt;
+            widthPalette = widthPalettes.awdt;
+        } else {
+            colorPalette = colorPalettes.hourly;
+            widthPalette = widthPalettes.hourly;        
+        } 
+        vizWireframe.lines
+            .style("stroke", function(d, i) { 
+                var retval = colorPalette(d[attrName1] - d[attrName2]);
+                return retval;
+                }) 
+            .style("stroke-width", function(d, i) { return widthPalette(d[attrName1] - d[attrName2]); });
+            
+       vizWireframe.volume_txt
+            // Textual display of NO DATA values should be blank
+            .text(function(d, i) { 
+                var retval;
+                // Do not 'lablel':
+                //     1. segments with NO DATA values (i.e., <= 0)
+                //     2. segments with type 'ramphov'
+                if (d[attrName1] <= 0 || d.type == 'ramphov') {         // *** This statement needs attention
+                    retval = '';
+                } else {
+                    retval = (d[attrName1] - d[attrName2]).toLocaleString();
+                }
+                return retval;
+            });
     } else {
-        colorPalette = colorPalettes.hourly;
-        widthPalette = widthPalettes.hourly;        
-    }
-    vizWireframe.lines
-        .style("stroke", function(d, i) { 
-            var retval = colorPalette(d[attrName]);
-            // console.log('Segment ' + d['unique_id'] + ' color: ' + retval);
-            return retval;
-            }) 
-        .style("stroke-width", function(d, i) { return widthPalette(d[attrName]); });
+        // Simple volume data contained in table - no computation necesssary, just fetch value
+        if (metric === 'awdt') {
+            attrName1 = metric + '_' + year;
+        } else {
+            attrName1 = 'peak' + '_' + year + '_' + metric;
+        }
+        // console.log('attrName1 = ' + attrName1);
+        if (attrName1.search('awdt') !== -1) {
+            colorPalette = colorPalettes.awdt;
+            widthPalette = widthPalettes.awdt;
+        } else {
+            colorPalette = colorPalettes.hourly;
+            widthPalette = widthPalettes.hourly;        
+        }    
+        vizWireframe.lines
+            .style("stroke", function(d, i) { 
+                var retval = colorPalette(d[attrName1]);
+                return retval;
+                }) 
+            .style("stroke-width", function(d, i) { return widthPalette(d[attrName1]); });
+            
+       vizWireframe.volume_txt
+            // Textual display of NO DATA values should be blank
+            .text(function(d, i) { 
+                var retval;
+                // Do not 'lablel':
+                //     1. segments with NO DATA values (i.e., <= 0)
+                //     2. segments with type 'ramphov'
+                if (d[attrName1] <= 0 || d.type == 'ramphov') {
+                    retval = '';
+                } else {
+                    retval = d[attrName1].toLocaleString();
+                }
+                return retval;
+            }); 
+    } // if-else on whether requested metric needs to be computed or not
         
-   vizWireframe.volume_txt
-        // Textual display of NO DATA values should be blank
-        .text(function(d, i) { 
-            var retval;
-            // Do not 'lablel':
-            //     1. segments with NO DATA values (i.e., <= 0)
-            //     2. segments with type 'ramphov'
-            if (d[attrName] <= 0 || d.type == 'ramphov') {
-                retval = '';
-            } else {
-                retval = d[attrName].toLocaleString();
-            }
-            return retval;
-        });    
-        
+    // Regardless of whether we're displaying values contained in the table or computed values,
+    // these are just descriptive labels and are displayed in the same way
     vizWireframe.label_txt_1
-        .text(function(d,i) {
-            var retval;
-            retval = d.description;
-            return retval;
-        });
+        .text(function(d,i) { return d.description; });
     vizWireframe.label_txt_2
-        .text(function(d,i) {
-            var retval;
-            retval = d.description2;
-            return retval;
-        });
+        .text(function(d,i) { return d.description2; });
 } // symbolizeSvgWireframe()
 
 function initMap(data) {
