@@ -38,7 +38,8 @@ function initializeApp(error, results) {
         rec.x1 = +rec.x1;
         rec.y1 = +rec.y1;
         rec.x2 = +rec.x2;
-        rec.y2 = +rec.y2;    
+        rec.y2 = +rec.y2;   
+        rec.showdesc = +rec.showdesc;
         [2018, 2010].forEach(function(year) {
             rec['awdt_' + year] = +rec['awdt_' + year];
             rec['peak_' + year + '_6_to_7_am']  = +rec['peak_' + year + '_6_to_7_am'];
@@ -56,10 +57,10 @@ function initializeApp(error, results) {
     DATA.nb_wireframe = nb_wireframe;
     
     // Generate wireframe for southbound route
-    VIZ.sb = generateSvgWireframe(DATA.sb_wireframe, 'sb_viz', 0 /* placeholder for now */);
+    VIZ.sb = generateSvgWireframe(DATA.sb_wireframe, 'sb_viz', true, 0 /* placeholder for now */);
     symbolizeSvgWireframe(VIZ.sb, 'awdt', '2018');
     // Generate wireframe for northbound route
-    VIZ.nb = generateSvgWireframe(DATA.nb_wireframe, 'nb_viz', 0 /* placeholder for now */);  
+    VIZ.nb = generateSvgWireframe(DATA.nb_wireframe, 'nb_viz', false, 0 /* placeholder for now */);  
     symbolizeSvgWireframe(VIZ.nb, 'awdt', '2018');    
     
     // Initialize Google Map
@@ -75,7 +76,17 @@ function initializeApp(error, results) {
     });
 } // initializeApp
 
-function generateSvgWireframe(wireframe_data, div_id, year) {	
+// function: generateSvgWireframe
+// parameters:
+//      wireframe_data - data from CSV file containing data on layout of the 'wireframe'
+//                       and the actual balanced volume data
+//      div_id - the ID of the HTML <div> into which to place the SVG elements
+//      yDir_is_routeDir - boolean flag indicating whether the route travels in the same
+//                         direction as increasing Y-values in the SVG space;
+//                         used to determine which end of SVG <line> elements for
+//                         ramps corresponds to the 'end' (i.e., tip) of the ramp
+//      year - not yet used
+function generateSvgWireframe(wireframe_data, div_id, yDir_is_routeDir, year) {	
     var verticalPadding = 10;
     var width = 450;
     var height = d3.max([d3.max(wireframe_data, function(d) { return d.y1; }),
@@ -91,7 +102,9 @@ function generateSvgWireframe(wireframe_data, div_id, year) {
     var svgRouteSegs_g = svgContainer
         .append("g")
             .attr("transform", "translate(75,0)");  
-            
+    
+    // 'wireframe' for the schematic route outline, consisting of SVG <line> elements
+    //
     var svgRouteSegs = svgRouteSegs_g     
         .selectAll("line")
         .data(wireframe_data)
@@ -124,7 +137,7 @@ function generateSvgWireframe(wireframe_data, div_id, year) {
                     } else {
                         return;
                     }    
-                    // Create pollyline feature and add it to the map
+                    // Create polyline feature and add it to the map
                     var style = { strokeColor : color, strokeOpacity : 0.7, strokeWeight: 3.0 }
                     var polyline = ctpsGoogleMapsUtils.drawPolylineFeature(lineFeature, map, style);
                     if (lineFeature.properties.backbone_rte === "i93_sr3_sb") {
@@ -145,6 +158,7 @@ function generateSvgWireframe(wireframe_data, div_id, year) {
     var mainline_xOffset = 150;
     var volumeText_xOffset = 250;
     
+    // SVG <text> elements for the balanced volume data itself
     var svgVolumeText_g = svgContainer
             .append("g")
             .attr("transform", "translate(75,0)");  
@@ -169,27 +183,29 @@ function generateSvgWireframe(wireframe_data, div_id, year) {
                         retval = d.x1 + 30;
                         break;
                     case 'hovleft':
-                        retval = d.x1; // - 10;
+                        retval = d.x1; 
                         break;
                     case 'hovright':
-                        retval = d.x1; // + 10;
+                        retval = d.x1;
                         break;
                     case 'rampleft':
-                        // Fallthrough is deliberate
-                    case 'rampleftmain':
-                        // Since the ramp is to the left, use the x-coordinate with the lesser value
+                         // Since the ramp is to the left, use the x-coordinate with the lesser value
                         tmp = (d.x1 < d.x2) ? d.x1 - 10 : d.x2 - 10;
                         retval = tmp;
+                        break;                    
+                    case 'rampleftmain':
+                        // These ramps are 'vertical' in the wireframe display; the 2 x-coordinates are identical
+                        retval = d.x1
                         break;                   
                     case 'rampright': 
-                        // Since the ramp is the right, use the x-coordinate with the greater value
+                        // Since the ramp is to the right, use the x-coordinate with the greater value
                         tmp = (d.x1 > d.x2) ? d.x1 + 10 : d.x2 + 10;
                         retval = tmp;
                         break;
                     case 'ramphov':
                         // Fallthrough is deliberate
                     default:
-                        // Unlabeled segments, e.g., HOV 'ramps' - x and y ccordinates are abritrary (since these segments are unlabeled)
+                        // Segments not 'labeled' with volume data, e.g., HOV 'ramps' - x and y ccordinates are abritrary (since these segments are unlabeled with data)
                         console.log(d.unique_id + ' : segment type is: ' + d.type);
                         retval = d.x1;
                         break;
@@ -203,15 +219,18 @@ function generateSvgWireframe(wireframe_data, div_id, year) {
                         retval = d.y1 + ((d.y2 - d.y1)/2);
                         break;
                     case 'mainleft':
-                        retval = d.y1 + ((d.y2 - d.y1)/2);     // TEMP - should be OK
+                        retval = d.y1 + ((d.y2 - d.y1)/2); 
                         break;
                     case 'mainright':
-                         retval = d.y1 + ((d.y2 - d.y1)/2);     // TEMP - should be OK
+                         retval = d.y1 + ((d.y2 - d.y1)/2);     
                         break;
                     case 'hovleft':
-                        // Fallthrough is deliberate
+                        // Note: We have to futz with the *Y*-coordinate because the text for 'hov{left,right}' segments is rotated
+                       retval = d.y1 + ((d.y2 - d.y1)/2) - 15;
+                       break;
                     case 'hovright':
-                        retval = d.y1 + ((d.y2 - d.y1)/2);     
+                        // Note: We have to futz with the *Y*-coordinate because the text for 'hov{left,right}' segments is rotated
+                        retval = d.y1 + ((d.y2 - d.y1)/2) + 15;  
                         break;
                     case 'rampleft':
                          // Since the ramp is to the left, the x-coordinate with the lesser value indicates the 'loose end' of the ramp
@@ -219,8 +238,8 @@ function generateSvgWireframe(wireframe_data, div_id, year) {
                         retval = tmp;
                         break;              
                     case 'rampleftmain':
-                        // Place the label below the 'loose end' of 'vertical ramps'
-                        tmp = (d.y1 > d.y2) ? d.y1 + 10 : d.y2 + 10;
+                        // Place the data value below the 'loose end' of 'vertical ramps'
+                        tmp = (d.y1 > d.y2) ? d.y1 + 20 : d.y2 + 20;
                         retval = tmp;
                         break;
                     case 'rampright': 
@@ -231,7 +250,7 @@ function generateSvgWireframe(wireframe_data, div_id, year) {
                     case 'ramphov':
                         // Fallthrough is deliberate
                     default:
-                        // Unlabeled segments, e.g., HOV 'ramps' - x and y ccordinates are abritrary (since these are unlabeled)
+                        // Segments not 'labeled' with volume data, e.g., HOV 'ramps' - x and y ccordinates are abritrary (since these segments are unlabeled with data)
                         retval = d.y1 + ((d.y2 - d.y1)/2);
                         break;
                     } // switch                   
@@ -258,7 +277,7 @@ function generateSvgWireframe(wireframe_data, div_id, year) {
                     case 'ramphov':
                         // Fallthrough is deliberate
                     default:
-                        // Unlabeled segments, e.g., HOV 'ramps' - text-anchor value is arbitrary (since these are unlabeled)
+                        // Segments not 'labeled' with volume data, e.g., HOV 'ramps' - text-anchor value is arbitrary (since these are unlabeled with data)
                         retval = "middle";
                         break;
                     }
@@ -284,24 +303,68 @@ function generateSvgWireframe(wireframe_data, div_id, year) {
                 }) 
             .text('');  // Placeholder value
 
-    var filtered_wireframe_data = _.filter(wireframe_data, function(rec) { return (rec.type === 'rampleft' || rec.type === 'rampright'); });
+    // SVG <text> and <tspan> elements for descriptive labels, e.g., "Interchange X off-ramp to Y"
+    // These are only applied for certain records in the input data, essentially interchange on/off ramps
+    var filtered_wireframe_data = _.filter(wireframe_data, function(rec) { return (rec.showdesc === 1); });
     var svgLabelText_g = svgContainer.append("g");
     var svgLabelText = svgLabelText_g
         .selectAll("text.label_txt")
         .data(filtered_wireframe_data)
         .enter()
         .append("text")
-            .attr("id", function(d, i) { return 'label_txt_' +d.unique_id; })
+            .attr("id", function(d, i) { return 'label_txt_' + d.unique_id; })
             .attr("class", "label_text")
             .attr("font-size", 12)
             .attr("x", function(d, i) { 
                 var retval;
-                retval = 5;     // temp hack during dev
+                switch(d.type) {
+                case 'rampleft':
+                case 'rampright':
+                case 'rampleftmain':
+                case 'mainleft':               
+                    retval = 5; 
+                    break;
+                case 'main':
+                case 'mainright':
+                case 'hovright':
+                case 'hovleft':
+                default:   
+                    // Fallthroughs above are deliberate: these cases should not occur in practice
+                    retval = 0; // Retval is arbitrary choice   
+                    break;
+                }
                 return retval;
              })
             .attr("y", function(d, i) { 
                 var retval;
-                retval = d.y1;  // temp hack during dev
+                switch(d.type) {
+/*
+                case 'mainleft':
+                    // Place label text value at the lower tip' of these pseudo-ramps
+                    retval = d3.max([d.y1,d.y2]);
+                    break;
+*/
+                // General comment on the placement of descriptive labels for ramps.
+                // The general principle here is to place the descriptive label for 
+                // ramps at the Y-coordinate of the 'tip' ('loose end') of the ramp.
+                // Which end is the 'tip' depends upon (1) whether the direction of the 
+                // route corresponds to increasing Y-values in SVG space, and whether
+                // the ramp is to left or right.
+                case 'rampleft':
+                case 'rampleftmain':
+                case 'rampright': 
+                    retval = (yDir_is_routeDir === true) ? d3.max([d.y1,d.y2]) : d3.min([d.y1,d.y2]);
+                    break;
+                case 'main':
+                case 'mainright':
+                case 'hovright':
+                case 'hovleft':               
+                default:
+                    // Fallthroughs above are deliberate: these should not occur in practice
+                    console.log(d.unique_id + ' type = ' + d.type);
+                    retval = d.y1;  // Retval is arbitrary choice
+                    break;
+                }
                 return retval;
             })
             .attr("text-anchor", function(d, i) {
@@ -317,7 +380,13 @@ function generateSvgWireframe(wireframe_data, div_id, year) {
     var line2 = svgLabelText.append("tspan")
         .attr("class", "label_tspan_2")
         .attr("x", 5)
-        .attr("y", function(d, i) { return d.y1; })
+        .attr("y", function(d, i) { 
+            var retval;
+             // Place descriptive label at the Y-coordinate of the 'tip' ('loose end') of the ramp.
+            // Which end is the 'tip' depends upon whether the direction of the route does or 
+            // doesn't correspond to increasing Y-values in SVG space.
+            retval = (yDir_is_routeDir === true) ? d3.max([d.y1,d.y2]) : d3.min([d.y1,d.y2]);           
+            return retval; }) 
         .attr("dy", 10)
         .text(''); // Placeholder
             
@@ -370,7 +439,7 @@ function symbolizeSvgWireframe(vizWireframe, metric, year) {
     
     // Bifurcated world - there HAS to be a more elegant way to do this...
     if (year.includes('delta')) {
-        // Data value to be displayed is the delta between two values in the table, i.e., needs to be computed
+        // Data value to be displayed is the difference (delta) between two values in the table, i.e., needs to be computed
         parts = year.split('_');
         year1 = parts[1], year2 = parts[2];
         if (metric === 'awdt') {
@@ -402,7 +471,7 @@ function symbolizeSvgWireframe(vizWireframe, metric, year) {
                 // Do not 'lablel':
                 //     1. segments with NO DATA values (i.e., <= 0)
                 //     2. segments with type 'ramphov'
-                if (d[attrName1] <= 0 || d.type == 'ramphov') {         // *** This statement needs attention
+                if (d[attrName1] <= 0 || d[attrName2] <= 0  || d.type == 'ramphov') {         // *** This statement needs attention
                     retval = '';
                 } else {
                     retval = (d[attrName1] - d[attrName2]).toLocaleString();
