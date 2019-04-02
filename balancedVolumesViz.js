@@ -188,20 +188,22 @@ function generateSvgWireframe(wireframe_data, div_id, yDir_is_routeDir, year) {
                     case 'hovright':
                         retval = d.x1;
                         break;
-                    case 'rampleft':
-                         // Since the ramp is to the left, use the x-coordinate with the lesser value
-                        tmp = (d.x1 < d.x2) ? d.x1 - 10 : d.x2 - 10;
-                        retval = tmp;
-                        break;                    
                     case 'rampleftmain':
                         // These ramps are 'vertical' in the wireframe display; the 2 x-coordinates are identical
                         retval = d.x1
-                        break;                   
-                    case 'rampright': 
-                        // Since the ramp is to the right, use the x-coordinate with the greater value
-                        tmp = (d.x1 > d.x2) ? d.x1 + 10 : d.x2 + 10;
+                        break;                            
+                    case 'ramp_on_left':
+                    case 'ramp_off_left':
+                         // Since the ramp is to the left, use the x-coordinate with the lesser value
+                        tmp = (d.x1 < d.x2) ? d.x1 - 25 : d.x2 - 25;
                         retval = tmp;
-                        break;
+                        break;                    
+                    case 'ramp_on_right':
+                    case 'ramp_off_right': 
+                        // Since the ramp is to the right, use the x-coordinate with the greater value
+                        tmp = (d.x1 > d.x2) ? d.x1 + 25 : d.x2 + 25;
+                        retval = tmp;
+                        break;   
                     case 'ramphov':
                         // Fallthrough is deliberate
                     default:
@@ -216,13 +218,9 @@ function generateSvgWireframe(wireframe_data, div_id, yDir_is_routeDir, year) {
                     var tmp, retval;
                     switch(d.type) {
                     case 'main':
-                        retval = d.y1 + ((d.y2 - d.y1)/2);
-                        break;
                     case 'mainleft':
-                        retval = d.y1 + ((d.y2 - d.y1)/2); 
-                        break;
-                    case 'mainright':
-                         retval = d.y1 + ((d.y2 - d.y1)/2);     
+                    case 'mainright':                 
+                        retval = d.y1 + ((d.y2 - d.y1)/2);    
                         break;
                     case 'hovleft':
                         // Note: We have to futz with the *Y*-coordinate because the text for 'hov{left,right}' segments is rotated
@@ -232,21 +230,27 @@ function generateSvgWireframe(wireframe_data, div_id, yDir_is_routeDir, year) {
                         // Note: We have to futz with the *Y*-coordinate because the text for 'hov{left,right}' segments is rotated
                         retval = d.y1 + ((d.y2 - d.y1)/2) + 15;  
                         break;
-                    case 'rampleft':
-                         // Since the ramp is to the left, the x-coordinate with the lesser value indicates the 'loose end' of the ramp
-                        tmp = (d.x1 < d.x2) ? d.y1 - 10 : d.y2 - 10;
-                        retval = tmp;
-                        break;              
                     case 'rampleftmain':
                         // Place the data value below the 'loose end' of 'vertical ramps'
                         tmp = (d.y1 > d.y2) ? d.y1 + 20 : d.y2 + 20;
                         retval = tmp;
-                        break;
-                    case 'rampright': 
+                        break;                        
+                      
+
+                    case 'ramp_on_left':
+                    case 'ramp_off_left':
+                         // Since the ramp is to the left, the x-coordinate with the lesser value indicates the 'loose end' of the ramp
+                        tmp = (d.x1 < d.x2) ? d.y1 - 10 : d.y2 - 10;
+                        retval = tmp;
+                        break;                    
+
+                    case 'ramp_on_right':
+                    case 'ramp_off_right':               
                         // Since the ramp is the right, the x-coordinate with the greater value indicates the 'loose end' of the ramp
                         tmp = (d.x1 > d.x2) ? d.y1 + 10 : d.y2 + 10;
                         retval = tmp;
-                        break;
+                        break;                    
+                    
                     case 'ramphov':
                         // Fallthrough is deliberate
                     default:
@@ -318,18 +322,17 @@ function generateSvgWireframe(wireframe_data, div_id, yDir_is_routeDir, year) {
             .attr("x", function(d, i) { 
                 var retval;
                 switch(d.type) {
-                case 'rampleft':
-                case 'rampright':
-                case 'rampleftmain':
-                case 'mainleft':               
+                case 'ramp_on_left':
+                case 'ramp_on_right':
+                case 'ramp_off_left':
+                case 'ramp_off_right':
+                case 'rampleftmain':              
                     retval = 5; 
                     break;
-                case 'main':
-                case 'mainright':
-                case 'hovright':
-                case 'hovleft':
                 default:   
-                    // Fallthroughs above are deliberate: these cases should not occur in practice
+                    // The following cases should never occur in practice: main, mainright, mainleft, hovleft, hovright, and ramphov.
+                    // If they do, something is amiss.
+                    console.log('Attempt to create descriptive label text placeholder for: ' + d.unique_id + '. Type = ' + d.type);
                     retval = 0; // Retval is arbitrary choice   
                     break;
                 }
@@ -338,55 +341,75 @@ function generateSvgWireframe(wireframe_data, div_id, yDir_is_routeDir, year) {
             .attr("y", function(d, i) { 
                 var retval;
                 switch(d.type) {
-/*
-                case 'mainleft':
-                    // Place label text value at the lower tip' of these pseudo-ramps
-                    retval = d3.max([d.y1,d.y2]);
-                    break;
-*/
                 // General comment on the placement of descriptive labels for ramps.
                 // The general principle here is to place the descriptive label for 
                 // ramps at the Y-coordinate of the 'tip' ('loose end') of the ramp.
                 // Which end is the 'tip' depends upon (1) whether the direction of the 
-                // route corresponds to increasing Y-values in SVG space, and whether
-                // the ramp is to left or right.
-                case 'rampleft':
-                case 'rampleftmain':
-                case 'rampright': 
+                // route corresponds to increasing Y-values in SVG space, and (2) whether
+                // the ramp is an on- or off-ramp.
+                //
+                case 'ramp_on_left':
+                case 'ramp_on_right':
+                    retval = (yDir_is_routeDir === true) ? d3.min([d.y1,d.y2]) : d3.max([d.y1,d.y2]);
+                    break;
+                case 'ramp_off_left':
+                case 'ramp_off_right':
                     retval = (yDir_is_routeDir === true) ? d3.max([d.y1,d.y2]) : d3.min([d.y1,d.y2]);
                     break;
-                case 'main':
-                case 'mainright':
-                case 'hovright':
-                case 'hovleft':               
+                case 'rampleftmain':
+                    // These are 'vertical' off-ramps
+                    retval = (yDir_is_routeDir === true) ? d3.max([d.y1,d.y2]) : d3.min([d.y1,d.y2]);
+                    break;
+              
                 default:
-                    // Fallthroughs above are deliberate: these should not occur in practice
+                    // The following cases should never occur in practice:
+                    // main, mainright, mainleft, hovleft, hovright, and ramphov.
                     console.log(d.unique_id + ' type = ' + d.type);
-                    retval = d.y1;  // Retval is arbitrary choice
+                    retval = 0; // Retval is arbitrary choice
                     break;
                 }
                 return retval;
             })
             .attr("text-anchor", function(d, i) {
                     var retval; 
-                    retval = "start";   // temp hack during dev - may be OK for prod
+                    retval = "start";   // TBD if this will be OK
                     return retval;
             });
-    // First line of label text
+    // First line of descriptive label text
     var line1 = svgLabelText.append("tspan")
         .attr("class", "label_tspan_1")
         .text(''); // Placeholder     
-    // Second line of label text
+    // Second line of descriptive label text
     var line2 = svgLabelText.append("tspan")
         .attr("class", "label_tspan_2")
         .attr("x", 5)
         .attr("y", function(d, i) { 
             var retval;
-             // Place descriptive label at the Y-coordinate of the 'tip' ('loose end') of the ramp.
-            // Which end is the 'tip' depends upon whether the direction of the route does or 
-            // doesn't correspond to increasing Y-values in SVG space.
-            retval = (yDir_is_routeDir === true) ? d3.max([d.y1,d.y2]) : d3.min([d.y1,d.y2]);           
-            return retval; }) 
+            // Place descriptive label at the Y-coordinate of the 'tip' ('loose end') of the ramp.
+            // Which end is the 'tip' depends upon (1) whether the direction of the 
+            // route corresponds to increasing Y-values in SVG space, and (2) whether
+            // the ramp is an on- or off-ramp.
+            switch(d.type) {
+            case 'ramp_on_left':
+            case 'ramp_on_right':
+                retval = (yDir_is_routeDir === true) ? d3.min([d.y1,d.y2]) : d3.max([d.y1,d.y2]);
+                break;
+            case 'ramp_off_left':
+            case 'ramp_off_right':
+                retval = (yDir_is_routeDir === true) ? d3.max([d.y1,d.y2]) : d3.min([d.y1,d.y2]);
+                break;
+            case 'rampleftmain':
+                // These are 'vertical' off-ramps
+                retval = (yDir_is_routeDir === true) ? d3.max([d.y1,d.y2]) : d3.min([d.y1,d.y2]);
+                break;                
+            default:
+                // The following cases should never occur in practice:
+                // main, mainright, mainleft, hovleft, hovright, and ramphov.              
+                retval = 0;  // Retval is arbitrary choice
+                break;   
+            }
+            return retval; 
+        }) 
         .attr("dy", 10)
         .text(''); // Placeholder
             
