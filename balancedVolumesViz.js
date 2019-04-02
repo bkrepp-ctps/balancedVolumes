@@ -159,12 +159,14 @@ function generateSvgWireframe(wireframe_data, div_id, yDir_is_routeDir, year) {
     var volumeText_xOffset = 250;
     
     // SVG <text> elements for the balanced volume data itself
+    // Do not show volume data for pseudo-ramps for HOV lanes - these are just graphical decorations
+   var filtered_wireframe_data1 = _.filter(wireframe_data, function(rec) { return (rec.type != 'ramphov'); });
     var svgVolumeText_g = svgContainer
             .append("g")
             .attr("transform", "translate(75,0)");  
     var svgVolumeText = svgVolumeText_g
         .selectAll("text.vol_txt")
-        .data(wireframe_data)
+        .data(filtered_wireframe_data1)
         .enter()
         .append("text")
             .attr("id", function(d, i) { return 'vol_txt_' +d.unique_id; })
@@ -235,22 +237,18 @@ function generateSvgWireframe(wireframe_data, div_id, yDir_is_routeDir, year) {
                         tmp = (d.y1 > d.y2) ? d.y1 + 20 : d.y2 + 20;
                         retval = tmp;
                         break;                        
-                      
-
                     case 'ramp_on_left':
                     case 'ramp_off_left':
                          // Since the ramp is to the left, the x-coordinate with the lesser value indicates the 'loose end' of the ramp
                         tmp = (d.x1 < d.x2) ? d.y1 - 10 : d.y2 - 10;
                         retval = tmp;
                         break;                    
-
                     case 'ramp_on_right':
                     case 'ramp_off_right':               
                         // Since the ramp is the right, the x-coordinate with the greater value indicates the 'loose end' of the ramp
                         tmp = (d.x1 > d.x2) ? d.y1 + 10 : d.y2 + 10;
                         retval = tmp;
                         break;                    
-                    
                     case 'ramphov':
                         // Fallthrough is deliberate
                     default:
@@ -309,11 +307,11 @@ function generateSvgWireframe(wireframe_data, div_id, yDir_is_routeDir, year) {
 
     // SVG <text> and <tspan> elements for descriptive labels, e.g., "Interchange X off-ramp to Y"
     // These are only applied for certain records in the input data, essentially interchange on/off ramps
-    var filtered_wireframe_data = _.filter(wireframe_data, function(rec) { return (rec.showdesc === 1); });
+    var filtered_wireframe_data2 = _.filter(wireframe_data, function(rec) { return (rec.showdesc === 1); });
     var svgLabelText_g = svgContainer.append("g");
     var svgLabelText = svgLabelText_g
         .selectAll("text.label_txt")
-        .data(filtered_wireframe_data)
+        .data(filtered_wireframe_data2)
         .enter()
         .append("text")
             .attr("id", function(d, i) { return 'label_txt_' + d.unique_id; })
@@ -360,7 +358,6 @@ function generateSvgWireframe(wireframe_data, div_id, yDir_is_routeDir, year) {
                     // These are 'vertical' off-ramps
                     retval = (yDir_is_routeDir === true) ? d3.max([d.y1,d.y2]) : d3.min([d.y1,d.y2]);
                     break;
-              
                 default:
                     // The following cases should never occur in practice:
                     // main, mainright, mainleft, hovleft, hovright, and ramphov.
