@@ -60,10 +60,10 @@ function initializeApp(error, results) {
     
     // Generate wireframe for southbound route
     VIZ.sb = generateSvgWireframe(DATA.sb_wireframe, 'sb_viz', true, 0 /* placeholder for now */);
-    symbolizeSvgWireframe(VIZ.sb, 'awdt', '2018');
+    symbolizeSvgWireframe(VIZ.sb, 'awdt', '2018', polylineColorPalette.secondary);
     // Generate wireframe for northbound route
     VIZ.nb = generateSvgWireframe(DATA.nb_wireframe, 'nb_viz', false, 0 /* placeholder for now */);  
-    symbolizeSvgWireframe(VIZ.nb, 'awdt', '2018');    
+    symbolizeSvgWireframe(VIZ.nb, 'awdt', '2018', polylineColorPalette.primary);    
     
     // Initialize Google Map
     initMap(DATA); // No need to pass DATA as parm, but doing so anyway  
@@ -72,8 +72,8 @@ function initializeApp(error, results) {
     $('.app_select_box').change(function(e) {
         var metric = $("#select_metric option:selected").attr('metric');
         var year = $("#select_year option:selected").attr('year');
-        symbolizeSvgWireframe(VIZ.sb, metric, year);
-        symbolizeSvgWireframe(VIZ.nb, metric, year);
+        symbolizeSvgWireframe(VIZ.sb, metric, year, polylineColorPalette.secondary);
+        symbolizeSvgWireframe(VIZ.nb, metric, year, polylineColorPalette.primary);
         var _DEBUG_HOOK = 0;
     });
 } // initializeApp
@@ -418,20 +418,20 @@ function generateSvgWireframe(wireframe_data, div_id, yDir_is_routeDir, year) {
 
 var colorPalettes = {
     'awdt'  :   d3.scaleThreshold()
-                    .domain([0, 25000, 50000, 75000, 100000, 150000])
+                    .domain([0, 25000, 50000, 75000, 100000, Infinity])
                     .range(["gray", "blue", "green", "yellow", "orange", "red"]),
     'hourly':   d3.scaleThreshold()
-                    .domain([0, 2000, 4000, 6000, 8000, 10000])
+                    .domain([0, 2000, 4000, 6000, 8000, Infinity])
                     .range(["gray", "blue", "green", "yellow", "orange", "red"])
 };
 // For the time being, we will use a 6px width in all cases
 var widthPalettes = {
     'awdt'  :   d3.scaleThreshold()
-                    .domain([0, 25000, 50000, 75000, 100000, 150000])
-                    .range(["2px", "3px", "4px", "5px", "6px", "7px"]),
+                    .domain([0,       12500, 25000, 37500,   50000, 62500,   75000, 87500,    100000, 112500,   Infinity])
+                    .range(["0.5px",  "2px", "3px", "4.5px", "6px", "7.5px", "9px", "10.5px", "12px", "13.5px", "15px"]),
     'hourly':   d3.scaleThreshold()
-                    .domain([0, 2000, 4000, 6000, 8000, 10000])
-                    .range(["2px", "3px", "4px", "5px", "6px", "7px"])
+                    .domain([0,      1000,  2000,  3000,    4000,  5000,    6000,  7000,     8000,   9000,     Infinity])
+                    .range(["0.5px", "2px", "3px", "4.5px", "6px", "7.5px", "9px", "10.5px", "12px", "13.5px", "15px"])
 };
 
 // function: symbolizeSvgWireframe
@@ -442,8 +442,9 @@ var widthPalettes = {
 //             followed an underscore, and the strings for 2 years delimited by another underscore, e.g., "delta_2018_2010".
 //             The former is self-explanatory; the latter indicates that a comparison of the data for the relevant metric for
 //             the 2 years (first - last) is to be rendered.
+//      color : the color to be used to render the SVG <line>s
 //  return value : none
-function symbolizeSvgWireframe(vizWireframe, metric, year) {
+function symbolizeSvgWireframe(vizWireframe, metric, year, color) {
     // Work-in-progress for function to extract either singleton or "delta" data attribute values,
     // which could simplify the code for 'symbolizeSvgWireframe' greatly.
     // Currently not used. 
@@ -457,7 +458,7 @@ function symbolizeSvgWireframe(vizWireframe, metric, year) {
         }
     };
     
-    var attrName1, attrName2, parts, year1, year2, colorPalette, widthPalette;    
+    var attrName1, attrName2, parts, year1, year2, colorPalette, widthPalette;    // colorPalette now ignored
     
     // Bifurcated world - there HAS to be a more elegant way to do this...
     if (year.includes('delta')) {
@@ -473,18 +474,24 @@ function symbolizeSvgWireframe(vizWireframe, metric, year) {
         }
         console.log('attrName1 = ' + attrName1 + ' attrName2 = ' + attrName2);
         if (attrName1.search('awdt') !== -1) {
-            colorPalette = colorPalettes.awdt;
+            colorPalette = colorPalettes.awdt;      // Now ignored
             widthPalette = widthPalettes.awdt;
         } else {
-            colorPalette = colorPalettes.hourly;
+            colorPalette = colorPalettes.hourly;    // Now ignored
             widthPalette = widthPalettes.hourly;        
         } 
         vizWireframe.lines
             .style("stroke", function(d, i) { 
-                var retval = colorPalette(d[attrName1] - d[attrName2]);
+                // var retval = colorPalette(d[attrName1] - d[attrName2]);
+                var retval = color;
                 return retval;
-                }) 
-            .style("stroke-width", function(d, i) { return widthPalette(d[attrName1] - d[attrName2]); });
+            }) 
+            .style("stroke-width", function(d, i) {
+                var retval;
+                retval = widthPalette(d[attrName1] - d[attrName2]);
+                // console.log('Segment: ' + d.unique_id + ' width = ' + retval);
+                return retval;
+            });
             
        vizWireframe.volume_txt
             // Textual display of NO DATA values should be blank
@@ -510,17 +517,22 @@ function symbolizeSvgWireframe(vizWireframe, metric, year) {
         // console.log('attrName1 = ' + attrName1);
         if (attrName1.search('awdt') !== -1) {
             colorPalette = colorPalettes.awdt;
-            widthPalette = widthPalettes.awdt;
+            widthPalette = widthPalettes.awdt;      // Now ignored
         } else {
-            colorPalette = colorPalettes.hourly;
+            colorPalette = colorPalettes.hourly;    // Now ignored
             widthPalette = widthPalettes.hourly;        
         }    
         vizWireframe.lines
             .style("stroke", function(d, i) { 
-                var retval = colorPalette(d[attrName1]);
+                var retval = color;
+                // return colorPalette(d[attrName1]); 
                 return retval;
-                }) 
-            .style("stroke-width", function(d, i) { return widthPalette(d[attrName1]); });
+            }) 
+            .style("stroke-width", function(d, i) { 
+                var retval = widthPalette(d[attrName1]);
+                // console.log('Segment: ' + d.unique_id + ' width = ' + retval);
+                return retval;
+            });
             
        vizWireframe.volume_txt
             // Textual display of NO DATA values should be blank
