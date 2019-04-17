@@ -51,7 +51,7 @@
 
 #sb_viz {
     /* float: left; */
-    width: 450px;;
+    width: 450px;
     height: 700px;
     border: 2px solid #B87F32;
     margin-right: 10px;
@@ -60,13 +60,13 @@
 }
 
 #map {
-    height: 700px;
     width:  500px;
+    height: 700px;
     border: 2px solid #B87F32; 
 }
 
 #nb_viz {
-    width: 450px;;
+    width: 450px;
     height: 700px;
     border: 2px solid #B87F32;;
     margin-left: 10px;
@@ -78,9 +78,3 @@
     text-align: center;
     font-size: 18pt;
 }
-
-
-
-
-
-

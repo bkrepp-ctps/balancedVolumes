@@ -99,8 +99,8 @@ function generateSvgWireframe(wireframe_data, div_id, yDir_is_routeDir, year) {
             .attr("width", width)
             .attr("height", height);
 
-    // The x-offset of the main barrel is 150;
-    // Given an SVG drawing area width of 250, translate x +75px to center the main barrel
+    // The x-offset of the main barrel is 150 in the CSV wireframe layout data;
+    // Given an SVG drawing area width of 450, translate x +75px to center the main barrel
     var svgRouteSegs_g = svgContainer
         .append("g")
             .attr("transform", "translate(75,0)");  
