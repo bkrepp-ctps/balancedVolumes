@@ -16,6 +16,22 @@ var map;
 aPolylines_PrimDir = [], aPolylines_SecDir = [];
 polylineColorPalette = { 'primary' : '#f5831a', 'secondary' : '#0066b4' };
 
+// Experimentation ...
+var tip = d3.tip()
+    .attr('class', 'd3-tip')
+    .html(function(d, i) { 
+        var _DEBUG_HOOK = 0;
+        return 'Hello world! <br> I am ' + d.data_id; 
+    });
+tip.direction(function(d, i) { return 'n'; });
+        
+/*
+tip.offset(function(d, i) {
+    // return [this.getBBox().height / 2, 0];
+    return [10,-10];
+});
+*/
+
 $(document).ready(function() {
     var q = d3.queue()
                 .defer(d3.json, geojsonURL)
@@ -118,6 +134,7 @@ function generateSvgWireframe(wireframe_data, div_id, yDir_is_routeDir, year) {
             .attr("y1", function(d, i) { return d.y1; })
             .attr("x2", function(d, i) { return d.x2; })
             .attr("y2", function(d, i) { return d.y2; })
+            .call(tip)
             .on("click", function(d, i) 
                 { 
                     console.log('On-click handler: unique_id = ' + d.unique_id + ' data_id = ' + d.data_id); 
@@ -155,7 +172,20 @@ function generateSvgWireframe(wireframe_data, div_id, yDir_is_routeDir, year) {
                     googleBounds.extend({ lat : bbox[1], lng : bbox[0] });
                     googleBounds.extend({ lat : bbox[3], lng : bbox[2] });
                     map.fitBounds(googleBounds);
-                }); 
+                })
+            .on('mouseover', function(d, i) {
+                tip.show(d, i);
+            })
+            .on('mouseout', function(d, i) {
+                tip.hide(d, i);
+            });
+                  
+    // Append SVG rect element for tooltip content  
+/*    
+    svgContainer.append('rect')
+       .attr('width', 200)
+       .attr('height', 200);
+ */      
 
     var mainline_xOffset = 150;
     var volumeText_xOffset = 250;
