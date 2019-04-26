@@ -23,14 +23,10 @@ var tip = d3.tip()
         var _DEBUG_HOOK = 0;
         return 'Hello world! <br> I am ' + d.data_id; 
     });
+// The following 2 statements aren't necessary - they just set the defaults
 tip.direction(function(d, i) { return 'n'; });
+tip.offset([0, 0]);
         
-/*
-tip.offset(function(d, i) {
-    // return [this.getBBox().height / 2, 0];
-    return [10,-10];
-});
-*/
 
 $(document).ready(function() {
     var q = d3.queue()
@@ -63,10 +59,13 @@ function initializeApp(error, results) {
             rec['peak_' + year + '_6_to_7_am']  = +rec['peak_' + year + '_6_to_7_am'];
             rec['peak_' + year + '_7_to_8_am']  = +rec['peak_' + year + '_7_to_8_am'];
             rec['peak_' + year + '_8_to_9_am']  = +rec['peak_' + year + '_8_to_9_am'];
+            rec['cum_'  + year + '_6_to_9_am']  = +rec['cum_'  + year + '_6_to_9_am'];
             rec['peak_' + year + '_9_to_10_am'] = +rec['peak_' + year + '_9_to_10_am'];
             rec['peak_' + year + '_3_to_4_pm']  = +rec['peak_' + year + '_3_to_4_pm'];
             rec['peak_' + year + '_4_to_5_pm']  = +rec['peak_' + year + '_4_to_5_pm'];
             rec['peak_' + year + '_5_to_6_pm']  = +rec['peak_' + year + '_5_to_6_pm'];
+            rec['cum_'  + year + '_3_to_6_pm']  = +rec['cum_'  + year + '_3_to_6_pm'];
+            rec['peak_' + year + '_6_to_7_pm']  = +rec['peak_' + year + '_6_to_7_pm'];
         });   
     }    
     sb_wireframe.forEach(cleanupCsvRec);
@@ -172,20 +171,15 @@ function generateSvgWireframe(wireframe_data, div_id, yDir_is_routeDir, year) {
                     googleBounds.extend({ lat : bbox[1], lng : bbox[0] });
                     googleBounds.extend({ lat : bbox[3], lng : bbox[2] });
                     map.fitBounds(googleBounds);
-                })
+                });
+/* COMMENTED OUT, FOR NOW
             .on('mouseover', function(d, i) {
                 tip.show(d, i);
             })
             .on('mouseout', function(d, i) {
                 tip.hide(d, i);
-            });
-                  
-    // Append SVG rect element for tooltip content  
-/*    
-    svgContainer.append('rect')
-       .attr('width', 200)
-       .attr('height', 200);
- */      
+            }); 
+*/
 
     var mainline_xOffset = 150;
     var volumeText_xOffset = 250;
@@ -452,15 +446,22 @@ var colorPalettes = {
                     .range(["gray", "blue", "green", "yellow", "orange", "red"]),
     'hourly':   d3.scaleThreshold()
                     .domain([0, 2000, 4000, 6000, 8000, Infinity])
-                    .range(["gray", "blue", "green", "yellow", "orange", "red"])
+                    .range(["gray", "blue", "green", "yellow", "orange", "red"]),
+    'cum'   :   d3.scaleThreshold()
+                    .domain([0, 6000, 12000, 18000, 24000, Infinity])
+                    .range(["gray", "blue", "green", "yellow", "orange", "red"]),    
 };
-// For the time being, we will use a 6px width in all cases
+
 var widthPalettes = {
     'awdt'  :   d3.scaleThreshold()
                     .domain([0,       12500, 25000, 37500,   50000, 62500,   75000, 87500,    100000, 112500,   Infinity])
                     .range(["0.5px",  "2px", "3px", "4.5px", "6px", "7.5px", "9px", "10.5px", "12px", "13.5px", "15px"]),
     'hourly':   d3.scaleThreshold()
                     .domain([0,      1000,  2000,  3000,    4000,  5000,    6000,  7000,     8000,   9000,     Infinity])
+                    .range(["0.5px", "2px", "3px", "4.5px", "6px", "7.5px", "9px", "10.5px", "12px", "13.5px", "15px"]),
+    // 3-hour cumulative
+    'cum'   :   d3.scaleThreshold()
+                    .domain([0,      3000,  6000,  9000,    12000, 15000,   18000, 21000,    24000,  27000,    Infinity])
                     .range(["0.5px", "2px", "3px", "4.5px", "6px", "7.5px", "9px", "10.5px", "12px", "13.5px", "15px"])
 };
 
@@ -475,9 +476,9 @@ var widthPalettes = {
 //      color : the color to be used to render the SVG <line>s
 //  return value : none
 function symbolizeSvgWireframe(vizWireframe, metric, year, color) {
-    // Work-in-progress for function to extract either singleton or "delta" data attribute values,
-    // which could simplify the code for 'symbolizeSvgWireframe' greatly.
-    // Currently not used. 
+    // The following function, "get" is aork-in-progress for a function to extract either singleton 
+    // or "delta" data attribute values, which could simplify the code for 'symbolizeSvgWireframe' greatly.
+    // CURRENTLY NOT USED. 
     var get = function(obj, attr1, attr2) {
         var _DEBUG_HOOK = 0;
         if (arguments.length < 2 || arguments.length > 3) return null;
@@ -488,28 +489,69 @@ function symbolizeSvgWireframe(vizWireframe, metric, year, color) {
         }
     };
     
-    var attrName1, attrName2, parts, year1, year2, colorPalette, widthPalette;    // colorPalette now ignored
+    // Helper function: get attribute name from metric name and year
+    function getAttrName(metric, year) {
+        var part1, part2, retval;
+        retval = '';
+        if (metric.startsWith('peak') === true) {
+            part1 = 'peak_';
+            part2 = metric.replace('peak','');
+            retval = part1 + year + part2;
+        } else if (metric.startsWith('cum') === true) {
+            part1 = 'cum_';
+            part2 = metric.replace('cum','');
+            retval = part1 + year + part2;            
+        } else {
+            // Rash assumption: metric.startsWith('awdt') === true
+            retval = metric + '_' + year;
+        }
+        return retval;
+    } // getAttrName()
+    
+    // Helper function: given an attribute name, return the appropriate width palette
+    function getWidthPalette(attrName) {
+        var retval;
+        if (attrName.startsWith('awdt') === true) {
+            retval = widthPalettes.awdt;
+        } else if (attrName.startsWith('cum') === true) {
+            retval = widthPalettes.cum;        
+        } else {
+            retval = widthPalettes.hourly;
+        } 
+        return retval;
+    } // getWidthPalette()
+    
+     // Helper function: given an attribute name, return the appropriate color palette
+    function getColorPalette(attrName) {
+        var retval;
+        if (attrName.startsWith('awdt') === true) {
+            retval = colorPalettes.awdt;
+        } else if (attrName.startsWith('cum') === true) {
+            retval = colorPalettes.cum;        
+        } else {
+            retval = colorPalettes.hourly;
+        } 
+        return retval;
+    } // getColorPalette()   
+    
+    // Body of symbolizeSvgWireframe begins here:
+    //
+    var attrName1, attrName2, parts, year1, year2, colorPalette, widthPalette; 
     
     // Bifurcated world - there HAS to be a more elegant way to do this...
     if (year.includes('delta')) {
         // Data value to be displayed is the difference (delta) between two values in the table, i.e., needs to be computed
         parts = year.split('_');
         year1 = parts[1], year2 = parts[2];
-        if (metric === 'awdt') {
-            attrName1 = metric + '_' + year1;
-            attrName2 = metric + '_' + year2;
-        } else {
-            attrName1 = 'peak_' + year1 + '_' + metric;
-            attrName2 = 'peak_' + year2 + '_' + metric;
-        }
-        console.log('attrName1 = ' + attrName1 + ' attrName2 = ' + attrName2);
-        if (attrName1.search('awdt') !== -1) {
-            colorPalette = colorPalettes.awdt;      // Now ignored
-            widthPalette = widthPalettes.awdt;
-        } else {
-            colorPalette = colorPalettes.hourly;    // Now ignored
-            widthPalette = widthPalettes.hourly;        
-        } 
+        attrName1 = getAttrName(metric, year1);
+        attrName2 = getAttrName(metric, year2);
+        // console.log('Symbolizing delta of two attributes; attrName1 = ' + attrName1 + ' attrName2 = ' + attrName2);
+        
+         // *** TBD: Need to take into account having distinct scales for "delta" quantities
+         // The following is just a placeholder...
+        widthPalette = getWidthPalette(attrName1);
+        colorPalette = getColorPalette(attrName1);
+        
         vizWireframe.lines
             .style("stroke", function(d, i) { 
                 // var retval = colorPalette(d[attrName1] - d[attrName2]);
@@ -539,19 +581,11 @@ function symbolizeSvgWireframe(vizWireframe, metric, year, color) {
             });
     } else {
         // Simple volume data contained in table - no computation necesssary, just fetch value
-        if (metric === 'awdt') {
-            attrName1 = metric + '_' + year;
-        } else {
-            attrName1 = 'peak' + '_' + year + '_' + metric;
-        }
-        // console.log('attrName1 = ' + attrName1);
-        if (attrName1.search('awdt') !== -1) {
-            colorPalette = colorPalettes.awdt;
-            widthPalette = widthPalettes.awdt;      // Now ignored
-        } else {
-            colorPalette = colorPalettes.hourly;    // Now ignored
-            widthPalette = widthPalettes.hourly;        
-        }    
+        attrName1 = getAttrName(metric, year);
+        // console.log('Symbolizing single attribute; attrName1 = ' + attrName1);
+        
+        colorPalette = getColorPalette(attrName1);
+        widthPalette = getWidthPalette(attrName1); 
         vizWireframe.lines
             .style("stroke", function(d, i) { 
                 var retval = color;
