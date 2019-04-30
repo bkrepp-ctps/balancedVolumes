@@ -16,17 +16,46 @@ var map;
 aPolylines_PrimDir = [], aPolylines_SecDir = [];
 polylineColorPalette = { 'primary' : '#f5831a', 'secondary' : '#0066b4' };
 
-// Experimentation ...
+// Helper function: get attribute name from metric name and year
+function getAttrName(metric, year) {
+    var part1, part2, retval;
+    retval = '';
+    if (metric.startsWith('peak') === true) {
+        part1 = 'peak_';
+        part2 = metric.replace('peak','');
+        retval = part1 + year + part2;
+    } else if (metric.startsWith('cum') === true) {
+        part1 = 'cum_';
+        part2 = metric.replace('cum','');
+        retval = part1 + year + part2;            
+    } else {
+        // Rash assumption: metric.startsWith('awdt') === true
+        retval = metric + '_' + year;
+    }
+    return retval;
+} // getAttrName()
+
+// Create on-hover tooltip for SVG line segments
 var tip = d3.tip()
     .attr('class', 'd3-tip')
     .html(function(d, i) { 
-        var _DEBUG_HOOK = 0;
-        return 'Hello world! <br> I am ' + d.data_id; 
-    });
-// The following 2 statements aren't necessary - they just set the defaults
-tip.direction(function(d, i) { return 'n'; });
-tip.offset([0, 0]);
-        
+        var tmpstr, metric, metricTxt, year, yearTxt, attrName, retval;
+        tmpstr = d.description + '<br>' + d.description2 + '<br>';
+        metric = $("#select_metric option:selected").attr('metric');
+        metricTxt = $("#select_metric option:selected").text();
+        year = $("#select_year option:selected").attr('year');
+        yearTxt = $("#select_year option:selected").text();
+        attrName = getAttrName(metric,year); 
+        // Temp hack
+        if (year.contains('delta')) {
+            tmpstr += "Tooltips for 'change' data not currently available.";
+        } else {
+            tmpstr += yearTxt + ' ' + metricTxt + ': ' + d[attrName].toLocaleString();
+        }
+        retval = tmpstr;
+        return retval;
+        })
+    .direction(function(d, i) { return 'e'; });
 
 $(document).ready(function() {
     var q = d3.queue()
@@ -133,7 +162,6 @@ function generateSvgWireframe(wireframe_data, div_id, yDir_is_routeDir, year) {
             .attr("y1", function(d, i) { return d.y1; })
             .attr("x2", function(d, i) { return d.x2; })
             .attr("y2", function(d, i) { return d.y2; })
-            .call(tip)
             .on("click", function(d, i) 
                 { 
                     console.log('On-click handler: unique_id = ' + d.unique_id + ' data_id = ' + d.data_id); 
@@ -171,15 +199,15 @@ function generateSvgWireframe(wireframe_data, div_id, yDir_is_routeDir, year) {
                     googleBounds.extend({ lat : bbox[1], lng : bbox[0] });
                     googleBounds.extend({ lat : bbox[3], lng : bbox[2] });
                     map.fitBounds(googleBounds);
-                });
-/* COMMENTED OUT, FOR NOW
+                })            
+            .call(tip)
             .on('mouseover', function(d, i) {
                 tip.show(d, i);
             })
             .on('mouseout', function(d, i) {
                 tip.hide(d, i);
             }); 
-*/
+
 
     var mainline_xOffset = 150;
     var volumeText_xOffset = 250;
@@ -488,25 +516,6 @@ function symbolizeSvgWireframe(vizWireframe, metric, year, color) {
             return obj[attr1] - obj[attr2];
         }
     };
-    
-    // Helper function: get attribute name from metric name and year
-    function getAttrName(metric, year) {
-        var part1, part2, retval;
-        retval = '';
-        if (metric.startsWith('peak') === true) {
-            part1 = 'peak_';
-            part2 = metric.replace('peak','');
-            retval = part1 + year + part2;
-        } else if (metric.startsWith('cum') === true) {
-            part1 = 'cum_';
-            part2 = metric.replace('cum','');
-            retval = part1 + year + part2;            
-        } else {
-            // Rash assumption: metric.startsWith('awdt') === true
-            retval = metric + '_' + year;
-        }
-        return retval;
-    } // getAttrName()
     
     // Helper function: given an attribute name, return the appropriate width palette
     function getWidthPalette(attrName) {
