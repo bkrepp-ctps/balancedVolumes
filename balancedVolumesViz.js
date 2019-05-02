@@ -5,6 +5,8 @@ var geojsonURL = 'data/geojson/i93_and_sr3_complete.geojson';
 var csvWireFrame_sb_URL = 'data/csv/join_i93_sr3_sb_wireframe_and_volumes.csv';
 var csvWireFrame_nb_URL = 'data/csv/join_i93_sr3_nb_wireframe_and_volumes.csv';
 
+// Pseudo-const "var" for NO_DATA flag value
+var NO_DATA = -9999;
 // Global "database" of data read in from JSON and CSV files
 var DATA = {};
 // Global access to D3 visualization elements
@@ -96,6 +98,18 @@ function initializeApp(error, results) {
             rec['cum_'  + year + '_3_to_6_pm']  = +rec['cum_'  + year + '_3_to_6_pm'];
             rec['peak_' + year + '_6_to_7_pm']  = +rec['peak_' + year + '_6_to_7_pm'];
         });   
+        // Synthesize the 'delta' of the 2018 and 2010 data values for each attribute
+        rec['delta_2018_2010_awdt'] = (rec['awdt_2018'] != NO_DATA) ? rec['awdt_2018'] - rec['awdt_2010'] : NO_DATA;
+        rec['delta_2018_2010_peak_6_to_7_am'] = (rec['peak_2018_6_to_7_am'] != NO_DATA) ? rec['peak_2018_6_to_7_am'] - rec['peak_2010_6_to_7_am'] : NO_DATA;
+        rec['delta_2018_2010_peak_7_to_8_am'] = (rec['peak_2018_7_to_8_am'] != NO_DATA) ? rec['peak_2018_7_to_8_am'] - rec['peak_2010_7_to_8_am'] : NO_DATA;
+        rec['delta_2018_2010_peak_8_to_9_am'] = (rec['peak_2018_8_to_9_am'] != NO_DATA) ? rec['peak_2018_8_to_9_am'] - rec['peak_2010_8_to_9_am'] : NO_DATA;
+        rec['delta_2018_2010_cum_6_to_9_am']  = (rec['cum_2018_6_to_9_am'] != NO_DATA) ? rec['cum_2018_6_to_9_am'] - rec['cum_2010_6_to_9_am'] : NO_DATA;
+        rec['delta_2018_2010_peak_9_to_10_am'] = (rec['peak_2018_9_to_10_am'] != NO_DATA) ? rec['peak_2018_9_to_10_am'] - rec['peak_2010_9_to_10_am'] : NO_DATA;        
+        rec['delta_2018_2010_peak_3_to_4_pm'] = (rec['peak_2018_3_to_4_pm'] != NO_DATA) ? rec['peak_2018_3_to_4_pm'] - rec['peak_2010_3_to_4_pm'] : NO_DATA;
+        rec['delta_2018_2010_peak_4_to_5_pm'] = (rec['peak_2018_4_to_5_pm'] != NO_DATA) ? rec['peak_2018_4_to_5_pm'] - rec['peak_2010_4_to_5_pm'] : NO_DATA;
+        rec['delta_2018_2010_peak_5_to_6_pm'] = (rec['peak_2018_5_to_6_pm'] != NO_DATA) ? rec['peak_2018_5_to_6_pm'] - rec['peak_2010_5_to_6_pm'] : NO_DATA;
+        rec['delta_2018_2010_cum_3_to_6_pm']  = (rec['cum_2018_3_to_6_pm'] != NO_DATA) ? rec['cum_2018_3_to_6_pm'] - rec['cum_2010_3_to_6_pm'] : NO_DATA;
+        rec['delta_2018_2010_peak_6_to_7_pm'] = (rec['peak_2018_6_to_7_pm'] != NO_DATA) ? rec['peak_2018_6_to_7_pm'] - rec['peak_2010_6_to_7_pm'] : NO_DATA;
     }    
     sb_wireframe.forEach(cleanupCsvRec);
     DATA.sb_wireframe = sb_wireframe;
@@ -157,7 +171,8 @@ function generateSvgWireframe(wireframe_data, div_id, yDir_is_routeDir, year) {
         .enter()
         .append("line")
             .attr("id", function(d, i) { return d.unique_id; })
-            .attr("class", function(d, i) { return "volume " + d.type; })            
+            .attr("class", function(d, i) { return 'volume_' + d.type; }) 
+            .attr("class", function(d, i) { return 'restriction_' + d.restriction; })
             .attr("x1", function(d, i) { return d.x1; })
             .attr("y1", function(d, i) { return d.y1; })
             .attr("x2", function(d, i) { return d.x2; })
@@ -504,7 +519,7 @@ var widthPalettes = {
 //      color : the color to be used to render the SVG <line>s
 //  return value : none
 function symbolizeSvgWireframe(vizWireframe, metric, year, color) {
-    // The following function, "get" is aork-in-progress for a function to extract either singleton 
+    // The following function, "get" is a work-in-progress for a function to extract either singleton 
     // or "delta" data attribute values, which could simplify the code for 'symbolizeSvgWireframe' greatly.
     // CURRENTLY NOT USED. 
     var get = function(obj, attr1, attr2) {
@@ -622,6 +637,16 @@ function symbolizeSvgWireframe(vizWireframe, metric, year, color) {
                 return retval;
             }); 
     } // if-else on whether requested metric needs to be computed or not
+    
+    // Folderol to hide linework for HOV lane that's only present in the PM if the selected metric is for an AM time period,
+    // and hide the linework for HOV lane that's only present in the AM if the selected metric is for a PM time period.
+    $('.restriction_am_only').show();
+    $('.restriction_pm_only').show();
+    if (metric.endsWith('_am')) {
+        $('.restriction_pm_only').hide();
+    } else if (metric.endsWith('_pm')) {
+        $('.restriction_am_only').hide();
+    }
         
     // Regardless of whether we're displaying values contained in the table or computed values,
     // these are just descriptive labels and are displayed in the same way
