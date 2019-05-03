@@ -492,6 +492,7 @@ function generateSvgWireframe(wireframe_data, div_id, yDir_is_routeDir, year) {
     return retval;
 } // generateSvgWireframe()
 
+// colorPalettes - currently unused; currently no distinction between scales for 'absolute' vs. 'delta' metrics
 var colorPalettes = {
     'awdt'  :   d3.scaleThreshold()
                     .domain([0, 25000, 50000, 75000, 100000, Infinity])
@@ -505,69 +506,69 @@ var colorPalettes = {
 };
 
 var widthPalettes = {
-    'awdt'  :   d3.scaleThreshold()
-                    .domain([0,       12500, 25000, 37500,   50000, 62500,   75000, 87500,    100000, 112500,   Infinity])
-                    .range(["0.5px",  "2px", "3px", "4.5px", "6px", "7.5px", "9px", "10.5px", "12px", "13.5px", "15px"]),
-    'hourly':   d3.scaleThreshold()
-                    .domain([0,      1000,  2000,  3000,    4000,  5000,    6000,  7000,     8000,   9000,     Infinity])
-                    .range(["0.5px", "2px", "3px", "4.5px", "6px", "7.5px", "9px", "10.5px", "12px", "13.5px", "15px"]),
-    // 3-hour cumulative
-    'cum'   :   d3.scaleThreshold()
-                    .domain([0,      3000,  6000,  9000,    12000, 15000,   18000, 21000,    24000,  27000,    Infinity])
-                    .range(["0.5px", "2px", "3px", "4.5px", "6px", "7.5px", "9px", "10.5px", "12px", "13.5px", "15px"])
+    'absolute': {  
+                    'awdt'  :   d3.scaleThreshold()
+                                    .domain([0,       12500, 25000, 37500,   50000, 62500,   75000, 87500,    100000, 112500,   Infinity])
+                                    .range(["0.5px",  "2px", "3px", "4.5px", "6px", "7.5px", "9px", "10.5px", "12px", "13.5px", "15px"]),
+                    'hourly':   d3.scaleThreshold()
+                                    .domain([0,      1000,  2000,  3000,    4000,  5000,    6000,  7000,     8000,   9000,     Infinity])
+                                    .range(["0.5px", "2px", "3px", "4.5px", "6px", "7.5px", "9px", "10.5px", "12px", "13.5px", "15px"]),
+                    // 3-hour cumulative
+                    'cum'   :   d3.scaleThreshold()
+                                    .domain([0,      3000,  6000,  9000,    12000, 15000,   18000, 21000,    24000,  27000,    Infinity])
+                                    .range(["0.5px", "2px", "3px", "4.5px", "6px", "7.5px", "9px", "10.5px", "12px", "13.5px", "15px"])
+                },       
+    'delta':    {
+                    'awdt'  :   d3.scaleThreshold()
+                                    .domain([0,       2000,   4000,   8000,  10000,  12000,  14000,    16000, 18000,    20000,   Infinity])
+                                    .range(["0.5px",  "2px", "3px", "4.5px", "6px", "7.5px", "9px", "10.5px", "12px", "13.5px", "15px"]), 
+                    'hourly':   d3.scaleThreshold()
+                                    .domain([0,       200,   400,     600,   800,     1000,  1200,   1400,    1600,     1800,   Infinity])
+                                    .range(["0.5px", "2px", "3px", "4.5px", "6px", "7.5px", "9px", "10.5px", "12px", "13.5px", "15px"]),   
+                    // 3-hour cumulative
+                    'cum'   :   d3.scaleThreshold()
+                                    .domain([0,       300,   600,     900,   1200,   1500,   1800,    2100,    2400,     2700,    Infinity])
+                                    .range(["0.5px", "2px", "3px", "4.5px", "6px", "7.5px", "9px", "10.5px", "12px", "13.5px", "15px"])                                    
+                }
 };
 
 // function: symbolizeSvgWireframe
 // parameters:
-//      vizWireframe : 'wireframe' of SVG <line> elements, as well as assocated <text. and <tspan> elements for labels
+//      vizWireframe : 'wireframe' of SVG <line> elements, and assocated <text> and <tspan> elements for labels
 //      metric : the metric to be displayed, e.g., 'awdt' or '6_to_7_am' (6 - 7 am peak period volume)
 //      year : may be either the string for a single year, e.g., "2018" or a string beginning with "delta", 
 //             followed an underscore, and the strings for 2 years delimited by another underscore, e.g., "delta_2018_2010".
 //             The former is self-explanatory; the latter indicates that a comparison of the data for the relevant metric for
 //             the 2 years (first - last) is to be rendered.
 //      color : the color to be used to render the SVG <line>s
-//  return value : none
+// return value : none
 function symbolizeSvgWireframe(vizWireframe, metric, year, color) {
-    // Helper function: given an attribute name, return the appropriate width palette
-    // 5/3/19 - needs revisiting
-    function getWidthPalette(attrName) {
-        var retval;
-        if (attrName.startsWith('awdt') === true) {
-            retval = widthPalettes.awdt;
-        } else if (attrName.startsWith('cum') === true) {
-            retval = widthPalettes.cum;        
+    // Given a 'logical' metric to symbolize (denoted by a 'metric' and 'logicalYear'
+    // return the witdh palette to use for it
+    function getWidthPalette(metric, logicalYear) {
+        var base, retval;
+        base = (logicalYear.startsWith('delta')) ? widthPalettes['delta'] : widthPalettes['absolute'];
+        if (metric.contains('awdt')) {
+            retval = base['awdt'];
+        } else if (metric.contains('cum')) {
+            retval = base['cum'];
         } else {
-            retval = widthPalettes.hourly;
+            retval = base['hourly'];
         } 
         return retval;
     } // getWidthPalette()
-    
-     // Helper function: given an attribute name, return the appropriate color palette
-     // 5/3/19 - needs revisiting
-    function getColorPalette(attrName) {
-        var retval;
-        if (attrName.startsWith('awdt') === true) {
-            retval = colorPalettes.awdt;
-        } else if (attrName.startsWith('cum') === true) {
-            retval = colorPalettes.cum;        
-        } else {
-            retval = colorPalettes.hourly;
-        } 
-        return retval;
-    } // getColorPalette()   
+  
     
     // Body of symbolizeSvgWireframe begins here:
     //
-    var attrName, colorPalette, widthPalette; 
+    var attrName, widthPalette, colorPalette; 
     attrName = getAttrName(metric, year);
     // console.log('Symbolizing attribute; attrName = ' + attrName);
         
-    colorPalette = getColorPalette(attrName);
-    widthPalette = getWidthPalette(attrName); 
+    widthPalette = getWidthPalette(metric, year); 
     vizWireframe.lines
         .style("stroke", function(d, i) { 
-            var retval = color;
-            // return colorPalette(d[attrName]); 
+            var retval = color; 
             return retval;
         }) 
         .style("stroke-width", function(d, i) { 
@@ -581,9 +582,9 @@ function symbolizeSvgWireframe(vizWireframe, metric, year, color) {
         .text(function(d, i) { 
             var retval;
             // Do not 'lablel':
-            //     1. segments with NO DATA values (i.e., <= 0)
+            //     1. segments with NO DATA values (i.e., === -9999
             //     2. segments with type 'ramphov'
-            if (d[attrName] <= 0 || d.type == 'ramphov') {
+            if (d[attrName] === NO_DATA || d.type == 'ramphov') {
                 retval = '';
             } else {
                 retval = d[attrName].toLocaleString();
