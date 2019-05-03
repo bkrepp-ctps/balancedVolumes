@@ -18,21 +18,30 @@ var map;
 aPolylines_PrimDir = [], aPolylines_SecDir = [];
 polylineColorPalette = { 'primary' : '#f5831a', 'secondary' : '#0066b4' };
 
-// Helper function: get attribute name from metric name and year
-function getAttrName(metric, year) {
+// Helper function: getAttrName
+//
+// Return name of relevant property in in-memory array, 
+// given fmetric and year specified in "select_metric" and "select_year" combo boxes.
+// The 'logicalYear' parameter may be '2018, '2010' or 'delta_2018_2010'
+function getAttrName(metric, logicalYear) {
     var part1, part2, retval;
-    retval = '';
-    if (metric.startsWith('peak') === true) {
-        part1 = 'peak_';
-        part2 = metric.replace('peak','');
-        retval = part1 + year + part2;
-    } else if (metric.startsWith('cum') === true) {
-        part1 = 'cum_';
-        part2 = metric.replace('cum','');
-        retval = part1 + year + part2;            
+    retval = '';    
+    if (logicalYear.startsWith('delta')) {
+        retval = logicalYear + '_' + metric;     
     } else {
-        // Rash assumption: metric.startsWith('awdt') === true
-        retval = metric + '_' + year;
+        // Non-delta attribute
+        if (metric.startsWith('peak') === true) {
+            part1 = 'peak_';
+            part2 = metric.replace('peak','');
+            retval = part1 + logicalYear + part2;
+        } else if (metric.startsWith('cum') === true) {
+            part1 = 'cum_';
+            part2 = metric.replace('cum','');
+            retval = part1 + logicalYear + part2;            
+        } else {
+            // Rash assumption: metric.startsWith('awdt') === true
+            retval = metric + '_' + logicalYear;
+        }
     }
     return retval;
 } // getAttrName()
@@ -533,6 +542,7 @@ function symbolizeSvgWireframe(vizWireframe, metric, year, color) {
     };
     
     // Helper function: given an attribute name, return the appropriate width palette
+    // 5/3/19 - needs revisiting
     function getWidthPalette(attrName) {
         var retval;
         if (attrName.startsWith('awdt') === true) {
@@ -546,6 +556,7 @@ function symbolizeSvgWireframe(vizWireframe, metric, year, color) {
     } // getWidthPalette()
     
      // Helper function: given an attribute name, return the appropriate color palette
+     // 5/3/19 - needs revisiting
     function getColorPalette(attrName) {
         var retval;
         if (attrName.startsWith('awdt') === true) {
@@ -560,83 +571,39 @@ function symbolizeSvgWireframe(vizWireframe, metric, year, color) {
     
     // Body of symbolizeSvgWireframe begins here:
     //
-    var attrName1, attrName2, parts, year1, year2, colorPalette, widthPalette; 
+    var attrName, colorPalette, widthPalette; 
+    attrName = getAttrName(metric, year);
     
-    // Bifurcated world - there HAS to be a more elegant way to do this...
-    if (year.includes('delta')) {
-        // Data value to be displayed is the difference (delta) between two values in the table, i.e., needs to be computed
-        parts = year.split('_');
-        year1 = parts[1], year2 = parts[2];
-        attrName1 = getAttrName(metric, year1);
-        attrName2 = getAttrName(metric, year2);
-        // console.log('Symbolizing delta of two attributes; attrName1 = ' + attrName1 + ' attrName2 = ' + attrName2);
+    console.log('Symbolizing attribute; attrName = ' + attrName);
         
-         // *** TBD: Need to take into account having distinct scales for "delta" quantities
-         // The following is just a placeholder...
-        widthPalette = getWidthPalette(attrName1);
-        colorPalette = getColorPalette(attrName1);
-        
-        vizWireframe.lines
-            .style("stroke", function(d, i) { 
-                // var retval = colorPalette(d[attrName1] - d[attrName2]);
-                var retval = color;
-                return retval;
-            }) 
-            .style("stroke-width", function(d, i) {
-                var retval;
-                retval = widthPalette(d[attrName1] - d[attrName2]);
-                // console.log('Segment: ' + d.unique_id + ' width = ' + retval);
-                return retval;
-            });
+    colorPalette = getColorPalette(attrName);
+    widthPalette = getWidthPalette(attrName); 
+    vizWireframe.lines
+        .style("stroke", function(d, i) { 
+            var retval = color;
+            // return colorPalette(d[attrName]); 
+            return retval;
+        }) 
+        .style("stroke-width", function(d, i) { 
+            var retval = widthPalette(d[attrName]);
+            // console.log('Segment: ' + d.unique_id + ' width = ' + retval);
+            return retval;
+        });
             
-       vizWireframe.volume_txt
-            // Textual display of NO DATA values should be blank
-            .text(function(d, i) { 
-                var retval;
-                // Do not 'lablel':
-                //     1. segments with NO DATA values (i.e., <= 0)
-                //     2. segments with type 'ramphov'
-                if (d[attrName1] <= 0 || d[attrName2] <= 0  || d.type == 'ramphov') {         // *** This statement needs attention
-                    retval = '';
-                } else {
-                    retval = (d[attrName1] - d[attrName2]).toLocaleString();
-                }
-                return retval;
-            });
-    } else {
-        // Simple volume data contained in table - no computation necesssary, just fetch value
-        attrName1 = getAttrName(metric, year);
-        // console.log('Symbolizing single attribute; attrName1 = ' + attrName1);
-        
-        colorPalette = getColorPalette(attrName1);
-        widthPalette = getWidthPalette(attrName1); 
-        vizWireframe.lines
-            .style("stroke", function(d, i) { 
-                var retval = color;
-                // return colorPalette(d[attrName1]); 
-                return retval;
-            }) 
-            .style("stroke-width", function(d, i) { 
-                var retval = widthPalette(d[attrName1]);
-                // console.log('Segment: ' + d.unique_id + ' width = ' + retval);
-                return retval;
-            });
-            
-       vizWireframe.volume_txt
-            // Textual display of NO DATA values should be blank
-            .text(function(d, i) { 
-                var retval;
-                // Do not 'lablel':
-                //     1. segments with NO DATA values (i.e., <= 0)
-                //     2. segments with type 'ramphov'
-                if (d[attrName1] <= 0 || d.type == 'ramphov') {
-                    retval = '';
-                } else {
-                    retval = d[attrName1].toLocaleString();
-                }
-                return retval;
-            }); 
-    } // if-else on whether requested metric needs to be computed or not
+   vizWireframe.volume_txt
+        // Textual display of NO DATA values should be blank
+        .text(function(d, i) { 
+            var retval;
+            // Do not 'lablel':
+            //     1. segments with NO DATA values (i.e., <= 0)
+            //     2. segments with type 'ramphov'
+            if (d[attrName] <= 0 || d.type == 'ramphov') {
+                retval = '';
+            } else {
+                retval = d[attrName].toLocaleString();
+            }
+            return retval;
+        }); 
     
     // Folderol to hide linework for HOV lane that's only present in the PM if the selected metric is for an AM time period,
     // and hide the linework for HOV lane that's only present in the AM if the selected metric is for a PM time period.
@@ -647,9 +614,7 @@ function symbolizeSvgWireframe(vizWireframe, metric, year, color) {
     } else if (metric.endsWith('_pm')) {
         $('.restriction_am_only').hide();
     }
-        
-    // Regardless of whether we're displaying values contained in the table or computed values,
-    // these are just descriptive labels and are displayed in the same way
+
     vizWireframe.label_txt_1
         .text(function(d,i) { return d.description; });
     vizWireframe.label_txt_2
