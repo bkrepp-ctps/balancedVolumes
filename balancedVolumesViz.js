@@ -57,15 +57,15 @@ var tip = d3.tip()
         year = $("#select_year option:selected").attr('year');
         yearTxt = $("#select_year option:selected").text();
         attrName = getAttrName(metric,year); 
-        // Temp hack
         if (year.contains('delta')) {
-            tmpstr += "Tooltips for 'change' data not currently available.";
+            // Current assumption: all 'delta's are between 2018 and 2010
+            tmpstr += 'Change in ' + metricTxt + ' between 2018 and 2010: ' + d[attrName].toLocaleString();
         } else {
             tmpstr += yearTxt + ' ' + metricTxt + ': ' + d[attrName].toLocaleString();
         }
         retval = tmpstr;
         return retval;
-        })
+    })
     .direction(function(d, i) { return 'e'; });
 
 $(document).ready(function() {
@@ -528,19 +528,6 @@ var widthPalettes = {
 //      color : the color to be used to render the SVG <line>s
 //  return value : none
 function symbolizeSvgWireframe(vizWireframe, metric, year, color) {
-    // The following function, "get" is a work-in-progress for a function to extract either singleton 
-    // or "delta" data attribute values, which could simplify the code for 'symbolizeSvgWireframe' greatly.
-    // CURRENTLY NOT USED. 
-    var get = function(obj, attr1, attr2) {
-        var _DEBUG_HOOK = 0;
-        if (arguments.length < 2 || arguments.length > 3) return null;
-        if (arguments.length === 2) {
-            return obj[attr1];
-        } else {
-            return obj[attr1] - obj[attr2];
-        }
-    };
-    
     // Helper function: given an attribute name, return the appropriate width palette
     // 5/3/19 - needs revisiting
     function getWidthPalette(attrName) {
@@ -573,8 +560,7 @@ function symbolizeSvgWireframe(vizWireframe, metric, year, color) {
     //
     var attrName, colorPalette, widthPalette; 
     attrName = getAttrName(metric, year);
-    
-    console.log('Symbolizing attribute; attrName = ' + attrName);
+    // console.log('Symbolizing attribute; attrName = ' + attrName);
         
     colorPalette = getColorPalette(attrName);
     widthPalette = getWidthPalette(attrName); 
