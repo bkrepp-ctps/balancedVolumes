@@ -20,8 +20,8 @@ polylineColorPalette = { 'primary' : '#f5831a', 'secondary' : '#0066b4' };
 
 // Helper function: getAttrName
 //
-// Return name of relevant property in in-memory array, 
-// given fmetric and year specified in "select_metric" and "select_year" combo boxes.
+// Return name of relevant property in the in-memory array, 
+// given 'metric' and 'logicalYear' specified in "select_metric" and "select_year" combo boxes.
 // The 'logicalYear' parameter may be '2018, '2010' or 'delta_2018_2010'
 function getAttrName(metric, logicalYear) {
     var part1, part2, retval;
@@ -75,6 +75,13 @@ $(document).ready(function() {
                 .defer(d3.csv, csvWireFrame_nb_URL)
                 .awaitAll(initializeApp);
 });
+
+// primaryDirectionP - predicate (boolean-valued function) returning true
+// if 'backboneRouteName' is that of a 'primary direction' route, i.e., a
+// north- or east-bound route, and false otherwise.
+function primaryDirectionP(backboneRouteName) {
+    return (backboneRouteName.endsWith('_nb') || backboneRouteName.endsWith('_eb'));
+} // primaryDirectionP
 
 function initializeApp(error, results) {
     if (error != null) {
@@ -189,28 +196,27 @@ function generateSvgWireframe(wireframe_data, div_id, yDir_is_routeDir, year) {
             .on("click", function(d, i) 
                 { 
                     console.log('On-click handler: unique_id = ' + d.unique_id + ' data_id = ' + d.data_id); 
-                    var color;
+                    var primaryDir, color;
                     var lineFeature = _.find(DATA.geojson.features, function(f) { return f.properties['data_id'] == d.data_id; } );
                     if (lineFeature == null) {
                         alert('Segment ' + d.unique_id + ' not found in GeoJSON.');
                         console.log('Segment ' + d.unique_id + ' not found in GeoJSON.');
                         return;
                     }
-                    if (lineFeature.properties.backbone_rte === "i93_sr3_nb") {
-                        // Clear any 'northbound' polylines on the map
+                    primaryDir = primaryDirectionP(lineFeature.properties.backbone_rte);
+                    if (primaryDir) {
+                        // Clear any 'primary direction' (i.e., 'northbound') polylines on the map
                         aPolylines_PrimDir.forEach(function(pl) { pl.setMap(null); });  
                         color = polylineColorPalette.primary;
-                    } else if (lineFeature.properties.backbone_rte === "i93_sr3_sb")  {
-                        // Clear any 'southbound' polylines on the map
+                    } else {
+                        // Clear any 'secondary direction' (i.e., 'southbound') polylines on the map
                         aPolylines_SecDir.forEach(function(pl) { pl.setMap(null); });  
                         color = polylineColorPalette.secondary;
-                    } else {
-                        return;
                     }    
                     // Create polyline feature and add it to the map
                     var style = { strokeColor : color, strokeOpacity : 0.7, strokeWeight: 4.5 }
                     var polyline = ctpsGoogleMapsUtils.drawPolylineFeature(lineFeature, map, style);
-                    if (lineFeature.properties.backbone_rte === "i93_sr3_nb") {
+                    if (primaryDir) {
                         aPolylines_PrimDir.push(polyline);
                     } else {
                         aPolylines_SecDir.push(polyline);
