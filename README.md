@@ -10,11 +10,13 @@ This application relies upon the following libraries that are not part of this r
 1. jQuery version 2.2.4
 2. jQueryUI version 1.12.1
 3. d3.js version 4.5.0
-4. underscore.js version 1.9.1
-5. turf.js version 5.2.0
-6. es6string.js (downloaded from Mozilla.org)
-7. Google Maps JavaScript API version 3.x
-8. ctpsGoogleMapsUtils.js version 1.0
+4. d3-tip - see NOTE below
+5. underscore.js version 1.9.1
+6. turf.js version 5.2.0
+7. es6string.js (downloaded from Mozilla.org)
+8. syncscroll.js version 0.0.3
+9. Google Maps JavaScript API version 3.x
+10. ctpsGoogleMapsUtils.js version 1.0
 
 NOTE: This application relies upon a special vesrion of the 'd3-tip' library that was originally 
 written by Justin Palmer (http://github.com/Caged/d3-tip). This library was migrated to support D3
