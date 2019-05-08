@@ -18,9 +18,9 @@ This application relies upon the following libraries that are not part of this r
 9. Google Maps JavaScript API version 3.x
 10. ctpsGoogleMapsUtils.js version 1.0
 
-NOTE: This application relies upon a special vesrion of the 'd3-tip' library that was originally 
+NOTE: This application relies upon a special version of the 'd3-tip' library that was originally 
 written by Justin Palmer (http://github.com/Caged/d3-tip). This library was migrated to support D3
-Version 4 by (Constantin Gavrilete)  https://github.com/cgav/d3-tip. That version, however, relies
+Version 4 by Constantin Gavrilete (https://github.com/cgav/d3-tip). That version, however, relies
 upon ES6 features that are not supported by most current (2019) browsers. It was modified by
 David Gotz (https://github.com/VACLab/d3-tip) to work in current browsers. That version is the
 baseline version used in this app. It is TBD whether it will require further customization for
