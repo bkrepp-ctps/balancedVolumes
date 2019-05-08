@@ -79,29 +79,10 @@
     font-size: 18pt;
 }
 
-/* The following rules for styling of d3-tip courtesy of https://github.com/VACLab/d3-tip */
-/*
-.d3-tip {
-  line-height: 1;
-  padding: 6px;
-  background: rgba(0, 0, 0, 0.8);
-  color: #fff;
-  border-radius: 4px;
-  font-size: 12px;
+.options_div {
+    margin-top: 5px;
+    margin-bottom: 5px;
 }
-
-.d3-tip:after {
-  box-sizing: border-box;
-  display: inline;
-  font-size: 10px;
-  width: 100%;
-  line-height: 1;
-  color: rgba(0, 0, 0, 0.8);
-  content: "\25BC";
-  position: absolute;
-  text-align: center;
-}
-*/
 
 /* The following rules for styling d3-tips courtesy of https://github.com/Caged/d3-tip */
 .d3-tip {
@@ -113,7 +94,6 @@
   border-radius: 2px;
   pointer-events: none;
 }
-
 /* Creates a small triangle extender for the tooltip */
 .d3-tip:after {
   box-sizing: border-box;
@@ -125,11 +105,6 @@
   position: absolute;
   pointer-events: none;
 }
-
-
-
-
-
 /* Style northward tooltips specifically */
 .d3-tip.n:after {
   margin: -2px 0 0 0;

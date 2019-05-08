@@ -150,6 +150,18 @@ function initializeApp(error, results) {
         symbolizeSvgWireframe(VIZ.nb, metric, year, polylineColorPalette.primary);
         var _DEBUG_HOOK = 0;
     });
+    
+    // On-change handler for sync_scrollbars checkbox
+    // Synchronize or un-synchronize the scrollbars for the sb_viz and nb_viz <div>s
+    $('#sync_scrollbars').change(function(e) {
+        var checked = $('#sync_scrollbars').prop('checked');
+        var newName = checked ? 'syncMyScrollbar' : '';
+        var elt = $('#nb_viz').get()[0];
+        elt.setAttribute('name', newName);   
+        elt =  $('#sb_viz').get()[0];
+        elt.setAttribute('name', newName);
+        syncscroll.reset();  
+    });
 } // initializeApp
 
 // function: generateSvgWireframe
