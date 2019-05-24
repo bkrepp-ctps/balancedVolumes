@@ -96,11 +96,26 @@ function initializeApp(error, results) {
     DATA.geojson = geojson;
     
     function cleanupCsvRec(rec) {
+        var temp;
         rec.x1 = +rec.x1;
         rec.y1 = +rec.y1;
         rec.x2 = +rec.x2;
         rec.y2 = +rec.y2;   
         rec.showdesc = +rec.showdesc;
+        rec.nlanes = +rec.nlanes;
+        rec.yr_1999 = +rec.yr_1999;
+        rec.yr_2010 = +rec.yr_2010;
+        rec.yr_2018 = +rec.yr_2018;
+        rec.awdt_1999 = +rec.awdt_1999;
+        // Add 'year_restriction' field:
+        if (rec.yr_1999 === 1 && rec.yr_2010 === 0) {
+            temp = 'yr_1999_only';
+        } else if (rec.yr_1999 === 0 && rec.yr_2010 === 1) {
+            temp = 'yr_2010_only';
+        } else {
+            temp = 'yr_restriction_none';
+        }
+        rec.year_restriction = temp;
         [2018, 2010].forEach(function(year) {
             rec['awdt_' + year] = +rec['awdt_' + year];
             rec['peak_' + year + '_6_to_7_am']  = +rec['peak_' + year + '_6_to_7_am'];
@@ -113,7 +128,7 @@ function initializeApp(error, results) {
             rec['peak_' + year + '_5_to_6_pm']  = +rec['peak_' + year + '_5_to_6_pm'];
             rec['cum_'  + year + '_3_to_6_pm']  = +rec['cum_'  + year + '_3_to_6_pm'];
             rec['peak_' + year + '_6_to_7_pm']  = +rec['peak_' + year + '_6_to_7_pm'];
-        });   
+        });    
         // Synthesize the 'delta' of the 2018 and 2010 data values for each attribute
         rec['delta_2018_2010_awdt'] = (rec['awdt_2018'] != NO_DATA) ? rec['awdt_2018'] - rec['awdt_2010'] : NO_DATA;
         rec['delta_2018_2010_peak_6_to_7_am'] = (rec['peak_2018_6_to_7_am'] != NO_DATA) ? rec['peak_2018_6_to_7_am'] - rec['peak_2010_6_to_7_am'] : NO_DATA;
@@ -126,10 +141,16 @@ function initializeApp(error, results) {
         rec['delta_2018_2010_peak_5_to_6_pm'] = (rec['peak_2018_5_to_6_pm'] != NO_DATA) ? rec['peak_2018_5_to_6_pm'] - rec['peak_2010_5_to_6_pm'] : NO_DATA;
         rec['delta_2018_2010_cum_3_to_6_pm']  = (rec['cum_2018_3_to_6_pm'] != NO_DATA) ? rec['cum_2018_3_to_6_pm'] - rec['cum_2010_3_to_6_pm'] : NO_DATA;
         rec['delta_2018_2010_peak_6_to_7_pm'] = (rec['peak_2018_6_to_7_pm'] != NO_DATA) ? rec['peak_2018_6_to_7_pm'] - rec['peak_2010_6_to_7_pm'] : NO_DATA;
-    }    
+    } 
+
     sb_wireframe.forEach(cleanupCsvRec);
+    nb_wireframe.forEach(cleanupCsvRec); 
+    
+        // Temp during development: apply slegehammer...
+   // sb_wireframe = _.filter(sb_wireframe, function(rec) { return rec.yr_2010 === 1; });
+   //  nb_wireframe = _.filter(nb_wireframe, function(rec) { return rec.yr_2010 === 1; });
+        
     DATA.sb_wireframe = sb_wireframe;
-    nb_wireframe.forEach(cleanupCsvRec);   
     DATA.nb_wireframe = nb_wireframe;
     
     // Generate wireframe for southbound route
@@ -153,6 +174,8 @@ function initializeApp(error, results) {
     
     // On-change handler for sync_scrollbars checkbox
     // Synchronize or un-synchronize the scrollbars for the sb_viz and nb_viz <div>s
+    // Documentation on the (very simple) syncscroll.js library may be found at:
+    //      https://github.com/asvd/syncscroll
     $('#sync_scrollbars').change(function(e) {
         var checked = $('#sync_scrollbars').prop('checked');
         var newName = checked ? 'syncMyScrollbar' : '';
@@ -199,14 +222,18 @@ function generateSvgWireframe(wireframe_data, div_id, yDir_is_routeDir, year) {
         .enter()
         .append("line")
             .attr("id", function(d, i) { return d.unique_id; })
-            .attr("class", function(d, i) { return 'volume_' + d.type; }) 
-            .attr("class", function(d, i) { return 'restriction_' + d.restriction; })
+            .attr("class", function(d, i) { 
+                var retval = '';
+                retval += 'volume_' + d.type; 
+                retval += ' ' + 'restriction_' + d.restriction;
+                retval += ' ' + d.year_restriction; 
+                return retval;
+            }) 
             .attr("x1", function(d, i) { return d.x1; })
             .attr("y1", function(d, i) { return d.y1; })
             .attr("x2", function(d, i) { return d.x2; })
             .attr("y2", function(d, i) { return d.y2; })
-            .on("click", function(d, i) 
-                { 
+            .on("click", function(d, i) { 
                     console.log('On-click handler: unique_id = ' + d.unique_id + ' data_id = ' + d.data_id); 
                     var primaryDir, color;
                     var lineFeature = _.find(DATA.geojson.features, function(f) { return f.properties['data_id'] == d.data_id; } );
@@ -266,7 +293,11 @@ function generateSvgWireframe(wireframe_data, div_id, yDir_is_routeDir, year) {
         .enter()
         .append("text")
             .attr("id", function(d, i) { return 'vol_txt_' +d.unique_id; })
-            .attr("class", "vol_txt")
+            .attr("class", function(d,i) {
+                var retval = 'vol_txt';
+                retval += ' ' + d.year_restriction;
+                return retval;    
+            })
             // .attr("x", function(d, i) { return d.x1 + ((d.x2 - d.x1)/2); })
             .attr("x", function(d, i) {
                     var tmp, retval;
@@ -411,7 +442,11 @@ function generateSvgWireframe(wireframe_data, div_id, yDir_is_routeDir, year) {
         .enter()
         .append("text")
             .attr("id", function(d, i) { return 'label_txt_' + d.unique_id; })
-            .attr("class", "label_text")
+            .attr("class", function(d, i) {
+                retval = 'label_text';
+                retval += ' ' + d.year_restriction;
+                return retval;
+            })
             .attr("font-size", 12)
             .attr("x", function(d, i) { 
                 var retval;
@@ -470,11 +505,19 @@ function generateSvgWireframe(wireframe_data, div_id, yDir_is_routeDir, year) {
             });
     // First line of descriptive label text
     var line1 = svgLabelText.append("tspan")
-        .attr("class", "label_tspan_1")
+        .attr("class", function(d, i) {
+            var retval = 'label_tspan_1';
+            retval += ' ' + d.year_restriction;
+            return retval;
+        })
         .text(''); // Placeholder     
     // Second line of descriptive label text
     var line2 = svgLabelText.append("tspan")
-        .attr("class", "label_tspan_2")
+        .attr("class", function(d, i) {
+            var retval = 'label_tspan_2';
+            retval += ' ' + d.year_restriction;
+            return retval;
+        })
         .attr("x", 5)
         .attr("y", function(d, i) { 
             var retval;
@@ -577,7 +620,7 @@ function symbolizeSvgWireframe(vizWireframe, metric, year, color) {
     } // getWidthPalette()
   
     
-    // Body of symbolizeSvgWireframe begins here:
+    // Body of symbolizeSvgWireframe() begins here:
     //
     var attrName, widthPalette, colorPalette; 
     attrName = getAttrName(metric, year);
@@ -609,6 +652,15 @@ function symbolizeSvgWireframe(vizWireframe, metric, year, color) {
             }
             return retval;
         }); 
+    
+    // Hide linework, metric values, and descriptive text for segments not present during the selected year.
+    $('.yr_1999_only').show();
+    $('.yr_2010_only').show();
+    if (year === '2010' || year === '2018') {
+        $('.yr_1999_only').hide();
+    } else if (year === '1999') {
+        $('.yr_2010_only').hide();
+    }
     
     // Folderol to hide linework for HOV lane that's only present in the PM if the selected metric is for an AM time period,
     // and hide the linework for HOV lane that's only present in the AM if the selected metric is for a PM time period.
