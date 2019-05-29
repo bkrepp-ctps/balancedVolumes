@@ -150,10 +150,10 @@ function initializeApp(error, results) {
     
     // Generate wireframe for southbound route
     VIZ.sb = generateSvgWireframe(DATA.sb_wireframe, 'sb_viz', true, 0 /* placeholder for now */);
-    symbolizeSvgWireframe(VIZ.sb, 'awdt', '2018', polylineColorPalette.secondary);
+    symbolizeSvgWireframe(VIZ.sb, 'sb_viz', 'awdt', '2018', polylineColorPalette.secondary);
     // Generate wireframe for northbound route
     VIZ.nb = generateSvgWireframe(DATA.nb_wireframe, 'nb_viz', false, 0 /* placeholder for now */);  
-    symbolizeSvgWireframe(VIZ.nb, 'awdt', '2018', polylineColorPalette.primary);    
+    symbolizeSvgWireframe(VIZ.nb, 'nb_viz', 'awdt', '2018', polylineColorPalette.primary);    
     
     // Initialize Google Map
     initMap(DATA); // No need to pass DATA as parm, but doing so anyway  
@@ -162,8 +162,8 @@ function initializeApp(error, results) {
     $('.app_select_box').change(function(e) {
         var metric = $("#select_metric option:selected").attr('metric');
         var year = $("#select_year option:selected").attr('year');
-        symbolizeSvgWireframe(VIZ.sb, metric, year, polylineColorPalette.secondary);
-        symbolizeSvgWireframe(VIZ.nb, metric, year, polylineColorPalette.primary);
+        symbolizeSvgWireframe(VIZ.sb, 'sb_viz', metric, year, polylineColorPalette.secondary);
+        symbolizeSvgWireframe(VIZ.nb, 'nb_viz', metric, year, polylineColorPalette.primary);
         var _DEBUG_HOOK = 0;
     });
     
@@ -591,6 +591,7 @@ var widthPalettes = {
 // function: symbolizeSvgWireframe
 // parameters:
 //      vizWireframe : 'wireframe' of SVG <line> elements, and assocated <text> and <tspan> elements for labels
+//      divId  : the ID of the <div> contaiing the SVG 'wireframe'
 //      metric : the metric to be displayed, e.g., 'awdt' or '6_to_7_am' (6 - 7 am peak period volume)
 //      year : may be either the string for a single year, e.g., "2018" or a string beginning with "delta", 
 //             followed an underscore, and the strings for 2 years delimited by another underscore, e.g., "delta_2018_2010".
@@ -598,7 +599,7 @@ var widthPalettes = {
 //             the 2 years (first - last) is to be rendered.
 //      color : the color to be used to render the SVG <line>s
 // return value : none
-function symbolizeSvgWireframe(vizWireframe, metric, year, color) {
+function symbolizeSvgWireframe(vizWireframe, divId, metric, year, color) {
     // Given a 'logical' metric to symbolize (denoted by a 'metric' and 'logicalYear'
     // return the witdh palette to use for it
     function getWidthPalette(metric, logicalYear) {
@@ -649,12 +650,12 @@ function symbolizeSvgWireframe(vizWireframe, metric, year, color) {
         }); 
     
     // Hide linework, metric values, and descriptive text for segments not present during the selected year.
-    $('.yr_1999_only').show();
-    $('.yr_2010_only').show();
+    $('#' + divId + ' .yr_1999_only').show();
+    $('#' + divId + ' .yr_2010_only').show();
     if (year === '2010' || year === '2018') {
-        $('.yr_1999_only').hide();
+        $('#' + divId + ' .yr_1999_only').hide();
     } else if (year === '1999') {
-        $('.yr_2010_only').hide();
+        $('#' + divId + ' .yr_2010_only').hide();
     }
     
     // Folderol to hide linework for HOV lane that's only present in the PM if the selected metric is for an AM time period,
@@ -662,9 +663,9 @@ function symbolizeSvgWireframe(vizWireframe, metric, year, color) {
     $('.restriction_am_only').show();
     $('.restriction_pm_only').show();
     if (metric.endsWith('_am')) {
-        $('.restriction_pm_only').hide();
+        $('#' + divId + ' .restriction_pm_only').hide();
     } else if (metric.endsWith('_pm')) {
-        $('.restriction_am_only').hide();
+        $('#' + divId + ' .restriction_am_only').hide();
     }
 
     vizWireframe.label_txt_1
