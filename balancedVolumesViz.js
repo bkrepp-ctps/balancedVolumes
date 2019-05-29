@@ -144,12 +144,7 @@ function initializeApp(error, results) {
     } 
 
     sb_wireframe.forEach(cleanupCsvRec);
-    nb_wireframe.forEach(cleanupCsvRec); 
-    
-        // Temp during development: apply slegehammer...
-   // sb_wireframe = _.filter(sb_wireframe, function(rec) { return rec.yr_2010 === 1; });
-   //  nb_wireframe = _.filter(nb_wireframe, function(rec) { return rec.yr_2010 === 1; });
-        
+    nb_wireframe.forEach(cleanupCsvRec);     
     DATA.sb_wireframe = sb_wireframe;
     DATA.nb_wireframe = nb_wireframe;
     
