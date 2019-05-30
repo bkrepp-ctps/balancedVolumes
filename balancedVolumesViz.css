@@ -43,6 +43,11 @@
     /* height: 600px; */
 }
 
+#gfx_wrapper {
+    display:flex;
+    justify-content:center;
+}
+
 #map_wrapper {
     /* margin-left: 5%;
     margin-right: 5%; */
@@ -84,7 +89,7 @@
     margin-bottom: 5px;
 }
 
-/* The following rules for styling d3-tips courtesy of https://github.com/Caged/d3-tip */
+/* The following rules for styling d3-tip tooltips, courtesy of https://github.com/Caged/d3-tip */
 .d3-tip {
   line-height: 1;
   font-weight: bold;
@@ -111,8 +116,6 @@
   top: 100%;
   left: 0;
 }
-
-
 /* Creates a small triangle extender for the tooltip */
 .d3-tip:after {
   box-sizing: border-box;
@@ -124,7 +127,6 @@
   position: absolute;
   pointer-events: none;
 }
-
 /* Northward tooltips */
 .d3-tip.n:after {
   content: "\25BC";
@@ -133,7 +135,6 @@
   left: 0;
   text-align: center;
 }
-
 /* Eastward tooltips */
 .d3-tip.e:after {
   content: "\25C0";
@@ -141,7 +142,6 @@
   top: 50%;
   left: -8px;
 }
-
 /* Southward tooltips */
 .d3-tip.s:after {
   content: "\25B2";
@@ -150,11 +150,24 @@
   left: 0;
   text-align: center;
 }
-
 /* Westward tooltips */
 .d3-tip.w:after {
   content: "\25B6";
   margin: -4px 0 0 -1px;
   top: 50%;
   left: 100%;
+}
+
+/* For the new-fangled 'simple' tooltips. */
+div.tooltip {	
+    position: absolute;			
+    text-align: center;			
+    /* width: 60px;	*/				
+   /*  height: 28px; */					
+    padding: 2px;				
+    font: 12px sans-serif;		
+    background: lightsteelblue;	
+    border: 0px;		
+    border-radius: 8px;			
+    pointer-events: none;			
 }
