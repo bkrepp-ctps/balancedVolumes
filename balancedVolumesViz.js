@@ -158,14 +158,54 @@ function initializeApp(error, results) {
     // Initialize Google Map
     initMap(DATA); // No need to pass DATA as parm, but doing so anyway  
 
-    // Arm event handler for combo boxes
-    $('.app_select_box').change(function(e) {
-        var metric = $("#select_metric option:selected").attr('metric');
-        var year = $("#select_year option:selected").attr('year');
+    // Arm event handler for select_year combo box
+    $('#select_year').change(function(e) {
+        var year = $("#select_year option:selected").attr('value');
+        var metric;
+        // Toggle the enabled/disabled state of the options for select_metric, 
+        // to reflect the metrics avaialble for the given year
+        if (year === "1999") {
+            $("#select_metric option[value='peak_6_to_7_am']").prop('disabled', true);
+            $("#select_metric option[value='peak_7_to_8_am']").prop('disabled', true);
+            $("#select_metric option[value='peak_8_to_9_am']").prop('disabled', true);
+            $("#select_metric option[value='cum_6_to_9_am']").prop('disabled', true);
+            $("#select_metric option[value='peak_9_to_10_am']").prop('disabled', true);
+            $("#select_metric option[value='peak_3_to_4_pm']").prop('disabled', true);
+            $("#select_metric option[value='peak_4_to_5_pm']").prop('disabled', true);
+            $("#select_metric option[value='peak_5_to_6_pm']").prop('disabled', true);
+            $("#select_metric option[value='cum_3_to_6_pm']").prop('disabled', true);
+            $("#select_metric option[value='peak_6_to_7_pm']").prop('disabled', true);
+            // If year is 1999, only one metric (awdt) is available, so select it
+            $("#select_metric").val('awdt');
+        } else {
+            $("#select_metric option[value='peak_6_to_7_am']").prop('disabled', false);
+            $("#select_metric option[value='peak_7_to_8_am']").prop('disabled', false);
+            $("#select_metric option[value='peak_8_to_9_am']").prop('disabled', false);
+            $("#select_metric option[value='cum_6_to_9_am']").prop('disabled', false);
+            $("#select_metric option[value='peak_9_to_10_am']").prop('disabled', false);
+            $("#select_metric option[value='peak_3_to_4_pm']").prop('disabled', false);
+            $("#select_metric option[value='peak_4_to_5_pm']").prop('disabled', false);
+            $("#select_metric option[value='peak_5_to_6_pm']").prop('disabled', false);
+            $("#select_metric option[value='cum_3_to_6_pm']").prop('disabled', false);
+            $("#select_metric option[value='peak_6_to_7_pm']").prop('disabled', false);              
+        }
+        metric = $("#select_metric option:selected").attr('value');
         symbolizeSvgWireframe(VIZ.sb, 'sb_viz', metric, year, polylineColorPalette.secondary);
-        symbolizeSvgWireframe(VIZ.nb, 'nb_viz', metric, year, polylineColorPalette.primary);
-        var _DEBUG_HOOK = 0;
+        symbolizeSvgWireframe(VIZ.nb, 'nb_viz', metric, year, polylineColorPalette.primary);       
     });
+    
+    // Arm event handler for select_metric combo box
+    $('#select_metric').change(function(e) {
+        var metric = $("#select_metric option:selected").attr('value');
+        var year = $("#select_year option:selected").attr('value');
+        // If year is 1999, only one metric (awdt) is available
+        if (year === "1999" && metric !== "awdt") {
+            $("#select_metric").val('awdt');
+            metric = $("#select_metric option:selected").attr('value');
+        }       
+        symbolizeSvgWireframe(VIZ.sb, 'sb_viz', metric, year, polylineColorPalette.secondary);
+        symbolizeSvgWireframe(VIZ.nb, 'nb_viz', metric, year, polylineColorPalette.primary);                
+     });
     
     // On-change handler for sync_scrollbars checkbox
     // Synchronize or un-synchronize the scrollbars for the sb_viz and nb_viz <div>s

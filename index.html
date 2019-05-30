@@ -30,32 +30,33 @@
 <div id="wrapper">
     <div class="options_div">
         <span>
+            Select year:
+            <select id="select_year" class="app_select_box">
+                <option value="2018" year="2018" selected>2018</option>
+                <option value="2010" year="2010">2010</option>
+                <option value="1999" year="1999">1999</option>
+                <!-- <option value"delta_2018_2010"= year="delta_2018_2010">Change between 2018 and 2010</option> -->
+            </select>        
+        
             Select metric:
             <select id="select_metric" class="app_select_box">
-                <option metric="awdt"selected>Average Weekday Daily Traffic</option>
-                <option metric="peak_6_to_7_am">Volume 6 to 7 AM</option>
-                <option metric="peak_7_to_8_am">Volume 7 to 8 AM</option>
-                <option metric="peak_8_to_9_am">Volume 8 to 9 AM</option>
-                <option metric="cum_6_to_9_am">Cumulative volume 6 to 9 AM</option>
-                <option metric="peak_9_to_10_am">Volume 9 to 10 AM</option>
-                <option metric="peak_3_to_4_pm">Volume 3 to 4 PM</option>
-                <option metric="peak_4_to_5_pm">Volume 4 to 5 PM</option>
-                <option metric="peak_5_to_6_pm">Volume 5 to 6 PM</option>
-                <option metric="cum_3_to_6_pm">Cumulative volume 3 to 6 PM</option>
-                <option metric="peak_6_to_7_pm">Volume 6 to 7 PM</option>        
-            </select>
-            &nbsp;&nbsp;Select year:
-            <select id="select_year" class="app_select_box">
-                <option year="2018" selected>2018</option>
-                <option year="2010">2010</option>
-                <option year="1999">1999</option>
-                <!-- <option year="delta_2018_2010">Change between 2018 and 2010</option> -->
+                <option value="awdt"            metric="awdt" selected>Average Weekday Daily Traffic</option>
+                <option value="peak_6_to_7_am"  metric="peak_6_to_7_am">Volume 6 to 7 AM</option>
+                <option value="peak_7_to_8_am"  metric="peak_7_to_8_am">Volume 7 to 8 AM</option>
+                <option value="peak_8_to_9_am"  metric="peak_8_to_9_am">Volume 8 to 9 AM</option>
+                <option value="cum_6_to_9_am"   metric="cum_6_to_9_am">Cumulative volume 6 to 9 AM</option>
+                <option value="peak_9_to_10_am" metric="peak_9_to_10_am">Volume 9 to 10 AM</option>
+                <option value="peak_3_to_4_pm"  metric="peak_3_to_4_pm">Volume 3 to 4 PM</option>
+                <option value="peak_4_to_5_pm"  metric="peak_4_to_5_pm">Volume 4 to 5 PM</option>
+                <option value="peak_5_to_6_pm"  metric="peak_5_to_6_pm">Volume 5 to 6 PM</option>
+                <option value="cum_3_to_6_pm"  metric="cum_3_to_6_pm">Cumulative volume 3 to 6 PM</option>
+                <option value="peak_6_to_7_pm" metric="peak_6_to_7_pm">Volume 6 to 7 PM</option>        
             </select>
         </span>
     </div>
     
     <div class="options_div">
-        <label for="sync_scrollbars">Synchronize scrollbars?</label>
+        <label for="sync_scrollbars">Synchronize scrollbars</label>
         <input type="checkbox" id="sync_scrollbars" name="sync_scrollbars" value="sync_scrollbars"> 
     </div>
     
