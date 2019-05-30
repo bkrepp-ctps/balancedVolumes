@@ -271,6 +271,7 @@ function generateSvgWireframe(wireframe_data, div_id, yDir_is_routeDir, year) {
             .on("click", function(d, i) { 
                     console.log('On-click handler: unique_id = ' + d.unique_id + ' data_id = ' + d.data_id); 
                     var primaryDir, color;
+                    var dottedLine = false;
                     var lineFeature = _.find(DATA.geojson.features, function(f) { return f.properties['data_id'] == d.data_id; } );
                     if (lineFeature == null) {
                         alert('Segment ' + d.unique_id + ' not found in GeoJSON.');
@@ -288,8 +289,12 @@ function generateSvgWireframe(wireframe_data, div_id, yDir_is_routeDir, year) {
                         color = polylineColorPalette.secondary;
                     }    
                     // Create polyline feature and add it to the map
-                    var style = { strokeColor : color, strokeOpacity : 0.7, strokeWeight: 4.5 }
-                    var polyline = ctpsGoogleMapsUtils.drawPolylineFeature(lineFeature, map, style);
+                    var style = { strokeColor : color, strokeOpacity : 0.7, strokeWeight: 4.5 };
+                    // Render features that existed ONLY in 1999 with a dotted line, all others with a solid line
+                    if (lineFeature.properties['yr_1999'] === 1 && lineFeature.properties['yr_2010'] === 0) {
+                        dottedLine = true;
+                    }
+                    var polyline = ctpsGoogleMapsUtils.drawPolylineFeature(lineFeature, map, style, dottedLine);
                     if (primaryDir) {
                         aPolylines_PrimDir.push(polyline);
                     } else {
