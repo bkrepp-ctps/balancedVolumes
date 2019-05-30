@@ -46,7 +46,15 @@ function getAttrName(metric, logicalYear) {
     return retval;
 } // getAttrName()
 
-// Create on-hover tooltip for SVG line segments
+// Create on-hover tooltip for SVG line segments: Define the div for the tooltip
+// Simple home-brewed tooltip, based on: http://bl.ocks.org/d3noob/a22c42db65eb00d4e369
+// 
+var tooltipDiv = d3.select("body").append("div")	
+    .attr("class", "tooltip")				
+    .style("opacity", 0);
+
+// Vestigial code for d3-tip tooltip follows:    
+/*
 var tip = d3.tip()
     .attr('class', 'd3-tip')
     .html(function(d, i) { 
@@ -67,6 +75,7 @@ var tip = d3.tip()
         return retval;
     })
     .direction(function(d, i) { return 'e'; });
+*/
 
 $(document).ready(function() {
     var q = d3.queue()
@@ -308,7 +317,36 @@ function generateSvgWireframe(wireframe_data, div_id, yDir_is_routeDir, year) {
                     googleBounds.extend({ lat : bbox[1], lng : bbox[0] });
                     googleBounds.extend({ lat : bbox[3], lng : bbox[2] });
                     map.fitBounds(googleBounds);
-                })            
+                })
+                .on("mouseover", function(d) {	    
+                    var tmpstr, metric, metricTxt, year, yearTxt, attrName, retval;
+                    tmpstr = d.description + '<br>' + d.description2 + '<br>';
+                    metric = $("#select_metric option:selected").attr('metric');
+                    metricTxt = $("#select_metric option:selected").text();
+                    year = $("#select_year option:selected").attr('year');
+                    yearTxt = $("#select_year option:selected").text();
+                    attrName = getAttrName(metric,year); 
+                    if (year.contains('delta')) {
+                        // Current assumption: all 'delta's are between 2018 and 2010
+                        tmpstr += 'Change in ' + metricTxt + ' between 2018 and 2010: ' + d[attrName].toLocaleString();
+                    } else {
+                        tmpstr += yearTxt + ' ' + metricTxt + ': ' + d[attrName].toLocaleString();
+                    }
+                    console.log(tmpstr);                 
+                    tooltipDiv.transition()		
+                        .duration(200)		
+                        .style("opacity", .9);		
+                    tooltipDiv.html(tmpstr)	
+                        .style("left", (d3.event.pageX) + "px")		
+                        .style("top", (d3.event.pageY - 28) + "px");	
+                    })					
+                .on("mouseout", function(d) {		
+                    tooltipDiv.transition()		
+                        .duration(500)		
+                        .style("opacity", 0);	
+                });
+// Vestigial code for d3-tip tooltip follows:               
+/*                
             .call(tip)
             .on('mouseover', function(d, i) {
                 tip.show(d, i);
@@ -316,7 +354,7 @@ function generateSvgWireframe(wireframe_data, div_id, yDir_is_routeDir, year) {
             .on('mouseout', function(d, i) {
                 tip.hide(d, i);
             }); 
-
+*/
 
     var mainline_xOffset = 150;
     var volumeText_xOffset = 250;
