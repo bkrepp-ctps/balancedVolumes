@@ -131,10 +131,10 @@ function initializeApp(error, results) {
     DATA.nb_data = nb_data;
     
     // Generate wireframe for southbound route
-    VIZ.sb = generateSvgWireframe(DATA.sb_data, 'sb_viz', true, 0 /* placeholder for now */);
+    VIZ.sb = generateSvgWireframe(DATA.sb_data, 'sb_viz', true);
     symbolizeSvgWireframe(VIZ.sb, 'sb_viz', 'awdt', '2018', polylineColorPalette.secondary);
     // Generate wireframe for northbound route
-    VIZ.nb = generateSvgWireframe(DATA.nb_data, 'nb_viz', false, 0 /* placeholder for now */);  
+    VIZ.nb = generateSvgWireframe(DATA.nb_data, 'nb_viz', false);  
     symbolizeSvgWireframe(VIZ.nb, 'nb_viz', 'awdt', '2018', polylineColorPalette.primary);    
     
     // Initialize Google Map
@@ -213,8 +213,7 @@ function initializeApp(error, results) {
 //                         direction as increasing Y-values in the SVG space;
 //                         used to determine which end of SVG <line> elements for
 //                         ramps corresponds to the 'end' (i.e., tip) of the ramp
-//      year - not yet used
-function generateSvgWireframe(wireframe_data, div_id, yDir_is_routeDir, year) {	
+function generateSvgWireframe(wireframe_data, div_id, yDir_is_routeDir) {	
     var verticalPadding = 10;
     var width = 450;
     var height = d3.max([d3.max(wireframe_data, function(d) { return d.y1; }),
