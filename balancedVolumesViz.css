@@ -37,6 +37,17 @@
     font-size:80% !important;
 }
 
+/* General rules. */
+.viz_caption {
+    text-align: center;
+    font-size: 18pt;
+}
+.options_div {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+/* End of general rules. */
+
 /* Rules for elements of the main view. */
 #wrapper {
     width: 100%;
@@ -75,14 +86,33 @@
 }
 /* End of rules for elements of the main view. */
 
-.viz_caption {
-    text-align: center;
-    font-size: 18pt;
+/* Rules for elements of the comparator view. */
+#comp_wrapper {
+    width: 100%;
+    /* height: 600px; */
 }
-.options_div {
-    margin-top: 5px;
-    margin-bottom: 5px;
+
+#sb_viz_yr_1, #sb_viz_yr_2 {
+    /* float: left; */
+    width: 450px;
+    height: 700px;
+    border: 2px solid #B87F32;
+    margin-right: 10px;
+    overflow: scroll;
+    overflow-x:  hidden;
 }
+#nb_viz_yr_1, #nb_viz_yr_2 {
+    width: 450px;
+    height: 700px;
+    border: 2px solid #B87F32;;
+    margin-left: 10px;
+    overflow: scroll;
+    overflow-x:  hidden;
+}
+.comp_viz {
+    width: 450px;
+}
+/* End of rules for elements of the comparator view. */
 
 /* Rule for the new 'simple' tooltip. */
 div.tooltip {	
