@@ -293,9 +293,9 @@ function generateSvgWireframe(wireframe_data, div_id, yDir_is_routeDir) {
                 .on("mouseover", function(d) {	    
                     var tmpstr, metric, metricTxt, year, yearTxt, attrName, retval;
                     tmpstr = d.description + '<br>' + d.description2 + '<br>';
-                    metric = $("#select_metric option:selected").attr('metric');
+                    metric = $("#select_metric option:selected").attr('value');
                     metricTxt = $("#select_metric option:selected").text();
-                    year = $("#select_year option:selected").attr('year');
+                    year = $("#select_year option:selected").attr('value');
                     yearTxt = $("#select_year option:selected").text();
                     attrName = getAttrName(metric,year); 
                     if (year.contains('delta')) {
