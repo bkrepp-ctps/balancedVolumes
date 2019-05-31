@@ -130,11 +130,83 @@ function initializeApp(error, results) {
     DATA.sb_data = sb_data;
     DATA.nb_data = nb_data;
     
+    // Handlers for various events on the SVG <line>-work:
+    var handlers = {
+        'click' :       function(d,i) {
+                            console.log('On-click handler: unique_id = ' + d.unique_id + ' data_id = ' + d.data_id); 
+                            var primaryDir, color;
+                            var dottedLine = false;
+                            var lineFeature = _.find(DATA.geojson.features, function(f) { return f.properties['data_id'] == d.data_id; } );
+                            if (lineFeature == null) {
+                                alert('Segment ' + d.unique_id + ' not found in GeoJSON.');
+                                // console.log('Segment ' + d.unique_id + ' not found in GeoJSON.');
+                                return;
+                            }
+                            primaryDir = primaryDirectionP(lineFeature.properties.backbone_rte);
+                            if (primaryDir) {
+                                // Clear any 'primary direction' (i.e., 'northbound') polylines on the map
+                                aPolylines_PrimDir.forEach(function(pl) { pl.setMap(null); });  
+                                color = polylineColorPalette.primary;
+                            } else {
+                                // Clear any 'secondary direction' (i.e., 'southbound') polylines on the map
+                                aPolylines_SecDir.forEach(function(pl) { pl.setMap(null); });  
+                                color = polylineColorPalette.secondary;
+                            }    
+                            // Create polyline feature and add it to the map
+                            var style = { strokeColor : color, strokeOpacity : 0.7, strokeWeight: 4.5 };
+                            // Render features that existed ONLY in 1999 with a dotted line, all others with a solid line
+                            if (lineFeature.properties['yr_1999'] === 1 && lineFeature.properties['yr_2010'] === 0) {
+                                dottedLine = true;
+                            }
+                            var polyline = ctpsGoogleMapsUtils.drawPolylineFeature(lineFeature, map, style, dottedLine);
+                            if (primaryDir) {
+                                aPolylines_PrimDir.push(polyline);
+                            } else {
+                                aPolylines_SecDir.push(polyline);
+                            }
+                            // Now pan/zoom map to selected feature
+                            var bbox = turf.bbox(lineFeature);
+                            // Return value of turf.bbox() has the form: [minX, minY, maxX, maxY]
+                            // Morph this into a form Google Maps can digest
+                            var googleBounds = new google.maps.LatLngBounds();
+                            googleBounds.extend({ lat : bbox[1], lng : bbox[0] });
+                            googleBounds.extend({ lat : bbox[3], lng : bbox[2] });
+                            map.fitBounds(googleBounds);                        
+        },
+        'mouseover' :   function(d,i) {
+                            var tmpstr, metric, metricTxt, year, yearTxt, attrName, retval;
+                            tmpstr = d.description + '<br>' + d.description2 + '<br>';
+                            metric = $("#select_metric option:selected").attr('value');
+                            metricTxt = $("#select_metric option:selected").text();
+                            year = $("#select_year option:selected").attr('value');
+                            yearTxt = $("#select_year option:selected").text();
+                            attrName = getAttrName(metric,year); 
+                            if (year.contains('delta')) {
+                                // Current assumption: all 'delta's are between 2018 and 2010
+                                tmpstr += 'Change in ' + metricTxt + ' between 2018 and 2010: ' + d[attrName].toLocaleString();
+                            } else {
+                                tmpstr += yearTxt + ' ' + metricTxt + ': ' + d[attrName].toLocaleString();
+                            }
+                            // console.log(tmpstr);                 
+                            tooltipDiv.transition()		
+                                .duration(200)		
+                                .style("opacity", .9);		
+                            tooltipDiv.html(tmpstr)	
+                                .style("left", (d3.event.pageX) + "px")		
+                                .style("top", (d3.event.pageY - 28) + "px");            
+                        },
+        'mouseout'  :   function(d,i) {
+                            tooltipDiv.transition()		
+                                .duration(500)		
+                                .style("opacity", 0);	            
+                        }      
+    }; // handlers{}
+    
     // Generate wireframe for southbound route
-    VIZ.sb = generateSvgWireframe(DATA.sb_data, 'sb_viz', true);
+    VIZ.sb = generateSvgWireframe(DATA.sb_data, 'sb_viz', true, handlers);
     symbolizeSvgWireframe(VIZ.sb, 'sb_viz', 'awdt', '2018', polylineColorPalette.secondary);
     // Generate wireframe for northbound route
-    VIZ.nb = generateSvgWireframe(DATA.nb_data, 'nb_viz', false);  
+    VIZ.nb = generateSvgWireframe(DATA.nb_data, 'nb_viz', false, handlers);  
     symbolizeSvgWireframe(VIZ.nb, 'nb_viz', 'awdt', '2018', polylineColorPalette.primary);    
     
     // Initialize Google Map
@@ -213,7 +285,11 @@ function initializeApp(error, results) {
 //                         direction as increasing Y-values in the SVG space;
 //                         used to determine which end of SVG <line> elements for
 //                         ramps corresponds to the 'end' (i.e., tip) of the ramp
-function generateSvgWireframe(wireframe_data, div_id, yDir_is_routeDir) {	
+//      handlers - object that optionally contains properties that are the handler
+//                 functions associated with events (click, mouseover, mouseout) on 
+//                 the SVG <line>-work. If these are non-null, they are bound to
+//                 to the SVG <line>-work; otherwise no function9s) is/are so bound.
+function generateSvgWireframe(wireframe_data, div_id, yDir_is_routeDir, handlers) {	
     var verticalPadding = 10;
     var width = 450;
     var height = d3.max([d3.max(wireframe_data, function(d) { return d.y1; }),
@@ -248,76 +324,18 @@ function generateSvgWireframe(wireframe_data, div_id, yDir_is_routeDir) {
             .attr("x1", function(d, i) { return d.x1; })
             .attr("y1", function(d, i) { return d.y1; })
             .attr("x2", function(d, i) { return d.x2; })
-            .attr("y2", function(d, i) { return d.y2; })
-            .on("click", function(d, i) { 
-                    // console.log('On-click handler: unique_id = ' + d.unique_id + ' data_id = ' + d.data_id); 
-                    var primaryDir, color;
-                    var dottedLine = false;
-                    var lineFeature = _.find(DATA.geojson.features, function(f) { return f.properties['data_id'] == d.data_id; } );
-                    if (lineFeature == null) {
-                        alert('Segment ' + d.unique_id + ' not found in GeoJSON.');
-                        // console.log('Segment ' + d.unique_id + ' not found in GeoJSON.');
-                        return;
-                    }
-                    primaryDir = primaryDirectionP(lineFeature.properties.backbone_rte);
-                    if (primaryDir) {
-                        // Clear any 'primary direction' (i.e., 'northbound') polylines on the map
-                        aPolylines_PrimDir.forEach(function(pl) { pl.setMap(null); });  
-                        color = polylineColorPalette.primary;
-                    } else {
-                        // Clear any 'secondary direction' (i.e., 'southbound') polylines on the map
-                        aPolylines_SecDir.forEach(function(pl) { pl.setMap(null); });  
-                        color = polylineColorPalette.secondary;
-                    }    
-                    // Create polyline feature and add it to the map
-                    var style = { strokeColor : color, strokeOpacity : 0.7, strokeWeight: 4.5 };
-                    // Render features that existed ONLY in 1999 with a dotted line, all others with a solid line
-                    if (lineFeature.properties['yr_1999'] === 1 && lineFeature.properties['yr_2010'] === 0) {
-                        dottedLine = true;
-                    }
-                    var polyline = ctpsGoogleMapsUtils.drawPolylineFeature(lineFeature, map, style, dottedLine);
-                    if (primaryDir) {
-                        aPolylines_PrimDir.push(polyline);
-                    } else {
-                        aPolylines_SecDir.push(polyline);
-                    }
-                    // Now pan/zoom map to selected feature
-                    var bbox = turf.bbox(lineFeature);
-                    // Return value of turf.bbox() has the form: [minX, minY, maxX, maxY]
-                    // Morph this into a form Google Maps can digest
-                    var googleBounds = new google.maps.LatLngBounds();
-                    googleBounds.extend({ lat : bbox[1], lng : bbox[0] });
-                    googleBounds.extend({ lat : bbox[3], lng : bbox[2] });
-                    map.fitBounds(googleBounds);
-                })
-                .on("mouseover", function(d) {	    
-                    var tmpstr, metric, metricTxt, year, yearTxt, attrName, retval;
-                    tmpstr = d.description + '<br>' + d.description2 + '<br>';
-                    metric = $("#select_metric option:selected").attr('value');
-                    metricTxt = $("#select_metric option:selected").text();
-                    year = $("#select_year option:selected").attr('value');
-                    yearTxt = $("#select_year option:selected").text();
-                    attrName = getAttrName(metric,year); 
-                    if (year.contains('delta')) {
-                        // Current assumption: all 'delta's are between 2018 and 2010
-                        tmpstr += 'Change in ' + metricTxt + ' between 2018 and 2010: ' + d[attrName].toLocaleString();
-                    } else {
-                        tmpstr += yearTxt + ' ' + metricTxt + ': ' + d[attrName].toLocaleString();
-                    }
-                    // console.log(tmpstr);                 
-                    tooltipDiv.transition()		
-                        .duration(200)		
-                        .style("opacity", .9);		
-                    tooltipDiv.html(tmpstr)	
-                        .style("left", (d3.event.pageX) + "px")		
-                        .style("top", (d3.event.pageY - 28) + "px");	
-                    })					
-                .on("mouseout", function(d) {		
-                    tooltipDiv.transition()		
-                        .duration(500)		
-                        .style("opacity", 0);	
-                });
-
+            .attr("y2", function(d, i) { return d.y2; });
+            
+    if (handlers.click !== null) {
+        svgRouteSegs.on("click", handlers.click);
+    }
+    if (handlers.mouseover !== null) {
+        svgRouteSegs.on("mouseover", handlers.mouseover);
+    } 
+    if (handlers.mouseout !== null) {
+        svgRouteSegs.on("mouseout", handlers.mouseout);
+    }    
+   
     var mainline_xOffset = 150;
     var volumeText_xOffset = 250;
     
