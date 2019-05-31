@@ -278,13 +278,13 @@ function generateSvgWireframe(wireframe_data, div_id, yDir_is_routeDir, year) {
             .attr("x2", function(d, i) { return d.x2; })
             .attr("y2", function(d, i) { return d.y2; })
             .on("click", function(d, i) { 
-                    console.log('On-click handler: unique_id = ' + d.unique_id + ' data_id = ' + d.data_id); 
+                    // console.log('On-click handler: unique_id = ' + d.unique_id + ' data_id = ' + d.data_id); 
                     var primaryDir, color;
                     var dottedLine = false;
                     var lineFeature = _.find(DATA.geojson.features, function(f) { return f.properties['data_id'] == d.data_id; } );
                     if (lineFeature == null) {
                         alert('Segment ' + d.unique_id + ' not found in GeoJSON.');
-                        console.log('Segment ' + d.unique_id + ' not found in GeoJSON.');
+                        // console.log('Segment ' + d.unique_id + ' not found in GeoJSON.');
                         return;
                     }
                     primaryDir = primaryDirectionP(lineFeature.properties.backbone_rte);
@@ -332,7 +332,7 @@ function generateSvgWireframe(wireframe_data, div_id, yDir_is_routeDir, year) {
                     } else {
                         tmpstr += yearTxt + ' ' + metricTxt + ': ' + d[attrName].toLocaleString();
                     }
-                    console.log(tmpstr);                 
+                    // console.log(tmpstr);                 
                     tooltipDiv.transition()		
                         .duration(200)		
                         .style("opacity", .9);		
