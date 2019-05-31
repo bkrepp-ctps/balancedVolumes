@@ -1,13 +1,10 @@
 var geojsonURL = 'data/geojson/i93_and_sr3_complete.geojson';
-// var csvWireFrame_sb_URL = 'data/wireframe/i93_sr3_sb_COMPLETE.csv';
-// var csvWireFrame_nb_URL = 'data/wireframe/i93_sr3_nb_COMPLETE.csv';
-
 var csvWireFrame_sb_URL = 'data/csv/join_i93_sr3_sb_wireframe_and_volumes.csv';
 var csvWireFrame_nb_URL = 'data/csv/join_i93_sr3_nb_wireframe_and_volumes.csv';
 
 // Pseudo-const "var" for NO_DATA flag value
 var NO_DATA = -9999;
-// Global "database" of data read in from JSON and CSV files
+// Global "database" of data read in from CSV and JSON files
 var DATA = {};
 // Global access to D3 visualization elements
 VIZ = {};
@@ -53,30 +50,6 @@ var tooltipDiv = d3.select("body").append("div")
     .attr("class", "tooltip")				
     .style("opacity", 0);
 
-// Vestigial code for d3-tip tooltip follows:    
-/*
-var tip = d3.tip()
-    .attr('class', 'd3-tip')
-    .html(function(d, i) { 
-        var tmpstr, metric, metricTxt, year, yearTxt, attrName, retval;
-        tmpstr = d.description + '<br>' + d.description2 + '<br>';
-        metric = $("#select_metric option:selected").attr('metric');
-        metricTxt = $("#select_metric option:selected").text();
-        year = $("#select_year option:selected").attr('year');
-        yearTxt = $("#select_year option:selected").text();
-        attrName = getAttrName(metric,year); 
-        if (year.contains('delta')) {
-            // Current assumption: all 'delta's are between 2018 and 2010
-            tmpstr += 'Change in ' + metricTxt + ' between 2018 and 2010: ' + d[attrName].toLocaleString();
-        } else {
-            tmpstr += yearTxt + ' ' + metricTxt + ': ' + d[attrName].toLocaleString();
-        }
-        retval = tmpstr;
-        return retval;
-    })
-    .direction(function(d, i) { return 'e'; });
-*/
-
 $(document).ready(function() {
     var q = d3.queue()
                 .defer(d3.json, geojsonURL)
@@ -98,8 +71,8 @@ function initializeApp(error, results) {
         return;         
     }        
     var geojson = results[0];
-    var sb_wireframe = results[1];
-    var nb_wireframe = results[2];
+    var sb_data = results[1];
+    var nb_data = results[2];
 
     // Prep data loaded for use in app
     DATA.geojson = geojson;
@@ -152,16 +125,16 @@ function initializeApp(error, results) {
         rec['delta_2018_2010_peak_6_to_7_pm'] = (rec['peak_2018_6_to_7_pm'] != NO_DATA) ? rec['peak_2018_6_to_7_pm'] - rec['peak_2010_6_to_7_pm'] : NO_DATA;
     } 
 
-    sb_wireframe.forEach(cleanupCsvRec);
-    nb_wireframe.forEach(cleanupCsvRec);     
-    DATA.sb_wireframe = sb_wireframe;
-    DATA.nb_wireframe = nb_wireframe;
+    sb_data.forEach(cleanupCsvRec);
+    nb_data.forEach(cleanupCsvRec);     
+    DATA.sb_data = sb_data;
+    DATA.nb_data = nb_data;
     
     // Generate wireframe for southbound route
-    VIZ.sb = generateSvgWireframe(DATA.sb_wireframe, 'sb_viz', true, 0 /* placeholder for now */);
+    VIZ.sb = generateSvgWireframe(DATA.sb_data, 'sb_viz', true, 0 /* placeholder for now */);
     symbolizeSvgWireframe(VIZ.sb, 'sb_viz', 'awdt', '2018', polylineColorPalette.secondary);
     // Generate wireframe for northbound route
-    VIZ.nb = generateSvgWireframe(DATA.nb_wireframe, 'nb_viz', false, 0 /* placeholder for now */);  
+    VIZ.nb = generateSvgWireframe(DATA.nb_data, 'nb_viz', false, 0 /* placeholder for now */);  
     symbolizeSvgWireframe(VIZ.nb, 'nb_viz', 'awdt', '2018', polylineColorPalette.primary);    
     
     // Initialize Google Map
@@ -345,16 +318,6 @@ function generateSvgWireframe(wireframe_data, div_id, yDir_is_routeDir, year) {
                         .duration(500)		
                         .style("opacity", 0);	
                 });
-// Vestigial code for d3-tip tooltip follows:               
-/*                
-            .call(tip)
-            .on('mouseover', function(d, i) {
-                tip.show(d, i);
-            })
-            .on('mouseout', function(d, i) {
-                tip.hide(d, i);
-            }); 
-*/
 
     var mainline_xOffset = 150;
     var volumeText_xOffset = 250;
