@@ -113,7 +113,7 @@
     </div>
     
     <div id="comp_options_2" class="options_div">
-         <label for="sync_all_scrollbars">Synchronize all scrollbars:</label>
+        <label for="sync_all_scrollbars">Synchronize all scrollbars:</label>
         <input type="radio" name="scroll_radio" class="scroll_radio" id="sync_all_scrollbars"  value="sync_all_scrollbars">   
         <label for="sync_sb_scrollbars">Synchronize scrollbars for southbound direction:</label>
         <input type="radio" name="scroll_radio" class="scroll_radio" id="sync_sb_scrollbars" value="sync_sb_scrollbars"> 
@@ -123,7 +123,43 @@
         <input type="radio" name="scroll_radio" class="scroll_radio" id="unsyc_scrollbars"  value="unsync_scrollbars">     
     </div>
     
-    <!-- more stuff to go here -->
+    <div id="gfx_wrapper_2">
+        <!-- Gross, but effective, table layout... for now -->
+        <table>
+            <tr>
+                <!-- Southbound, year 1 -->
+                <td id="comp_caption_sb_yr_1" class="viz_caption">Southbound 2018 AWDT &darr;</td>
+                <!-- Southbound, year 2 -->
+                <td id="comp_caption_sb_yr_2" class="viz_caption">Southbound 2010 AWDT &darr;</td>
+                <!-- Northbound, year 1 -->
+                <td id="comp_caption_nb_yr_1" class="viz_caption">Northbound 2018 AWDT &uarr;</td>
+                <!-- Northbound, year 2 -->
+                <td id="comp_caption_nb_yr_2" class="viz_caption">Northbound 2010 AWDT &uarr;</td>
+            </tr>
+            <tr>
+                <!-- Southbound, year 1 -->
+                <td>
+                    <div id="sb_viz_yr_1" class="comp_viz syncscroll" role="presentation">
+                    </div>
+                </td>
+                <!-- Southbound, year 2 -->
+                <td>
+                    <div id="sb_viz_yr_2" class="comp_viz syncscroll" role="presentation">
+                    </div>
+                </td>  
+                <!-- Northbound, year 1 -->                
+                <td>
+                    <div id="nb_viz_yr_1" class="comp_viz syncscroll" role="presentation">
+                    </div> 
+                </td>
+                <!-- Northbound, year 2 -->
+                <td>
+                    <div id="nb_viz_yr_2" class="comp_viz syncscroll" role="presentation">
+                    </div> 
+                </td>
+            </tr>
+        </table> 
+    </div> <!-- gfx_wrapper_2 -->
     
 </div> <!-- comp_wrapper div -->
 
