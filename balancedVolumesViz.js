@@ -57,9 +57,9 @@ $(document).ready(function() {
         var view = $('.select_view:checked').val();
         if (view === 'select_main_view') {
             $('#comp_wrapper').hide();   
-            $('#wrapper').show();
+            $('#main_wrapper').show();
         } else {
-            $('#wrapper').hide();
+            $('#main_wrapper').hide();
             $('#comp_wrapper').show();
         }
     });
