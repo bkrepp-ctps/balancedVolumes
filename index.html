@@ -23,8 +23,18 @@
     <div id="banner"><a href="https://www.ctps.org/" target="_blank" title="Boston MPO"><img style="height:59px" src="./img/ctps_header.png" title="Opens Boston MPO website in a new window"></a></div>
 </div>
 <h1 class="pagetitle">Balanced Volumes - Development Version</h1>
-<div id="wrapper" style="align:center">
+<div id="header_div">
     <div class="options_div">
+        <label for="select_main_view">Main View</label>
+        <input type="radio" name="select_view" class="select_view" id="select_main_view"  value="select_main_view" checked>     
+        <label for="select_comp_view">AWDT Comparision View</label>
+        <input type="radio" name="select_view" class="select_view" id="select_comp_view" value="select_comp_view">   
+    </div>
+</div> <!-- header_div -->
+
+<div id="main_wrapper">
+    <!-- <h3>Main View</h3> -->
+    <div id="main_options_1" class="options_div">
         <span>
             Select year:
             <select id="select_year" class="app_select_box">
@@ -50,12 +60,12 @@
         </span>
     </div>
     
-    <div class="options_div">
+    <div id="main_options_2" class="options_div">
         <label for="sync_scrollbars">Synchronize scrollbars</label>
         <input type="checkbox" id="sync_scrollbars" name="sync_scrollbars" value="sync_scrollbars"> 
     </div>
     
-    <div id="gfx_wrapper">
+    <div id="gfx_wrapper_1">
         <!-- Gross, but effective, table layout... for now -->
         <table>
             <tr>
@@ -80,8 +90,43 @@
                 </td>
             </tr>
         </table> 
+    </div> <!-- gfx_wrapper_1 -->
+</div> <!-- main_wrapper div -->
+
+<div id="comp_wrapper">
+    <!-- <h3>AWDT Comparator View</h3> -->
+    <div id="comp_options_1" class="options_div">
+        <span>
+            Select AWDT year 1:
+            <select id="select_year_1" class="app_select_box">
+                <option value="2018" selected>2018</option>
+                <option value="2010">2010</option>
+                <option value="1999">1999</option>
+            </select>
+            Select AWDT year 2:
+            <select id="select_year_2" class="app_select_box">
+                <option value="2018">2018</option>
+                <option value="2010" selected>2010</option>
+                <option value="1999">1999</option>
+            </select>
+        </span>
     </div>
-</div> 
+    
+    <div id="comp_options_2" class="options_div">
+         <label for="sync_all_scrollbars">Synchronize all scrollbars:</label>
+        <input type="radio" name="scroll_radio" class="scroll_radio" id="sync_all_scrollbars"  value="sync_all_scrollbars">   
+        <label for="sync_sb_scrollbars">Synchronize scrollbars for southbound direction:</label>
+        <input type="radio" name="scroll_radio" class="scroll_radio" id="sync_sb_scrollbars" value="sync_sb_scrollbars"> 
+        <label for="sync_nb_scrollbars">Synchronize scrollbars for northbound direction:</label>
+        <input type="radio" name="scroll_radio" class="scroll_radio" id="sync_nb_scrollbars" value="sync_nb_scrollbars">   
+        <label for="unsync_scrollbars">Un-synchronize scrollbars:</label>
+        <input type="radio" name="scroll_radio" class="scroll_radio" id="unsyc_scrollbars"  value="unsync_scrollbars">     
+    </div>
+    
+    <!-- more stuff to go here -->
+    
+</div> <!-- comp_wrapper div -->
+
 <script src="balancedVolumesViz.js"></script>
 </body>
 </html>

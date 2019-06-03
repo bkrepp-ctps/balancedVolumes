@@ -51,6 +51,18 @@ var tooltipDiv = d3.select("body").append("div")
     .style("opacity", 0);
 
 $(document).ready(function() {
+    $('#wrapper').show();
+    $('#comp_wrapper').hide();
+    $('.select_view').on("click", function(e) {
+        var view = $('.select_view:checked').val();
+        if (view === 'select_main_view') {
+            $('#comp_wrapper').hide();   
+            $('#wrapper').show();
+        } else {
+            $('#wrapper').hide();
+            $('#comp_wrapper').show();
+        }
+    });
     var q = d3.queue()
                 .defer(d3.json, geojsonURL)
                 .defer(d3.csv, csvWireFrame_sb_URL)
