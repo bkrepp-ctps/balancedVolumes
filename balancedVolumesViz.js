@@ -90,7 +90,7 @@ function initializeApp(error, results) {
     DATA.geojson = geojson;
     
     function cleanupCsvRec(rec) {
-        var temp;
+        var tmp1, tmp2;
         rec.x1 = +rec.x1;
         rec.y1 = +rec.y1;
         rec.x2 = +rec.x2;
@@ -100,15 +100,20 @@ function initializeApp(error, results) {
         rec.yr_1999 = +rec.yr_1999;
         rec.yr_2010 = +rec.yr_2010;
         rec.yr_2018 = +rec.yr_2018;
-        // Add 'year_restriction' field:
+        // Split 'description' field into 3 parts
+        tmp1 = rec.description.split('|');
+        rec.description = tmp1[0].trim();
+        rec.description2 = (tmp1.length > 1) ? tmp1[1].trim() : '';
+        rec.description3 = (tmp1.length === 3) ? tmp1[2].trim() : '';
+        // Add 'year_restriction' field
         if (rec.yr_1999 === 1 && rec.yr_2010 === 0) {
-            temp = 'yr_1999_only';
+            tmp2 = 'yr_1999_only';
         } else if (rec.yr_1999 === 0 && rec.yr_2010 === 1) {
-            temp = 'yr_2010_only';
+            tmp2 = 'yr_2010_only';
         } else {
-            temp = 'yr_restriction_none';
+            tmp2 = 'yr_restriction_none';
         }
-        rec.year_restriction = temp;
+        rec.year_restriction = tmp2;
         rec.awdt_1999 = +rec.awdt_1999;
         [2018, 2010].forEach(function(year) {
             rec['awdt_' + year] = +rec['awdt_' + year];
@@ -135,7 +140,7 @@ function initializeApp(error, results) {
         rec['delta_2018_2010_peak_5_to_6_pm'] = (rec['peak_2018_5_to_6_pm'] != NO_DATA) ? rec['peak_2018_5_to_6_pm'] - rec['peak_2010_5_to_6_pm'] : NO_DATA;
         rec['delta_2018_2010_cum_3_to_6_pm']  = (rec['cum_2018_3_to_6_pm'] != NO_DATA) ? rec['cum_2018_3_to_6_pm'] - rec['cum_2010_3_to_6_pm'] : NO_DATA;
         rec['delta_2018_2010_peak_6_to_7_pm'] = (rec['peak_2018_6_to_7_pm'] != NO_DATA) ? rec['peak_2018_6_to_7_pm'] - rec['peak_2010_6_to_7_pm'] : NO_DATA;
-    } 
+    } // cleanupCsvRec()
 
     sb_data.forEach(cleanupCsvRec);
     nb_data.forEach(cleanupCsvRec);     
@@ -425,7 +430,7 @@ function generateSvgWireframe(wireframe_data, div_id, yDir_is_routeDir, handlers
         .append("g")
             .attr("transform", "translate(75,0)");  
     
-    // 'wireframe' for the schematic route outline, consisting of SVG <line> elements
+    // (1) 'wireframe' for the schematic route outline, consisting of SVG <line> elements
     //
     var svgRouteSegs = svgRouteSegs_g     
         .selectAll("line")
@@ -458,7 +463,7 @@ function generateSvgWireframe(wireframe_data, div_id, yDir_is_routeDir, handlers
     var mainline_xOffset = 150;
     var volumeText_xOffset = 250;
     
-    // SVG <text> elements for the balanced volume data itself
+    // (2) SVG <text> elements for the balanced volume data itself
     // Do not show volume data for pseudo-ramps for HOV lanes - these are just graphical decorations
    var filtered_wireframe_data1 = _.filter(wireframe_data, function(rec) { return (rec.type != 'ramphov'); });
     var svgVolumeText_g = svgContainer
@@ -609,7 +614,7 @@ function generateSvgWireframe(wireframe_data, div_id, yDir_is_routeDir, handlers
                 }) 
             .text('');  // Placeholder value
 
-    // SVG <text> and <tspan> elements for descriptive labels, e.g., "Interchange X off-ramp to Y"
+    // (3) SVG <text> and <tspan> elements for descriptive labels, e.g., "Interchange X off-ramp to Y"
     // These are only applied for certain records in the input data, essentially interchange on/off ramps
     var filtered_wireframe_data2 = _.filter(wireframe_data, function(rec) { return (rec.showdesc === 1); });
     var svgLabelText_g = svgContainer.append("g");
@@ -725,8 +730,46 @@ function generateSvgWireframe(wireframe_data, div_id, yDir_is_routeDir, handlers
         }) 
         .attr("dy", 10)
         .text(''); // Placeholder
+    // Third line of descriptive label text
+    var line3 = svgLabelText.append("tspan")
+        .attr("class", function(d, i) {
+            var retval = 'label_tspan_3';
+            retval += ' ' + d.year_restriction;
+            return retval;
+        })
+        .attr("x", 5)
+        .attr("y", function(d, i) { 
+            var retval;
+            // Place descriptive label at the Y-coordinate of the 'tip' ('loose end') of the ramp.
+            // Which end is the 'tip' depends upon (1) whether the direction of the 
+            // route corresponds to increasing Y-values in SVG space, and (2) whether
+            // the ramp is an on- or off-ramp.
+            switch(d.type) {
+            case 'ramp_on_left':
+            case 'ramp_on_right':
+                retval = (yDir_is_routeDir === true) ? d3.min([d.y1,d.y2]) : d3.max([d.y1,d.y2]);
+                break;
+            case 'ramp_off_left':
+            case 'ramp_off_right':
+                retval = (yDir_is_routeDir === true) ? d3.max([d.y1,d.y2]) : d3.min([d.y1,d.y2]);
+                break;
+            case 'rampleftmain':
+                // These are 'vertical' off-ramps
+                retval = (yDir_is_routeDir === true) ? d3.max([d.y1,d.y2]) : d3.min([d.y1,d.y2]);
+                break;                
+            default:
+                // The following cases should never occur in practice:
+                // main, mainright, mainleft, hovleft, hovright, and ramphov.              
+                retval = 0;  // Retval is arbitrary choice
+                break;   
+            }
+            return retval; 
+        }) 
+        .attr("dy", 20)
+        .text(''); // Placeholder        
+    
             
-    var retval = { lines : svgRouteSegs, volume_txt : svgVolumeText, label_txt_1 : line1, label_txt_2 : line2 };
+    var retval = { lines : svgRouteSegs, volume_txt : svgVolumeText, label_txt_1 : line1, label_txt_2 : line2, label_txt_3: line3 };
     return retval;
 } // generateSvgWireframe()
 
@@ -854,6 +897,8 @@ function symbolizeSvgWireframe(vizWireframe, divId, metric, year, color) {
         .text(function(d,i) { return d.description; });
     vizWireframe.label_txt_2
         .text(function(d,i) { return d.description2; });
+    vizWireframe.label_txt_3
+        .text(function(d,i) { return d.description3; });   
 } // symbolizeSvgWireframe()
 
 function initMap(data) {
