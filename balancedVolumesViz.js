@@ -6,14 +6,14 @@ var csvWireFrame_nb_URL = 'data/csv/join_i93_sr3_nb_wireframe_and_volumes.csv';
 var NO_DATA = -9999;
 // Global "database" of data read in from CSV and JSON files
 var DATA = {};
-// Global access to D3 visualization elements
+// Global access to SVG elements for D3 visualization
 VIZ = {};
 // Google Maps map object
 var map; 
 // Primary-direction (northbound or eastbound) and secondary-direction (southbound or westbound) 
 // polyline features on GoogleMap
 aPolylines_PrimDir = [], aPolylines_SecDir = [];
-polylineColorPalette = { 'primary' : '#f5831a', 'secondary' : '#0066b4' };
+lineColorPalette = { 'primary' : '#f5831a', 'secondary' : '#0066b4' };
 
 // Helper function: getAttrName
 //
@@ -100,7 +100,6 @@ function initializeApp(error, results) {
         rec.yr_1999 = +rec.yr_1999;
         rec.yr_2010 = +rec.yr_2010;
         rec.yr_2018 = +rec.yr_2018;
-        rec.awdt_1999 = +rec.awdt_1999;
         // Add 'year_restriction' field:
         if (rec.yr_1999 === 1 && rec.yr_2010 === 0) {
             temp = 'yr_1999_only';
@@ -110,6 +109,7 @@ function initializeApp(error, results) {
             temp = 'yr_restriction_none';
         }
         rec.year_restriction = temp;
+        rec.awdt_1999 = +rec.awdt_1999;
         [2018, 2010].forEach(function(year) {
             rec['awdt_' + year] = +rec['awdt_' + year];
             rec['peak_' + year + '_6_to_7_am']  = +rec['peak_' + year + '_6_to_7_am'];
@@ -142,7 +142,7 @@ function initializeApp(error, results) {
     DATA.sb_data = sb_data;
     DATA.nb_data = nb_data;
     
-    // Handlers for various events on the SVG <line>-work:
+    // Handlers for various events on the main SVG <line>-work:
     var handlers = {
         'click' :       function(d,i) {
                             console.log('On-click handler: unique_id = ' + d.unique_id + ' data_id = ' + d.data_id); 
@@ -158,11 +158,11 @@ function initializeApp(error, results) {
                             if (primaryDir) {
                                 // Clear any 'primary direction' (i.e., 'northbound') polylines on the map
                                 aPolylines_PrimDir.forEach(function(pl) { pl.setMap(null); });  
-                                color = polylineColorPalette.primary;
+                                color = lineColorPalette.primary;
                             } else {
                                 // Clear any 'secondary direction' (i.e., 'southbound') polylines on the map
                                 aPolylines_SecDir.forEach(function(pl) { pl.setMap(null); });  
-                                color = polylineColorPalette.secondary;
+                                color = lineColorPalette.secondary;
                             }    
                             // Create polyline feature and add it to the map
                             var style = { strokeColor : color, strokeOpacity : 0.7, strokeWeight: 4.5 };
@@ -186,7 +186,7 @@ function initializeApp(error, results) {
                             map.fitBounds(googleBounds);                        
         },
         'mouseover' :   function(d,i) {
-                            var tmpstr, metric, metricTxt, year, yearTxt, attrName, retval;
+                            var tmpstr, metric, metricTxt, year, yearTxt, attrName, backgroundColor;
                             tmpstr = d.description + '<br>' + d.description2 + '<br>';
                             metric = $("#select_metric option:selected").attr('value');
                             metricTxt = $("#select_metric option:selected").text();
@@ -194,16 +194,18 @@ function initializeApp(error, results) {
                             yearTxt = $("#select_year option:selected").text();
                             attrName = getAttrName(metric,year); 
                             if (year.contains('delta')) {
-                                // Current assumption: all 'delta's are between 2018 and 2010
+                                // Current assumption: all "deltas" are between 2018 and 2010
                                 tmpstr += 'Change in ' + metricTxt + ' between 2018 and 2010: ' + d[attrName].toLocaleString();
                             } else {
                                 tmpstr += yearTxt + ' ' + metricTxt + ': ' + d[attrName].toLocaleString();
                             }
+                            backgroundColor = (primaryDirectionP(d.backbone_rte)) ? lineColorPalette.primary : lineColorPalette.secondary;
                             // console.log(tmpstr);                 
                             tooltipDiv.transition()		
                                 .duration(200)		
-                                .style("opacity", .9);		
-                            tooltipDiv.html(tmpstr)	
+                                .style("opacity", .9);                              
+                            tooltipDiv.html(tmpstr)
+                                .style("background", backgroundColor)
                                 .style("left", (d3.event.pageX) + "px")		
                                 .style("top", (d3.event.pageY - 28) + "px");            
                         },
@@ -214,17 +216,26 @@ function initializeApp(error, results) {
                         }      
     }; // handlers{}
     
-    // Generate wireframe for southbound route
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // Initialize stuff for the 'main' view: 
+    //      1. SVG wireframe
+    //      2. Google Map
+    //      3. Event handlers for UI controls
+    //          a. select_year combo box
+    //          b. select_metric combo box
+    //          c. sync_scrollbars checkbox
+    // 
+    // (1)  Initialize SVG wireframes
     VIZ.sb = generateSvgWireframe(DATA.sb_data, 'sb_viz', true, handlers);
-    symbolizeSvgWireframe(VIZ.sb, 'sb_viz', 'awdt', '2018', polylineColorPalette.secondary);
-    // Generate wireframe for northbound route
+    symbolizeSvgWireframe(VIZ.sb, 'sb_viz', 'awdt', '2018', lineColorPalette.secondary);
     VIZ.nb = generateSvgWireframe(DATA.nb_data, 'nb_viz', false, handlers);  
-    symbolizeSvgWireframe(VIZ.nb, 'nb_viz', 'awdt', '2018', polylineColorPalette.primary);    
+    symbolizeSvgWireframe(VIZ.nb, 'nb_viz', 'awdt', '2018', lineColorPalette.primary);    
     
-    // Initialize Google Map
+    // (2) Initialize Google Map
     initMap(DATA); // No need to pass DATA as parm, but doing so anyway  
 
-    // Arm event handler for select_year combo box
+    // (3) Event hanlders for UI controls
+    // (3a) Arm event handler for select_year combo box
     $('#select_year').change(function(e) {
         var year = $("#select_year option:selected").attr('value');
         var metric;
@@ -256,11 +267,11 @@ function initializeApp(error, results) {
             $("#select_metric option[value='peak_6_to_7_pm']").prop('disabled', false);              
         }
         metric = $("#select_metric option:selected").attr('value');
-        symbolizeSvgWireframe(VIZ.sb, 'sb_viz', metric, year, polylineColorPalette.secondary);
-        symbolizeSvgWireframe(VIZ.nb, 'nb_viz', metric, year, polylineColorPalette.primary);       
+        symbolizeSvgWireframe(VIZ.sb, 'sb_viz', metric, year, lineColorPalette.secondary);
+        symbolizeSvgWireframe(VIZ.nb, 'nb_viz', metric, year, lineColorPalette.primary);       
     });
     
-    // Arm event handler for select_metric combo box
+    // (3b) Arm event handler for select_metric combo box
     $('#select_metric').change(function(e) {
         var metric = $("#select_metric option:selected").attr('value');
         var year = $("#select_year option:selected").attr('value');
@@ -269,11 +280,11 @@ function initializeApp(error, results) {
             $("#select_metric").val('awdt');
             metric = $("#select_metric option:selected").attr('value');
         }       
-        symbolizeSvgWireframe(VIZ.sb, 'sb_viz', metric, year, polylineColorPalette.secondary);
-        symbolizeSvgWireframe(VIZ.nb, 'nb_viz', metric, year, polylineColorPalette.primary);                
+        symbolizeSvgWireframe(VIZ.sb, 'sb_viz', metric, year, lineColorPalette.secondary);
+        symbolizeSvgWireframe(VIZ.nb, 'nb_viz', metric, year, lineColorPalette.primary);                
      });
     
-    // On-change handler for sync_scrollbars checkbox
+    // (3c) On-change handler for sync_scrollbars checkbox
     // Synchronize or un-synchronize the scrollbars for the sb_viz and nb_viz <div>s
     // Documentation on the (very simple) syncscroll.js library may be found at:
     //      https://github.com/asvd/syncscroll
@@ -286,7 +297,95 @@ function initializeApp(error, results) {
         elt.setAttribute('name', newName);
         syncscroll.reset();  
     });
-} // initializeApp
+    
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // Initialize stuff for 'comparison' view:
+    //      1. SVG wireframes
+    //      2. Event handlers for UI controls
+    //          a. select_year_1 and select_year_2 combo boxes
+    //          b. sync_*_scrollbars radio buttons
+    //
+    // (1) Initialize SVG wireframes:
+    //      Southbound route, year 1 - default is 2018
+    //      Southbound route, year 2 - default is 2010
+    //      Northbound route, year 1 - default is 2018
+    //      Northbound route, year 2 - default is 2010
+    VIZ.sb_yr_1 = generateSvgWireframe(DATA.sb_data, 'sb_viz_yr_1', true, null);
+    symbolizeSvgWireframe(VIZ.sb_yr_1, 'sb_viz_yr_1', 'awdt', '2018', lineColorPalette.secondary);
+    VIZ.sb_yr_2 = generateSvgWireframe(DATA.sb_data, 'sb_viz_yr_2', true, null);
+    symbolizeSvgWireframe(VIZ.sb_yr_2, 'sb_viz_yr_2', 'awdt', '2010', lineColorPalette.secondary);   
+    VIZ.nb_yr_1 = generateSvgWireframe(DATA.nb_data, 'nb_viz_yr_1', false, null);  
+    symbolizeSvgWireframe(VIZ.nb_yr_1, 'nb_viz_yr_1', 'awdt', '2018', lineColorPalette.primary);    
+    VIZ.nb_yr_2 = generateSvgWireframe(DATA.nb_data, 'nb_viz_yr_2', false, null);  
+    symbolizeSvgWireframe(VIZ.nb_yr_2, 'nb_viz_yr_2', 'awdt', '2010', lineColorPalette.primary);   
+
+    // (2a) Arm event handlers for select_year_ and select_year_2 combo boxes
+    $('#select_year_1').change(function(e) {
+        var year_1 = $("#select_year_1 option:selected").attr('value');   
+        var tmp = 'Southbound' + '&nbsp;' + year_1 + '&nbsp;AWDT&nbsp;' + '&darr;';
+        $('#comp_caption_sb_yr_1').html(tmp);
+        tmp = 'Northbound' + '&nbsp;' + year_1 + '&nbsp;AWDT&nbsp;' + '&uarr;';
+        $('#comp_caption_nb_yr_1').html(tmp);
+        symbolizeSvgWireframe(VIZ.sb_yr_1, 'sb_viz_yr_1', 'awdt', year_1,  lineColorPalette.secondary);  
+        symbolizeSvgWireframe(VIZ.nb_yr_1, 'nb_viz_yr_1', 'awdt', year_1,  lineColorPalette.primary); 
+    });
+    $('#select_year_2').change(function(e) {
+        var year_2 = $("#select_year_2 option:selected").attr('value');      
+        var tmp = 'Southbound' + '&nbsp;' + year_2 + '&nbsp;AWDT&nbsp;' + '&darr;';
+        $('#comp_caption_sb_yr_2').html(tmp);
+        tmp = 'Northbound' + '&nbsp;' + year_2 + '&nbsp;AWDT&nbsp;' + '&uarr;';
+        $('#comp_caption_nb_yr_2').html(tmp);     
+        symbolizeSvgWireframe(VIZ.sb_yr_2, 'sb_viz_yr_2', 'awdt', year_2,  lineColorPalette.secondary);  
+        symbolizeSvgWireframe(VIZ.nb_yr_2, 'nb_viz_yr_2', 'awdt', year_2,  lineColorPalette.primary);         
+    }); 
+
+    // (2b) Arm-change handlers for sync_*_scrollbars radio buttons
+    // Documentation on the (very simple) syncscroll.js library may be found at:
+    //      https://github.com/asvd/syncscroll
+    $('.scroll_radio').on("click", function(e) {
+        var checked = $('.scroll_radio:checked').val();
+        var newName = (checked !== 'unsync_scrollbars') ? checked : '';
+        var elt;
+        switch(checked) {
+        case "sync_all_scrollbars":
+        case "unsync_scrollbars":
+            elt = $('#nb_viz_yr_1').get()[0];
+            elt.setAttribute('name', newName);   
+            elt = $('#nb_viz_yr_2').get()[0];
+            elt.setAttribute('name', newName);         
+            elt =  $('#sb_viz_yr_1').get()[0];
+            elt.setAttribute('name', newName);
+            elt =  $('#sb_viz_yr_2').get()[0];
+            elt.setAttribute('name', newName);            
+            break;           
+        case "sync_sb_scrollbars":
+            elt = $('#nb_viz_yr_1').get()[0];
+            elt.setAttribute('name', 'name_1');   
+            elt = $('#nb_viz_yr_2').get()[0];
+            elt.setAttribute('name', 'name_2');  
+            elt =  $('#sb_viz_yr_1').get()[0];
+            elt.setAttribute('name', newName);
+            elt =  $('#sb_viz_yr_2').get()[0];
+            elt.setAttribute('name', newName);             
+            break;
+        case "sync_nb_scrollbars":
+            elt = $('#nb_viz_yr_1').get()[0];
+            elt.setAttribute('name', newName);   
+            elt = $('#nb_viz_yr_2').get()[0];
+            elt.setAttribute('name', newName);    
+            elt =  $('#sb_viz_yr_1').get()[0];
+            elt.setAttribute('name', 'name_3');
+            elt =  $('#sb_viz_yr_2').get()[0];
+            elt.setAttribute('name', 'name_4');            
+            break;
+        default:
+            // Should never get here
+            console.log("Unrecognized 'checked' value: " + checked);
+            break;
+        }      
+        syncscroll.reset();  
+    }); 
+} // initializeApp()
 
 // function: generateSvgWireframe
 // parameters:
@@ -300,7 +399,15 @@ function initializeApp(error, results) {
 //      handlers - object that optionally contains properties that are the handler
 //                 functions associated with events (click, mouseover, mouseout) on 
 //                 the SVG <line>-work. If these are non-null, they are bound to
-//                 to the SVG <line>-work; otherwise no function9s) is/are so bound.
+//                 to the SVG <line>-work; otherwise no function9s) is/are so bound
+//
+// notes: This function generates three SVG structures, each contained within 
+//        an SVG <g> element:
+//          1. svgRouteSegs_g - <line> elements comprising the schematic 'wireframe'
+//          2. svgVolumeText_g - <text> elements containing balanced volume numbers
+//          3. svgLabelText_g - <text> and <tspan> elements containing descriptive 
+//                              text about route segments
+//
 function generateSvgWireframe(wireframe_data, div_id, yDir_is_routeDir, handlers) {	
     var verticalPadding = 10;
     var width = 450;
@@ -338,13 +445,13 @@ function generateSvgWireframe(wireframe_data, div_id, yDir_is_routeDir, handlers
             .attr("x2", function(d, i) { return d.x2; })
             .attr("y2", function(d, i) { return d.y2; });
             
-    if (handlers.click !== null) {
+    if (handlers !== null && handlers.click !== null) {
         svgRouteSegs.on("click", handlers.click);
     }
-    if (handlers.mouseover !== null) {
+    if (handlers !== null && handlers.mouseover !== null) {
         svgRouteSegs.on("mouseover", handlers.mouseover);
     } 
-    if (handlers.mouseout !== null) {
+    if (handlers !== null && handlers.mouseout !== null) {
         svgRouteSegs.on("mouseout", handlers.mouseout);
     }    
    
