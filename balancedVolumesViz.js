@@ -193,6 +193,7 @@ function initializeApp(error, results) {
         'mouseover' :   function(d,i) {
                             var tmpstr, metric, metricTxt, year, yearTxt, attrName, backgroundColor;
                             tmpstr = d.description + '<br>' + d.description2 + '<br>';
+                            tmpstr += (d.description3 !== '') ? d.description3 + '<br>' : '';
                             metric = $("#select_metric option:selected").attr('value');
                             metricTxt = $("#select_metric option:selected").text();
                             year = $("#select_year option:selected").attr('value');
