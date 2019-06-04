@@ -247,7 +247,7 @@ function initializeApp(error, results) {
         var metric;
         // Toggle the enabled/disabled state of the options for select_metric, 
         // to reflect the metrics avaialble for the given year
-        if (year === "1999") {
+        if (year === "1999" || year === "2010") {
             $("#select_metric option[value='peak_6_to_7_am']").prop('disabled', true);
             $("#select_metric option[value='peak_7_to_8_am']").prop('disabled', true);
             $("#select_metric option[value='peak_8_to_9_am']").prop('disabled', true);
