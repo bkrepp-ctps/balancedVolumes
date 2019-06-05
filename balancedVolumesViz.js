@@ -114,32 +114,24 @@ function initializeApp(error, results) {
             tmp2 = 'yr_restriction_none';
         }
         rec.year_restriction = tmp2;
+        // 1999 data
         rec.awdt_1999 = +rec.awdt_1999;
-        [2018, 2010].forEach(function(year) {
-            rec['awdt_' + year] = +rec['awdt_' + year];
-            rec['peak_' + year + '_6_to_7_am']  = +rec['peak_' + year + '_6_to_7_am'];
-            rec['peak_' + year + '_7_to_8_am']  = +rec['peak_' + year + '_7_to_8_am'];
-            rec['peak_' + year + '_8_to_9_am']  = +rec['peak_' + year + '_8_to_9_am'];
-            rec['cum_'  + year + '_6_to_9_am']  = +rec['cum_'  + year + '_6_to_9_am'];
-            rec['peak_' + year + '_9_to_10_am'] = +rec['peak_' + year + '_9_to_10_am'];
-            rec['peak_' + year + '_3_to_4_pm']  = +rec['peak_' + year + '_3_to_4_pm'];
-            rec['peak_' + year + '_4_to_5_pm']  = +rec['peak_' + year + '_4_to_5_pm'];
-            rec['peak_' + year + '_5_to_6_pm']  = +rec['peak_' + year + '_5_to_6_pm'];
-            rec['cum_'  + year + '_3_to_6_pm']  = +rec['cum_'  + year + '_3_to_6_pm'];
-            rec['peak_' + year + '_6_to_7_pm']  = +rec['peak_' + year + '_6_to_7_pm'];
-        });    
-        // Synthesize the 'delta' of the 2018 and 2010 data values for each attribute
+        // 2010 data
+        rec.awdt_2010 = +rec.awdt_2010;
+        // 2018 data
+        rec.awdt_2018 = +rec.awdt_2018;
+        rec['peak_2018_6_to_7_am']  = +rec['peak_2018_6_to_7_am'];
+        rec['peak_2018_7_to_8_am']  = +rec['peak_2018_7_to_8_am'];
+        rec['peak_2018_8_to_9_am']  = +rec['peak_2018_8_to_9_am'];
+        rec['cum_2018_6_to_9_am']   = +rec['cum_2018_6_to_9_am'];
+        rec['peak_2018_9_to_10_am'] = +rec['peak_2018_9_to_10_am'];
+        rec['peak_2018_3_to_4_pm']  = +rec['peak_2018_3_to_4_pm'];
+        rec['peak_2018_4_to_5_pm']  = +rec['peak_2018_4_to_5_pm'];
+        rec['peak_2018_5_to_6_pm']  = +rec['peak_2018_5_to_6_pm'];
+        rec['cum_2018_3_to_6_pm']   = +rec['cum_2018_3_to_6_pm'];
+        rec['peak_2018_6_to_7_pm']  = +rec['peak_2018_6_to_7_pm'];     
+        // Synthesize the 'delta' of the 2018 and 2010 awdt values
         rec['delta_2018_2010_awdt'] = (rec['awdt_2018'] != NO_DATA) ? rec['awdt_2018'] - rec['awdt_2010'] : NO_DATA;
-        rec['delta_2018_2010_peak_6_to_7_am'] = (rec['peak_2018_6_to_7_am'] != NO_DATA) ? rec['peak_2018_6_to_7_am'] - rec['peak_2010_6_to_7_am'] : NO_DATA;
-        rec['delta_2018_2010_peak_7_to_8_am'] = (rec['peak_2018_7_to_8_am'] != NO_DATA) ? rec['peak_2018_7_to_8_am'] - rec['peak_2010_7_to_8_am'] : NO_DATA;
-        rec['delta_2018_2010_peak_8_to_9_am'] = (rec['peak_2018_8_to_9_am'] != NO_DATA) ? rec['peak_2018_8_to_9_am'] - rec['peak_2010_8_to_9_am'] : NO_DATA;
-        rec['delta_2018_2010_cum_6_to_9_am']  = (rec['cum_2018_6_to_9_am'] != NO_DATA) ? rec['cum_2018_6_to_9_am'] - rec['cum_2010_6_to_9_am'] : NO_DATA;
-        rec['delta_2018_2010_peak_9_to_10_am'] = (rec['peak_2018_9_to_10_am'] != NO_DATA) ? rec['peak_2018_9_to_10_am'] - rec['peak_2010_9_to_10_am'] : NO_DATA;        
-        rec['delta_2018_2010_peak_3_to_4_pm'] = (rec['peak_2018_3_to_4_pm'] != NO_DATA) ? rec['peak_2018_3_to_4_pm'] - rec['peak_2010_3_to_4_pm'] : NO_DATA;
-        rec['delta_2018_2010_peak_4_to_5_pm'] = (rec['peak_2018_4_to_5_pm'] != NO_DATA) ? rec['peak_2018_4_to_5_pm'] - rec['peak_2010_4_to_5_pm'] : NO_DATA;
-        rec['delta_2018_2010_peak_5_to_6_pm'] = (rec['peak_2018_5_to_6_pm'] != NO_DATA) ? rec['peak_2018_5_to_6_pm'] - rec['peak_2010_5_to_6_pm'] : NO_DATA;
-        rec['delta_2018_2010_cum_3_to_6_pm']  = (rec['cum_2018_3_to_6_pm'] != NO_DATA) ? rec['cum_2018_3_to_6_pm'] - rec['cum_2010_3_to_6_pm'] : NO_DATA;
-        rec['delta_2018_2010_peak_6_to_7_pm'] = (rec['peak_2018_6_to_7_pm'] != NO_DATA) ? rec['peak_2018_6_to_7_pm'] - rec['peak_2010_6_to_7_pm'] : NO_DATA;
     } // cleanupCsvRec()
 
     sb_data.forEach(cleanupCsvRec);
@@ -258,7 +250,7 @@ function initializeApp(error, results) {
             $("#select_metric option[value='peak_5_to_6_pm']").prop('disabled', true);
             $("#select_metric option[value='cum_3_to_6_pm']").prop('disabled', true);
             $("#select_metric option[value='peak_6_to_7_pm']").prop('disabled', true);
-            // If year is 1999, only one metric (awdt) is available, so select it
+            // If year is 1999 or 2010, only one metric (awdt) is available, so select it
             $("#select_metric").val('awdt');
         } else {
             $("#select_metric option[value='peak_6_to_7_am']").prop('disabled', false);
@@ -768,8 +760,7 @@ function generateSvgWireframe(wireframe_data, div_id, yDir_is_routeDir, handlers
         }) 
         .attr("dy", 20)
         .text(''); // Placeholder        
-    
-            
+        
     var retval = { lines : svgRouteSegs, volume_txt : svgVolumeText, label_txt_1 : line1, label_txt_2 : line2, label_txt_3: line3 };
     return retval;
 } // generateSvgWireframe()
