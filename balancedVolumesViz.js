@@ -162,7 +162,7 @@ function initializeApp(error, results) {
                                 color = lineColorPalette.secondary;
                             }    
                             // Create polyline feature and add it to the map
-                            var style = { strokeColor : color, strokeOpacity : 0.7, strokeWeight: 4.5 };
+                            var style = { strokeColor : color, strokeOpacity : 1.0, strokeWeight: 5.0 };
                             // Render features that existed ONLY in 1999 with a dotted line, all others with a solid line
                             if (lineFeature.properties['yr_1999'] === 1 && lineFeature.properties['yr_2010'] === 0) {
                                 dottedLine = true;
@@ -197,6 +197,7 @@ function initializeApp(error, results) {
                             } else {
                                 tmpstr += yearTxt + ' ' + metricTxt + ': ' + d[attrName].toLocaleString();
                             }
+                            tmpstr += '<br>'+ 'Number of lanes: ' + d.nlanes + '<br>';
                             backgroundColor = (primaryDirectionP(d.backbone_rte)) ? lineColorPalette.primary : lineColorPalette.secondary;
                             // console.log(tmpstr);                 
                             tooltipDiv.transition()		
@@ -230,7 +231,7 @@ function initializeApp(error, results) {
     symbolizeSvgWireframe(VIZ.nb, 'nb_viz', 'awdt', '2018', lineColorPalette.primary);    
     
     // (2) Initialize Google Map
-    initMap(DATA); // No need to pass DATA as parm, but doing so anyway  
+    initMap(DATA);
 
     // (3) Event hanlders for UI controls
     // (3a) Arm event handler for select_year combo box
@@ -835,7 +836,9 @@ function symbolizeSvgWireframe(vizWireframe, divId, metric, year, color) {
     
     // Body of symbolizeSvgWireframe() begins here:
     //
-    var attrName, widthPalette, colorPalette; 
+    var attrName, widthPalette, colorPalette, tmp; 
+    tmp = "I-93/SR-3&nbsp;-&nbsp;" + year;
+    $('#central_caption').html(tmp);
     attrName = getAttrName(metric, year);
     // console.log('Symbolizing attribute; attrName = ' + attrName);
         
@@ -911,14 +914,51 @@ function initMap(data) {
 		scaleControl: true,
 		overviewMapControl: false
 	};
-    
+
 	map = new google.maps.Map(document.getElementById("map"), mapOptions);
     google.maps.event.addListener(map, "bounds_changed", function boundsChangedHandler(e) { } );
-    
-    // Un petit hacque to get the map's "bounds_changed" event to fire.
+     // Un petit hacque to get the map's "bounds_changed" event to fire.
     // Believe it or not: When a Google Maps map object is created, its bounding
     // box is undefined (!!). Thus calling map.getBounds on a newly created map
     // will raise an error. We are compelled to force a "bounds_changed" event to fire.
     // Larry and Sergey: How did you let this one through the cracks??
     map.setCenter(new google.maps.LatLng(lat + 0.000000001, lng + 0.000000001));
+
+    // Show the main 'backbone' route on the map
+    var nb_backbone = _.filter(data.geojson.features, function(rec) { return rec.properties['backbone_rte'] === 'i93_sr3_nb'; });
+    nb_backbone = _.filter(nb_backbone, function(rec) { return rec.properties['yr_2010'] === 1; });
+    nb_backbone = _.reject(nb_backbone, function(rec) { return rec.properties['data_id'].startsWith('R'); });
+    nb_backbone = _.reject(nb_backbone, function(rec) { return rec.properties['data_id'].contains('hov'); });
+    
+    var sb_backbone = _.filter(data.geojson.features, function(rec) { return rec.properties['backbone_rte'] === 'i93_sr3_sb'; });
+    sb_backbone = _.filter(sb_backbone, function(rec) { return rec.properties['yr_2010'] === 1; });
+    sb_backbone = _.reject(sb_backbone, function(rec) { return rec.properties['data_id'].startsWith('R'); });
+    sb_backbone = _.reject(sb_backbone, function(rec) { return rec.properties['data_id'].contains('hov'); });   
+    
+    // Create polyline features and add them to the map
+    var style_nb = { strokeColor : lineColorPalette.primary, strokeOpacity : 1.0, strokeWeight: 1.5 },
+        style_sb = { strokeColor : lineColorPalette.secondary, strokeOpacity : 1.0, strokeWeight: 1.5 };
+
+    var i, pl;
+    for (i = 0; i < nb_backbone.length; i++) {
+        pl = ctpsGoogleMapsUtils.drawPolylineFeature(nb_backbone[i], map, style_nb, false);
+    }
+    for (i = 0; i < sb_backbone.length; i++) { 
+        pl = ctpsGoogleMapsUtils.drawPolylineFeature(sb_backbone[i], map, style_sb, false); 
+    }
+    
+    // Now pan/zoom map to the full extent of the route
+    //
+    // With credit to: https://stackoverflow.com/questions/32615267/zoom-on-google-maps-data-layer
+    // Note that the GeoJSON data layer is being used simply to set the map extent;
+    // it is rendered invisible due to the map.setStyle() call, below.
+    map.data.addGeoJson(data.geojson);
+    var bounds = new google.maps.LatLngBounds(); 
+    map.data.forEach(function(feature){
+        feature.getGeometry().forEachLatLng(function(latlng){
+            bounds.extend(latlng);
+        });
+    });
+    map.data.setStyle({ strokeWeight: 0, opacity: 1.0 });
+    map.fitBounds(bounds);
 } // initMap()
