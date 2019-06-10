@@ -287,6 +287,9 @@ function initializeApp(error, results) {
     // Synchronize or un-synchronize the scrollbars for the sb_viz and nb_viz <div>s
     // Documentation on the (very simple) syncscroll.js library may be found at:
     //      https://github.com/asvd/syncscroll
+    // 
+    // Note: This handler also arms the 'scroll' handler for the sb_viz and nb_viz divs,
+    // as appropriate
     $('#sync_scrollbars').change(function(e) {
         var checked = $('#sync_scrollbars').prop('checked');
         var newName = checked ? 'syncMyScrollbar' : '';
@@ -295,22 +298,25 @@ function initializeApp(error, results) {
         elt =  $('#sb_viz').get()[0];
         elt.setAttribute('name', newName);
         syncscroll.reset();  
+        // If checked, only arm the scroll event handler for one of the two main viz divs;
+        // this will prevent duplicate calls to the handler.
+        if (checked) {
+            $('#sb_viz').scroll(function(e) { scrollHandler(e); });
+        } else {
+            $('#sb_viz,#nb_viz').scroll(function(e) { scrollHandler(e); });
+        }
     });
     
-    // (3d) On-scroll handlers for scrollbars of the main view
+    // (3d) On-scroll handler for scrollbars of the main view
     //
-    // Attempt to synchronize the Google Map with the elements in the relevant viewport
-    //
-    // ... let's start with the SB viewport
-    $('#sb_viz').scroll(function(e) {
-        var container = $('#sb_viz');
+    // Synchronize the Google Map with the elements in the relevant viewport
+    function scrollHandler(e) {
+        var container = $('#' + e.target.id);
         var contHeight = container.height();
         var contTop = container.scrollTop();
         var contBottom = contTop + contHeight;
         // console.log('top = ' + contTop + ' bottom = ' + contBottom);
-        var elts = _.filter(DATA.sb_data, function(rec) { return rec.y1 >= contTop && rec.y2 <= contBottom; });
-        var _DEBUG_HOOK = 0;
-        
+        var elts = _.filter(DATA.sb_data, function(rec) { return rec.y1 >= contTop && rec.y2 <= contBottom; });       
         // Get the data_ids to search for in the GeoJSON; filter out HOV lanes (and mabye ramps, too)
         var searchIds = _.pluck(elts, 'data_id');
         searchIds = _.filter(searchIds, function(id) { return  id.contains('hov') === false && id.startsWith('R') === false; });
@@ -330,7 +336,6 @@ function initializeApp(error, results) {
             }
             return retval;
         });
-        _DEBUG_HOOK = 1;
         // Now, all we have to do is to get the bounding box of the filtered feature colleciton... :-)
         map.tmpDataLayer = new google.maps.Data();
         map.tmpDataLayer.addGeoJson(gj);
@@ -342,7 +347,8 @@ function initializeApp(error, results) {
             });
         });
         map.fitBounds(bounds);
-    }); 
+    }
+    $('#sb_viz,#nb_viz').scroll(function(e) { scrollHandler(e); });
     
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // Initialize stuff for 'comparison' view:
