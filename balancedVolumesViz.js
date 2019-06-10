@@ -297,6 +297,53 @@ function initializeApp(error, results) {
         syncscroll.reset();  
     });
     
+    // (3d) On-scroll handlers for scrollbars of the main view
+    //
+    // Attempt to synchronize the Google Map with the elements in the relevant viewport
+    //
+    // ... let's start with the SB viewport
+    $('#sb_viz').scroll(function(e) {
+        var container = $('#sb_viz');
+        var contHeight = container.height();
+        var contTop = container.scrollTop();
+        var contBottom = contTop + contHeight;
+        // console.log('top = ' + contTop + ' bottom = ' + contBottom);
+        var elts = _.filter(DATA.sb_data, function(rec) { return rec.y1 >= contTop && rec.y2 <= contBottom; });
+        var _DEBUG_HOOK = 0;
+        
+        // Get the data_ids to search for in the GeoJSON; filter out HOV lanes (and mabye ramps, too)
+        var searchIds = _.pluck(elts, 'data_id');
+        searchIds = _.filter(searchIds, function(id) { return  id.contains('hov') === false && id.startsWith('R') === false; });
+        // Make a deep copy of the GeoJSON...
+        var gj = Object.assign({}, DATA.geojson);
+        // ... and filter out everything except the records with the matching data_ids.
+        // Yes, we know this is O(n^2)... to be optimized later...
+        gj.features = _.filter(gj.features, function(rec) { 
+            var i;
+            var retval = false;
+            for (i = 0; i < searchIds.length; i++) {
+                if (rec.properties['data_id'] === searchIds[i]) {
+                    retval = true;
+                    // console.log('Found ' + searchIds[i]);
+                    break;
+                }
+            }
+            return retval;
+        });
+        _DEBUG_HOOK = 1;
+        // Now, all we have to do is to get the bounding box of the filtered feature colleciton... :-)
+        map.tmpDataLayer = new google.maps.Data();
+        map.tmpDataLayer.addGeoJson(gj);
+        map.tmpDataLayer.setStyle({ strokeWidth: 0, opacity : 1.0 });
+        var bounds = new google.maps.LatLngBounds(); 
+        map.tmpDataLayer.forEach(function(feature){
+            feature.getGeometry().forEachLatLng(function(latlng){
+                bounds.extend(latlng);
+            });
+        });
+        map.fitBounds(bounds);
+    }); 
+    
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // Initialize stuff for 'comparison' view:
     //      1. SVG wireframes
@@ -961,4 +1008,11 @@ function initMap(data) {
     });
     map.data.setStyle({ strokeWeight: 0, opacity: 1.0 });
     map.fitBounds(bounds);
+
+/*  *** If we can ever get documetation on how to use the geojson-bbox library, the following call,
+        or something similar to it should do the trick ...
+    var bbox = bbox(data.geojson);
+    var _DEBUG_HOOK = 0;
+    map.fitBounds(bbox);
+*/
 } // initMap()
