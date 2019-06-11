@@ -142,7 +142,7 @@ function initializeApp(error, results) {
     // Handlers for various events on the main SVG <line>-work:
     var handlers = {
         'click' :       function(d,i) {
-                            console.log('On-click handler: unique_id = ' + d.unique_id + ' data_id = ' + d.data_id); 
+                            // console.log('On-click handler: unique_id = ' + d.unique_id + ' data_id = ' + d.data_id); 
                             var primaryDir, color;
                             var dottedLine = false;
                             var lineFeature = _.find(DATA.geojson.features, function(f) { return f.properties['data_id'] == d.data_id; } );
@@ -163,8 +163,9 @@ function initializeApp(error, results) {
                             }    
                             // Create polyline feature and add it to the map
                             var style = { strokeColor : color, strokeOpacity : 1.0, strokeWeight: 5.0 };
-                            // Render features that existed ONLY in 1999 with a dotted line, all others with a solid line
-                            if (lineFeature.properties['yr_1999'] === 1 && lineFeature.properties['yr_2010'] === 0) {
+                            // Render features that existed in the Central Artery area before the 'Big Dig',
+                            // i.e., in 1999, with a dotted line, all others with a solid line
+                            if (lineFeature.properties['pre_big_dig'] === 1) {
                                 dottedLine = true;
                             }
                             var polyline = ctpsGoogleMapsUtils.drawPolylineFeature(lineFeature, map, style, dottedLine);
@@ -173,7 +174,12 @@ function initializeApp(error, results) {
                             } else {
                                 aPolylines_SecDir.push(polyline);
                             }
-                            // Now pan/zoom map to selected feature
+                            // Now pan/zoom map to the selected (single) feature.
+                            // We use turf.js here to compute the bounding box to which to pan/zoom.
+                            // turf.js doest the job well for *single* features, and is lightweight. 
+                            // I've had it fail when when called to compute the bbox of a feature collection,
+                            // and so we employ a bit of slight-of-hand using a Google Maps Data layer when
+                            // performing that operation. See the code for scrollHandler(), below.
                             var bbox = turf.bbox(lineFeature);
                             // Return value of turf.bbox() has the form: [minX, minY, maxX, maxY]
                             // Morph this into a form Google Maps can digest
@@ -309,7 +315,7 @@ function initializeApp(error, results) {
     
     // (3d) On-scroll handler for scrollbars of the main view
     //
-    // Synchronize the Google Map with the elements in the relevant viewport
+    // Synchronize the bounds of the Google Map with the elements in the relevant viewport
     function scrollHandler(e) {
         var container = $('#' + e.target.id);
         var contHeight = container.height();
@@ -317,13 +323,13 @@ function initializeApp(error, results) {
         var contBottom = contTop + contHeight;
         // console.log('top = ' + contTop + ' bottom = ' + contBottom);
         var elts = _.filter(DATA.sb_data, function(rec) { return rec.y1 >= contTop && rec.y2 <= contBottom; });       
-        // Get the data_ids to search for in the GeoJSON; filter out HOV lanes (and mabye ramps, too)
+        // Get the data_ids to search for in the GeoJSON; filter out HOV lanes and ramps
         var searchIds = _.pluck(elts, 'data_id');
         searchIds = _.filter(searchIds, function(id) { return  id.contains('hov') === false && id.startsWith('R') === false; });
         // Make a deep copy of the GeoJSON...
         var gj = Object.assign({}, DATA.geojson);
         // ... and filter out everything except the records with the matching data_ids.
-        // Yes, we know this is O(n^2)... to be optimized later...
+        // Yes, we know this is an O(n^2) operation... to be optimized when time is avaialble...
         gj.features = _.filter(gj.features, function(rec) { 
             var i;
             var retval = false;
