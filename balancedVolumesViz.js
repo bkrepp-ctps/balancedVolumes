@@ -82,13 +82,25 @@ function initializeApp(error, results) {
         alert("One or more requests to load data failed. Exiting application.");
         return;         
     }        
-    var geojson = results[0];
-    var sb_data = results[1];
-    var nb_data = results[2];
+    DATA.geojson = results[0];
+    DATA.sb_data = results[1];
+    DATA.nb_data = results[2];
 
-    // Prep data loaded for use in app
-    DATA.geojson = geojson;
+    // Prep GeoJSON data loaded for use in app
+    //
+    // 2010 'backbone' GeoJSON (no ramps, hov lanes, etc.) NB and SB
+    DATA.nb_backbone_2010 = Object.assign({}, DATA.geojson);
+    DATA.nb_backbone_2010.features = _.filter(DATA.nb_backbone_2010.features, function(rec) { 
+        return rec.properties['yr_2010'] === true && rec.properties['backbone_rte'].endsWith('nb') &&
+               rec.properties['data_id'].startsWith('R') === false &&  rec.properties['data_id'].contains('hov')
+    });
+    DATA.sb_backbone_2010 = Object.assign({}, DATA.geojson);
+    DATA.sb_backbone_2010.features = _.filter(DATA.sb_backbone_2010.features, function(rec) { 
+        return rec.properties['yr_2010'] === true && rec.properties['backbone_rte'].endsWith('sb') &&
+               rec.properties['data_id'].startsWith('R') === false &&  rec.properties['data_id'].contains('hov')
+    });   
     
+    // Prep tabular (CSV) data loaded for use in app
     function cleanupCsvRec(rec) {
         var tmp1, tmp2;
         rec.x1 = +rec.x1;
@@ -134,12 +146,10 @@ function initializeApp(error, results) {
         rec['delta_2018_2010_awdt'] = (rec['awdt_2018'] != NO_DATA) ? rec['awdt_2018'] - rec['awdt_2010'] : NO_DATA;
     } // cleanupCsvRec()
 
-    sb_data.forEach(cleanupCsvRec);
-    nb_data.forEach(cleanupCsvRec);     
-    DATA.sb_data = sb_data;
-    DATA.nb_data = nb_data;
+    DATA.sb_data.forEach(cleanupCsvRec);
+    DATA.nb_data.forEach(cleanupCsvRec);     
     
-    // Handlers for various events on the main SVG <line>-work:
+    // Handlers for various events on the main SVG <line>-work (a.k.a. 'stick diagram')
     var handlers = {
         'click' :       function(d,i) {
                             // console.log('On-click handler: unique_id = ' + d.unique_id + ' data_id = ' + d.data_id); 
@@ -1019,7 +1029,7 @@ function initMap(data) {
         });
     });
     map.data.setStyle({ strokeWeight: 0, opacity: 1.0 });
-    map.fitBounds(bounds);
+    map.fitBounds(bounds);    
 
 /*  *** If we can ever get documetation on how to use the geojson-bbox library, the following call,
         or something similar to it should do the trick ...
