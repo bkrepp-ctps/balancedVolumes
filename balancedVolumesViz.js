@@ -88,17 +88,18 @@ function initializeApp(error, results) {
 
     // Prep GeoJSON data loaded for use in app
     //
-    // 2010 'backbone' GeoJSON (no ramps, hov lanes, etc.) NB and SB
-    DATA.nb_backbone_2010 = Object.assign({}, DATA.geojson);
-    DATA.nb_backbone_2010.features = _.filter(DATA.nb_backbone_2010.features, function(rec) { 
-        return rec.properties['yr_2010'] === true && rec.properties['backbone_rte'].endsWith('nb') &&
-               rec.properties['data_id'].startsWith('R') === false &&  rec.properties['data_id'].contains('hov')
+    // 2010 'backbone' route - both NB and SB
+    DATA.backbone_2010 = Object.assign({}, DATA.geojson);
+    DATA.backbone_2010.features = _.filter(DATA.backbone_2010.features, function(rec) { 
+        return rec.properties['yr_2010'] === 1 &&
+               rec.properties['data_id'].startsWith('R') === false &&  rec.properties['data_id'].contains('hov') == false;
     });
-    DATA.sb_backbone_2010 = Object.assign({}, DATA.geojson);
-    DATA.sb_backbone_2010.features = _.filter(DATA.sb_backbone_2010.features, function(rec) { 
-        return rec.properties['yr_2010'] === true && rec.properties['backbone_rte'].endsWith('sb') &&
-               rec.properties['data_id'].startsWith('R') === false &&  rec.properties['data_id'].contains('hov')
-    });   
+     // 1999 'backbone' route - both NB and SB
+    DATA.backbone_1999 = Object.assign({}, DATA.geojson);
+    DATA.backbone_1999.features = _.filter(DATA.backbone_1999.features, function(rec) { 
+        return rec.properties['yr_1999'] === 1 &&
+               rec.properties['data_id'].startsWith('R') === false &&  rec.properties['data_id'].contains('hov') == false;
+    });
     
     // Prep tabular (CSV) data loaded for use in app
     function cleanupCsvRec(rec) {
@@ -172,7 +173,7 @@ function initializeApp(error, results) {
                                 color = lineColorPalette.secondary;
                             }    
                             // Create polyline feature and add it to the map
-                            var style = { strokeColor : color, strokeOpacity : 1.0, strokeWeight: 5.0 };
+                            var style = { strokeColor : color, strokeOpacity : 1.0, strokeWeight: 8.0 };
                             // Render features that existed in the Central Artery area before the 'Big Dig',
                             // i.e., in 1999, with a dotted line, all others with a solid line
                             if (lineFeature.properties['pre_big_dig'] === 1) {
@@ -183,7 +184,7 @@ function initializeApp(error, results) {
                                 aPolylines_PrimDir.push(polyline);
                             } else {
                                 aPolylines_SecDir.push(polyline);
-                            }
+                            }                           
                             // Now pan/zoom map to the selected (single) feature.
                             // We use turf.js here to compute the bounding box to which to pan/zoom.
                             // turf.js doest the job well for *single* features, and is lightweight. 
@@ -993,43 +994,32 @@ function initMap(data) {
     // Larry and Sergey: How did you let this one through the cracks??
     map.setCenter(new google.maps.LatLng(lat + 0.000000001, lng + 0.000000001));
 
-    // Show the main 'backbone' route on the map
-    var nb_backbone = _.filter(data.geojson.features, function(rec) { return rec.properties['backbone_rte'] === 'i93_sr3_nb'; });
-    nb_backbone = _.filter(nb_backbone, function(rec) { return rec.properties['yr_2010'] === 1; });
-    nb_backbone = _.reject(nb_backbone, function(rec) { return rec.properties['data_id'].startsWith('R'); });
-    nb_backbone = _.reject(nb_backbone, function(rec) { return rec.properties['data_id'].contains('hov'); });
-    
-    var sb_backbone = _.filter(data.geojson.features, function(rec) { return rec.properties['backbone_rte'] === 'i93_sr3_sb'; });
-    sb_backbone = _.filter(sb_backbone, function(rec) { return rec.properties['yr_2010'] === 1; });
-    sb_backbone = _.reject(sb_backbone, function(rec) { return rec.properties['data_id'].startsWith('R'); });
-    sb_backbone = _.reject(sb_backbone, function(rec) { return rec.properties['data_id'].contains('hov'); });   
-    
-    // Create polyline features and add them to the map
-    var style_nb = { strokeColor : lineColorPalette.primary, strokeOpacity : 1.0, strokeWeight: 1.5 },
-        style_sb = { strokeColor : lineColorPalette.secondary, strokeOpacity : 1.0, strokeWeight: 1.5 };
-
-    var i, pl;
-    for (i = 0; i < nb_backbone.length; i++) {
-        pl = ctpsGoogleMapsUtils.drawPolylineFeature(nb_backbone[i], map, style_nb, false);
-    }
-    for (i = 0; i < sb_backbone.length; i++) { 
-        pl = ctpsGoogleMapsUtils.drawPolylineFeature(sb_backbone[i], map, style_sb, false); 
-    }
-    
-    // Now pan/zoom map to the full extent of the route
+    // Render the main 'backbone' route on the map using a Google Map data layer
     //
-    // With credit to: https://stackoverflow.com/questions/32615267/zoom-on-google-maps-data-layer
-    // Note that the GeoJSON data layer is being used simply to set the map extent;
-    // it is rendered invisible due to the map.setStyle() call, below.
-    map.data.addGeoJson(data.geojson);
+    map.data.addGeoJson(data.backbone_2010);
+    map.data.setStyle(function(feature) {
+        var retval, data_id = feature.getProperty('data_id');
+        if (data_id.contains('_nb_')) {
+            retval = { strokeColor : lineColorPalette.primary, strokeWeight: 2.0,  opacity: 1.0 };
+        } else {
+            retval = { strokeColor : lineColorPalette.secondary, strokeWeight: 2.0,  opacity: 1.0 };
+        }
+        return retval;
+    });
+    map.data.addListener('click', function(e) {
+        var data_id = e.feature.getProperty('data_id');
+        console.log('You clicked on: ' + data_id);
+        var _DEBUG_HOOK = 0;
+    });
+    //  Now pan/zoom map to the full extent of the route
+    //  With credit to: https://stackoverflow.com/questions/32615267/zoom-on-google-maps-data-layer
     var bounds = new google.maps.LatLngBounds(); 
     map.data.forEach(function(feature){
         feature.getGeometry().forEachLatLng(function(latlng){
             bounds.extend(latlng);
         });
     });
-    map.data.setStyle({ strokeWeight: 0, opacity: 1.0 });
-    map.fitBounds(bounds);    
+    map.fitBounds(bounds); 
 
 /*  *** If we can ever get documetation on how to use the geojson-bbox library, the following call,
         or something similar to it should do the trick ...
