@@ -1046,5 +1046,63 @@ function initMap(data) {
 } // initMap()
 
 function downloadData(e) {
-    console.log('Hello from donwnload button handler.');
+    // Create string of data to be downloaded
+    var newstring = '';
+    
+    // Header line
+    newstring = 'data_id, dir, desc, nlanes, yr_2018, yr_1999,';
+    newstring += 'awdt_2018,';
+    newstring += 'peak_2018_6_to_7_am, peak_2018_7_to_8_am, peak_2018_8_to_9_am, peak_2018_9_to_10_am,';
+    newstring += 'peak_2018_3_to_4_pm, peak_2018_4_to_5_pm, peak_2018_5_to_6_pm, peak_2018_6_to_7_pm,';
+    newstring += 'cum_2018_6_to_9_am, cum_2018_3_to_6_pm'; 
+    newstring += 'awdt_2010,';
+    newstring += 'peak_2010_6_to_7_am, peak_2010_7_to_8_am, peak_2010_8_to_9_am, peak_9_to_10_am,';
+    newstring += 'peak_2010_3_to_4_pm, peak_2010_4_to_5_pm, peak_2010_5_to_6_pm, peak_2010_6_to_7_pm,';
+    newstring += 'cum_2010_6_to_9_am, cum_2010_3_to_6_pm'
+    newstring += 'awdt_1999';
+    newstring += '\n';
+     
+    function writeRecords(data, dirString) {
+        var i, tmp;
+        for (i = 0; i < data.length; i++) {
+            newstring += data[i].data_id + ',' + dirString + ',';
+            // N.B. The following three fields may contain commas!
+            tmp = data[i].description + ' ' +  data[i].description2 + ' ' + data[i].description3; 
+            newstring += '"' + tmp + '"' + ',';
+            newstring += data[i].nlanes + ',';
+            newstring += data[i].yr_2018 + ',';
+            newstring += data[i].yr_1999 + ',';
+            newstring += data[i].awdt_2018 + ',';      
+            newstring += data[i].peak_2018_6_to_7_am + ',';
+            newstring += data[i].peak_2018_7_to_8_am + ',';
+            newstring += data[i].peak_2018_8_to_9_am + ',';
+            newstring += data[i].peak_2018_9_to_10_am + ',';
+            newstring += data[i].peak_2018_3_to_4_pm + ',';
+            newstring += data[i].peak_2018_4_to_5_pm + ',';
+            newstring += data[i].peak_2018_5_to_6_pm + ',';
+            newstring += data[i].peak_2018_6_to_7_pm + ',';     
+            newstring += data[i].cum_2018_6_to_9_am + ',';
+            newstring += data[i].cum_2018_3_to_6_pm + ',';
+            newstring += data[i].awdt_2010 + ',';
+            newstring += data[i].peak_2010_6_to_7_am + ',';
+            newstring += data[i].peak_2010_7_to_8_am + ',';
+            newstring += data[i].peak_2010_8_to_9_am + ',';
+            newstring += data[i].peak_2010_9_to_10_am + ',';
+            newstring += data[i].peak_2010_3_to_4_pm + ',';
+            newstring += data[i].peak_2010_4_to_5_pm + ',';
+            newstring += data[i].peak_2010_5_to_6_pm + ',';
+            newstring += data[i].peak_2010_6_to_7_pm + ',';     
+            newstring += data[i].cum_2010_6_to_9_am + ',';
+            newstring += data[i].cum_2010_3_to_6_pm + ',';
+            newstring += data[i].awdt_1999;
+            newstring += '\n';   
+        }
+    } // writeRecords()
+     
+    // Data lines, NB and SB
+    writeRecords(DATA.nb_data, 'nb');
+    writeRecords(DATA.sb_data, 'sb');
+
+    sessionStorage.setItem("sent", newstring); 
+    download(newstring, "i93_sr3_balanced_volumes.csv", "text/csv");
 }
