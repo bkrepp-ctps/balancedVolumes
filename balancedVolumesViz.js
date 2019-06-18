@@ -297,6 +297,7 @@ function initializeApp(error, results) {
     //          a. select_year combo box
     //          b. select_metric combo box
     //          c. sync_scrollbars checkbox
+    //      4. Download data button
     // 
     // (1)  Initialize SVG wireframes
     VIZ.sb = generateSvgWireframe(DATA.sb_data, 'sb_viz', true, handlers);
@@ -423,6 +424,11 @@ function initializeApp(error, results) {
         map.fitBounds(bounds);
     }
     $('#sb_viz,#nb_viz').scroll(function(e) { scrollHandler(e); });
+ 
+    // (4) Download data button
+    // 
+    $('#download_button').on('click', downloadData);
+    
     
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // Initialize stuff for 'comparison' view:
@@ -1038,3 +1044,7 @@ function initMap(data) {
     });
     map.fitBounds(bounds); 
 } // initMap()
+
+function downloadData(e) {
+    console.log('Hello from donwnload button handler.');
+}
