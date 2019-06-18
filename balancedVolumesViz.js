@@ -836,76 +836,26 @@ function generateSvgWireframe(wireframe_data, div_id, yDir_is_routeDir, handlers
     return retval;
 } // generateSvgWireframe()
 
-// colorPalettes - currently unused; currently no distinction between scales for 'absolute' vs. 'delta' metrics
-var colorPalettes = {
-    'awdt'  :   d3.scaleThreshold()
-                    .domain([0, 25000, 50000, 75000, 100000, Infinity])
-                    .range(["gray", "blue", "green", "yellow", "orange", "red"]),
-    'hourly':   d3.scaleThreshold()
-                    .domain([0, 2000, 4000, 6000, 8000, Infinity])
-                    .range(["gray", "blue", "green", "yellow", "orange", "red"]),
-    'cum'   :   d3.scaleThreshold()
-                    .domain([0, 6000, 12000, 18000, 24000, Infinity])
-                    .range(["gray", "blue", "green", "yellow", "orange", "red"]),    
-};
-
 var widthPalettes = {
     'absolute': {  
-                    'awdt'  :  
-                            /*
-                                d3.scaleThreshold()
-                                    .domain([0,       12500, 25000, 37500,   50000, 62500,   75000, 87500,    100000, 112500,   Infinity])
-                                    .range(["0.5px",  "2px", "3px", "4.5px", "6px", "7.5px", "9px", "10.5px", "12px", "13.5px", "15px"]),
-                            */
-                                d3.scaleLinear()
+                    'awdt'  :   d3.scaleLinear()
                                     .domain([0, 120000])
-                                    .range(["1px", "15px"]),
-                                    
-                    'hourly':   
-                            /* 
-                                d3.scaleThreshold()
-                                    .domain([0,      1000,  2000,  3000,    4000,  5000,    6000,  7000,     8000,   9000,     Infinity])
-                                    .range(["0.5px", "2px", "3px", "4.5px", "6px", "7.5px", "9px", "10.5px", "12px", "13.5px", "15px"]),
-                            */
-                                d3.scaleLinear()
+                                    .range(["1px", "15px"]),        
+                    'hourly':   d3.scaleLinear()
                                     .domain([0, 10000])
-                                    .range(["1px", "15px"]),
-                    'cum'   :   
-                            /*
-                                d3.scaleThreshold()
-                                    .domain([0,      3000,  6000,  9000,    12000, 15000,   18000, 21000,    24000,  27000,    Infinity])
-                                    .range(["0.5px", "2px", "3px", "4.5px", "6px", "7.5px", "9px", "10.5px", "12px", "13.5px", "15px"])
-                             */
-                                d3.scaleLinear()
+                                    .range(["1px", "15px"]),  
+                    'cum'   :   d3.scaleLinear()
                                     .domain([0, 20000])
                                     .range(["1px", "15px"])
                 },       
     'delta':    {
-                    'awdt'  :   
-                            /* 
-                                d3.scaleThreshold()
-                                    .domain([0,       2000,   4000,   8000,  10000,  12000,  14000,    16000, 18000,    20000,   Infinity])
-                                    .range(["0.5px",  "2px", "3px", "4.5px", "6px", "7.5px", "9px", "10.5px", "12px", "13.5px", "15px"]), 
-                            */
-                                d3.scaleLinear()
+                    'awdt'  :   d3.scaleLinear()
                                     .domain([0, 20000])
                                     .range(["1px", "15px"]),
-                    'hourly':   
-                            /* 
-                                d3.scaleThreshold()
-                                    .domain([0,       200,   400,     600,   800,     1000,  1200,   1400,    1600,     1800,   Infinity])
-                                    .range(["0.5px", "2px", "3px", "4.5px", "6px", "7.5px", "9px", "10.5px", "12px", "13.5px", "15px"]),  
-                            */
-                                d3.scaleLinear()
+                    'hourly':   d3.scaleLinear()
                                     .domain([0, 2000])
                                     .range(["1px", "15px"]),
-                    'cum'   :   
-                            /*
-                                d3.scaleThreshold()
-                                    .domain([0,       300,   600,     900,   1200,   1500,   1800,    2100,    2400,     2700,    Infinity])
-                                    .range(["0.5px", "2px", "3px", "4.5px", "6px", "7.5px", "9px", "10.5px", "12px", "13.5px", "15px"]) 
-                            */
-                                d3.scaleLinear()
+                    'cum'   :   d3.scaleLinear()
                                     .domain([0, 3000])
                                     .range(["1px", "15px"])
                 }
