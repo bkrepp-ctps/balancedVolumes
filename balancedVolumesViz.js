@@ -15,6 +15,39 @@ var map;
 aPolylines_PrimDir = [], aPolylines_SecDir = [];
 lineColorPalette = { 'primary' : '#f5831a', 'secondary' : '#0066b4' };
 
+// Scales for width of SVG <line>s
+var widthPalettes = {
+    'absolute': {  
+                    'awdt'  :   d3.scaleLinear()
+                                    .domain([0, 120000])
+                                    .range(["1px", "15px"]),        
+                    'hourly':   d3.scaleLinear()
+                                    .domain([0, 10000])
+                                    .range(["1px", "15px"]),  
+                    'cum'   :   d3.scaleLinear()
+                                    .domain([0, 20000])
+                                    .range(["1px", "15px"])
+                },       
+    'delta':    {
+                    'awdt'  :   d3.scaleLinear()
+                                    .domain([0, 20000])
+                                    .range(["1px", "15px"]),
+                    'hourly':   d3.scaleLinear()
+                                    .domain([0, 2000])
+                                    .range(["1px", "15px"]),
+                    'cum'   :   d3.scaleLinear()
+                                    .domain([0, 3000])
+                                    .range(["1px", "15px"])
+                }
+};
+
+// Create on-hover tooltip for SVG line segments: Define the div for the tooltip
+// Simple home-brewed tooltip, based on: http://bl.ocks.org/d3noob/a22c42db65eb00d4e369
+// 
+var tooltipDiv = d3.select("body").append("div")	
+    .attr("class", "tooltip")				
+    .style("opacity", 0);
+
 // Helper function: getAttrName
 //
 // Return name of relevant property in the in-memory array, 
@@ -43,12 +76,12 @@ function getAttrName(metric, logicalYear) {
     return retval;
 } // getAttrName()
 
-// Create on-hover tooltip for SVG line segments: Define the div for the tooltip
-// Simple home-brewed tooltip, based on: http://bl.ocks.org/d3noob/a22c42db65eb00d4e369
-// 
-var tooltipDiv = d3.select("body").append("div")	
-    .attr("class", "tooltip")				
-    .style("opacity", 0);
+// primaryDirectionP - helper predicate (boolean-valued function) returning true
+// if 'backboneRouteName' is that of a 'primary direction' route, i.e., a
+// north- or east-bound route, and false otherwise.
+function primaryDirectionP(backboneRouteName) {
+    return (backboneRouteName.endsWith('_nb') || backboneRouteName.endsWith('_eb'));
+} // primaryDirectionP
 
 $(document).ready(function() {
     $('#wrapper').show();
@@ -69,13 +102,6 @@ $(document).ready(function() {
                 .defer(d3.csv, csvWireFrame_nb_URL)
                 .awaitAll(initializeApp);
 });
-
-// primaryDirectionP - predicate (boolean-valued function) returning true
-// if 'backboneRouteName' is that of a 'primary direction' route, i.e., a
-// north- or east-bound route, and false otherwise.
-function primaryDirectionP(backboneRouteName) {
-    return (backboneRouteName.endsWith('_nb') || backboneRouteName.endsWith('_eb'));
-} // primaryDirectionP
 
 function initializeApp(error, results) {
     if (error != null) {
@@ -835,31 +861,6 @@ function generateSvgWireframe(wireframe_data, div_id, yDir_is_routeDir, handlers
     var retval = { lines : svgRouteSegs, volume_txt : svgVolumeText, label_txt_1 : line1, label_txt_2 : line2, label_txt_3: line3 };
     return retval;
 } // generateSvgWireframe()
-
-var widthPalettes = {
-    'absolute': {  
-                    'awdt'  :   d3.scaleLinear()
-                                    .domain([0, 120000])
-                                    .range(["1px", "15px"]),        
-                    'hourly':   d3.scaleLinear()
-                                    .domain([0, 10000])
-                                    .range(["1px", "15px"]),  
-                    'cum'   :   d3.scaleLinear()
-                                    .domain([0, 20000])
-                                    .range(["1px", "15px"])
-                },       
-    'delta':    {
-                    'awdt'  :   d3.scaleLinear()
-                                    .domain([0, 20000])
-                                    .range(["1px", "15px"]),
-                    'hourly':   d3.scaleLinear()
-                                    .domain([0, 2000])
-                                    .range(["1px", "15px"]),
-                    'cum'   :   d3.scaleLinear()
-                                    .domain([0, 3000])
-                                    .range(["1px", "15px"])
-                }
-};
 
 // function: symbolizeSvgWireframe
 // parameters:
