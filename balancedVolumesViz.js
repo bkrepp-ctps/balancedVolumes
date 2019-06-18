@@ -1050,7 +1050,7 @@ function downloadData(e) {
     var newstring = '';
     
     // Header line
-    newstring = 'data_id, dir, desc, nlanes, yr_2018, yr_1999,';
+    newstring = 'data_id, direction, description, yr_2018, yr_1999,';
     newstring += 'awdt_2018,';
     newstring += 'peak_2018_6_to_7_am, peak_2018_7_to_8_am, peak_2018_8_to_9_am, peak_2018_9_to_10_am,';
     newstring += 'peak_2018_3_to_4_pm, peak_2018_4_to_5_pm, peak_2018_5_to_6_pm, peak_2018_6_to_7_pm,';
@@ -1066,10 +1066,9 @@ function downloadData(e) {
         var i, tmp;
         for (i = 0; i < data.length; i++) {
             newstring += data[i].data_id + ',' + dirString + ',';
-            // N.B. The following three fields may contain commas!
+            // N.B. The following three fields may contain commas, and are combined into a single field in the generated CSV.
             tmp = data[i].description + ' ' +  data[i].description2 + ' ' + data[i].description3; 
             newstring += '"' + tmp + '"' + ',';
-            newstring += data[i].nlanes + ',';
             newstring += data[i].yr_2018 + ',';
             newstring += data[i].yr_1999 + ',';
             newstring += data[i].awdt_2018 + ',';      
