@@ -159,6 +159,16 @@ function initializeApp(error, results) {
         rec.awdt_1999 = +rec.awdt_1999;
         // 2010 data
         rec.awdt_2010 = +rec.awdt_2010;
+        rec['peak_2010_6_to_7_am']  = +rec['peak_2010_6_to_7_am'];
+        rec['peak_2010_7_to_8_am']  = +rec['peak_2010_7_to_8_am'];
+        rec['peak_2010_8_to_9_am']  = +rec['peak_2010_8_to_9_am'];
+        rec['cum_2010_6_to_9_am']   = +rec['cum_2010_6_to_9_am'];
+        rec['peak_2010_9_to_10_am'] = +rec['peak_2010_9_to_10_am'];
+        rec['peak_2010_3_to_4_pm']  = +rec['peak_2010_3_to_4_pm'];
+        rec['peak_2010_4_to_5_pm']  = +rec['peak_2010_4_to_5_pm'];
+        rec['peak_2010_5_to_6_pm']  = +rec['peak_2010_5_to_6_pm'];
+        rec['cum_2010_3_to_6_pm']   = +rec['cum_2010_3_to_6_pm'];
+        rec['peak_2010_6_to_7_pm']  = +rec['peak_2010_6_to_7_pm']
         // 2018 data
         rec.awdt_2018 = +rec.awdt_2018;
         rec['peak_2018_6_to_7_am']  = +rec['peak_2018_6_to_7_am'];
@@ -170,7 +180,7 @@ function initializeApp(error, results) {
         rec['peak_2018_4_to_5_pm']  = +rec['peak_2018_4_to_5_pm'];
         rec['peak_2018_5_to_6_pm']  = +rec['peak_2018_5_to_6_pm'];
         rec['cum_2018_3_to_6_pm']   = +rec['cum_2018_3_to_6_pm'];
-        rec['peak_2018_6_to_7_pm']  = +rec['peak_2018_6_to_7_pm'];     
+        rec['peak_2018_6_to_7_pm']  = +rec['peak_2018_6_to_7_pm'];   
         // Synthesize the 'delta' of the 2018 and 2010 awdt values
         rec['delta_2018_2010_awdt'] = (rec['awdt_2018'] != NO_DATA) ? rec['awdt_2018'] - rec['awdt_2010'] : NO_DATA;
     } // cleanupCsvRec()
@@ -187,8 +197,7 @@ function initializeApp(error, results) {
     var max_hourly = _.max([_.max(_.pluck(DATA.sb_data, 'peak_2018_6_to_7_am')), _.max(_.pluck(DATA.sb_data, 'peak_2018_7_to_8_am')), 
                             _.max(_.pluck(DATA.sb_data, 'peak_2018_8_to_9_am')), _.max(_.pluck(DATA.sb_data, 'peak_2018_9_to_10_am')), 
                             _.max(_.pluck(DATA.sb_data, 'peak_2018_3_to_4_pm')), _.max(_.pluck(DATA.sb_data, 'peak_2018_4_to_5_pm')), 
-                            _.max(_.pluck(DATA.sb_data, 'peak_2018_5_to_6_pm')), _.max(_.pluck(DATA.sb_data, 'peak_2018_6_to_7_pm')),
-                            
+                            _.max(_.pluck(DATA.sb_data, 'peak_2018_5_to_6_pm')), _.max(_.pluck(DATA.sb_data, 'peak_2018_6_to_7_pm')),                           
                             _.max(_.pluck(DATA.nb_data, 'peak_2018_6_to_7_am')), _.max(_.pluck(DATA.nb_data, 'peak_2018_7_to_8_am')), 
                             _.max(_.pluck(DATA.nb_data, 'peak_2018_8_to_9_am')), _.max(_.pluck(DATA.nb_data, 'peak_2018_9_to_10_am')), 
                             _.max(_.pluck(DATA.nb_data, 'peak_2018_3_to_4_pm')), _.max(_.pluck(DATA.nb_data, 'peak_2018_4_to_5_pm')), 
@@ -305,7 +314,7 @@ function initializeApp(error, results) {
         var metric;
         // Toggle the enabled/disabled state of the options for select_metric, 
         // to reflect the metrics avaialble for the given year
-        if (year === "1999" || year === "2010") {
+        if (year === "1999") {
             $("#select_metric option[value='peak_6_to_7_am']").prop('disabled', true);
             $("#select_metric option[value='peak_7_to_8_am']").prop('disabled', true);
             $("#select_metric option[value='peak_8_to_9_am']").prop('disabled', true);
@@ -316,7 +325,7 @@ function initializeApp(error, results) {
             $("#select_metric option[value='peak_5_to_6_pm']").prop('disabled', true);
             $("#select_metric option[value='cum_3_to_6_pm']").prop('disabled', true);
             $("#select_metric option[value='peak_6_to_7_pm']").prop('disabled', true);
-            // If year is 1999 or 2010, only one metric (awdt) is available, so select it
+            // If year is 1999, only one metric (awdt) is available, so select it
             $("#select_metric").val('awdt');
         } else {
             $("#select_metric option[value='peak_6_to_7_am']").prop('disabled', false);
