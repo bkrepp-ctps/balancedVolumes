@@ -16,6 +16,8 @@ aPolylines_PrimDir = [], aPolylines_SecDir = [];
 lineColorPalette = { 'primary' : '#f5831a', 'secondary' : '#0066b4' };
 
 // Scales for width of SVG <line>s
+// Upper bound of scale domains is just a placeholder;
+// these values are adjusted when app initializes
 var widthPalettes = {
     'absolute': {  
                     'awdt'  :   d3.scaleLinear()
@@ -174,7 +176,27 @@ function initializeApp(error, results) {
     } // cleanupCsvRec()
 
     DATA.sb_data.forEach(cleanupCsvRec);
-    DATA.nb_data.forEach(cleanupCsvRec);     
+    DATA.nb_data.forEach(cleanupCsvRec);    
+
+    // Determine the upper bound of domains of width scales ('widthPalettes');
+    // We rashly assume that the 2018 values will always be greater than the 2010 or 1999 value
+    var max_awdt = _.max([_.max(_.pluck(DATA.sb_data, 'awdt_1999')), _.max(_.pluck(DATA.sb_data, 'awdt_2010')), _.max(_.pluck(DATA.sb_data, 'awdt_2018')),
+                          _.max(_.pluck(DATA.nb_data, 'awdt_1999')), _.max(_.pluck(DATA.nb_data, 'awdt_2010')), _.max(_.pluck(DATA.nb_data, 'awdt_2018'))]);
+    widthPalettes.absolute.awdt.domain([0, max_awdt]);
+    
+    var max_hourly = _.max([_.max(_.pluck(DATA.sb_data, 'peak_2018_6_to_7_am')), _.max(_.pluck(DATA.sb_data, 'peak_2018_7_to_8_am')), 
+                            _.max(_.pluck(DATA.sb_data, 'peak_2018_8_to_9_am')), _.max(_.pluck(DATA.sb_data, 'peak_2018_9_to_10_am')), 
+                            _.max(_.pluck(DATA.sb_data, 'peak_2018_3_to_4_pm')), _.max(_.pluck(DATA.sb_data, 'peak_2018_4_to_5_pm')), 
+                            _.max(_.pluck(DATA.sb_data, 'peak_2018_5_to_6_pm')), _.max(_.pluck(DATA.sb_data, 'peak_2018_6_to_7_pm')),
+                            
+                            _.max(_.pluck(DATA.nb_data, 'peak_2018_6_to_7_am')), _.max(_.pluck(DATA.nb_data, 'peak_2018_7_to_8_am')), 
+                            _.max(_.pluck(DATA.nb_data, 'peak_2018_8_to_9_am')), _.max(_.pluck(DATA.nb_data, 'peak_2018_9_to_10_am')), 
+                            _.max(_.pluck(DATA.nb_data, 'peak_2018_3_to_4_pm')), _.max(_.pluck(DATA.nb_data, 'peak_2018_4_to_5_pm')), 
+                            _.max(_.pluck(DATA.nb_data, 'peak_2018_5_to_6_pm')), _.max(_.pluck(DATA.nb_data, 'peak_2018_6_to_7_pm'))]);
+    widthPalettes.absolute.hourly.domain([0, max_hourly]);                        
+                            
+    var max_cum = _.max([_.max(_.pluck(DATA.sb_data, 'cum_2018_6_to_9_am')), _.max(_.pluck(DATA.sb_data, 'cum_2018_3_to_6_pm'))]);
+    widthPalettes.absolute.cum.domain([0, max_cum]);
     
     // Handlers for various events on the main SVG <line>-work (a.k.a. 'stick diagram')
     var handlers = {
