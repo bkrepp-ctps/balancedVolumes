@@ -1016,6 +1016,23 @@ function initMap(data) {
     // will raise an error. We are compelled to force a "bounds_changed" event to fire.
     // Larry and Sergey: How did you let this one through the cracks??
     map.setCenter(new google.maps.LatLng(lat + 0.000000001, lng + 0.000000001));
+    
+    // START of petite hacque to set scale bar units to miles/imperial instead of km/metric:
+    // See: https://stackoverflow.com/questions/18067797/how-do-i-change-the-scale-displayed-in-google-maps-api-v3-to-imperial-miles-un
+    // and: https://issuetracker.google.com/issues/35825255
+    var intervalTimer = window.setInterval(function() {
+        var elements = document.getElementById("map").getElementsByClassName("gm-style-cc");
+        for (var i in elements) {
+            // look for 'km' or 'm' in innerText via regex https://regexr.com/3hiqa
+            if ((/\d\s?(km|(m\b))/g).test(elements[i].innerText)) {
+                // The following call effects the change of scale bar units
+                elements[i].click();
+                window.clearInterval(intervalTimer);
+            }
+        }
+    }, 500);
+    window.setTimeout(function() { window.clearInterval(intervalTimer) }, 20000 );
+    // END of peitie hacque to set scale bar units to miles/imperial instead of km/metric  
 
     // Render the main 'backbone' route on the map using a Google Map data layer
     //
@@ -1048,7 +1065,6 @@ function initMap(data) {
 function downloadData(e) {
     // Create string of data to be downloaded
     var newstring = '';
-    
     // Header line
     newstring = 'data_id, direction, description, yr_2018, yr_1999,';
     newstring += 'awdt_2018,';
@@ -1101,7 +1117,6 @@ function downloadData(e) {
     // Data lines, NB and SB
     writeRecords(DATA.nb_data, 'nb');
     writeRecords(DATA.sb_data, 'sb');
-
     sessionStorage.setItem("sent", newstring); 
     download(newstring, "i93_sr3_balanced_volumes.csv", "text/csv");
 }
