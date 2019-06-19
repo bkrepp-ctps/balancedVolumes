@@ -114,7 +114,7 @@ function scrollHandler(e) {
         return retval;
     });
     // Now, all we have to do is to get the bounding box of the filtered feature colleciton... :-)
-    if (scrollHandler.cascadeScrollToMap === true) {
+    if (e.data.cascadeScrollToMap === true) {
         map.tmpDataLayer = new google.maps.Data();
         map.tmpDataLayer.addGeoJson(gj);
         map.tmpDataLayer.setStyle({ strokeWidth: 0, opacity : 1.0 });
@@ -127,7 +127,6 @@ function scrollHandler(e) {
         map.fitBounds(bounds);
     }
 } // scrollHandler()
-scrollHandler.cascadeScrollToMap = true;
 
 $(document).ready(function() {
     $('#wrapper').show();
@@ -435,7 +434,7 @@ function initializeApp(error, results) {
     // (3d) On-scroll handler for scrollbars of the main view
     //
     // Synchronize the bounds of the Google Map with the elements in the relevant viewport
-    $('#sb_viz,#nb_viz').scroll(function(e) { scrollHandler(e); });
+    $('#sb_viz,#nb_viz').on('scroll', { cascadeScrollToMap : true }, scrollHandler);
  
     // (4) Download data button
     // 
@@ -1050,8 +1049,8 @@ function initMap(data) {
     //
     map.data.addGeoJson(data.backbone_2010);
     map.data.setStyle(function(feature) {
-        var retval, data_id = feature.getProperty('data_id');
-        if (data_id.contains('_nb_')) {
+        var retval, backbone_rte = feature.getProperty('backbone_rte');
+        if (backbone_rte.endsWith('_nb')) {
             retval = { strokeColor : lineColorPalette.primary, strokeWeight: 2.0,  opacity: 1.0 };
         } else {
             retval = { strokeColor : lineColorPalette.secondary, strokeWeight: 2.0,  opacity: 1.0 };
@@ -1074,6 +1073,7 @@ function initMap(data) {
         var _DEBUG_HOOK = 0;
         var data_id = e.feature.getProperty('data_id');
         console.log('You clicked on: ' + data_id);
+
 /*        
         var rte = e.feature.getProperty('backbone_rte');
         console.log('backbone_rte: ' + rte);
@@ -1093,20 +1093,22 @@ function initMap(data) {
         var otherDivId = primaryDirectionP(rte) ? 'sb_viz' : 'nb_viz';
         
         // Prevent the map from being repositioned in response to the scroll event(s) we're about to trigger
-        scrollHandler.cascadeScrollToMap = false;
+        $('#' + divId).off('scroll');
+        $('#' + divId).on('scroll', { cascadeScrollToMap : false }, scrollHandler);
         
         // TBD: disable sync-scrolling if 'on'
         
-        // Scroll the graphic div, and re-enable cascading scroll events to the map
-        $.when($('#' + divId).scrollTo(scrollPct + '%', 500))
-            .then(function() { 
-                    scrollHandler.cascadeScrollToMap = true; 
-            });
+        // Scroll the graphic div, and 
+        $('#' + divId).scrollTo(scrollPct + '%', 500);
+        
+        // Re-enable cascading scroll events to the map
+        $('#' + divId).off('scroll');
+        $('#' + divId).on('scroll', { cascadeScrollToMap : true }, scrollHandler);
         
         // TBD: scroll the OTHER 'viz' div
         
         // TBD: re-enable sync-scrolling if it was 'on'
-*/       
+*/    
     });
 } // initMap()
 
