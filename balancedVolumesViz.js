@@ -85,6 +85,50 @@ function primaryDirectionP(backboneRouteName) {
     return (backboneRouteName.endsWith('_nb') || backboneRouteName.endsWith('_eb'));
 } // primaryDirectionP
 
+// Function to synchronize the bounds of the Google Map with the elements in the relevant viewport
+// This needs to be visible throughout this file
+function scrollHandler(e) {
+    var container = $('#' + e.target.id);
+    var contHeight = container.height();
+    var contTop = container.scrollTop();
+    var contBottom = contTop + contHeight;
+    // console.log('top = ' + contTop + ' bottom = ' + contBottom);
+    var elts = _.filter(DATA.sb_data, function(rec) { return rec.y1 >= contTop && rec.y2 <= contBottom; });       
+    // Get the data_ids to search for in the GeoJSON; filter out HOV lanes and ramps
+    var searchIds = _.pluck(elts, 'data_id');
+    searchIds = _.filter(searchIds, function(id) { return  id.contains('hov') === false && id.startsWith('R') === false; });
+    // Make a deep copy of the GeoJSON...
+    var gj = Object.assign({}, DATA.geojson);
+    // ... and filter out everything except the records with the matching data_ids.
+    // Yes, we know this is an O(n^2) operation... to be optimized when time is avaialble...
+    gj.features = _.filter(gj.features, function(rec) { 
+        var i;
+        var retval = false;
+        for (i = 0; i < searchIds.length; i++) {
+            if (rec.properties['data_id'] === searchIds[i]) {
+                retval = true;
+                // console.log('Found ' + searchIds[i]);
+                break;
+            }
+        }
+        return retval;
+    });
+    // Now, all we have to do is to get the bounding box of the filtered feature colleciton... :-)
+    if (scrollHandler.cascadeScrollToMap === true) {
+        map.tmpDataLayer = new google.maps.Data();
+        map.tmpDataLayer.addGeoJson(gj);
+        map.tmpDataLayer.setStyle({ strokeWidth: 0, opacity : 1.0 });
+        var bounds = new google.maps.LatLngBounds(); 
+        map.tmpDataLayer.forEach(function(feature){
+            feature.getGeometry().forEachLatLng(function(latlng){
+                bounds.extend(latlng);
+            });
+        });
+        map.fitBounds(bounds);
+    }
+} // scrollHandler()
+scrollHandler.cascadeScrollToMap = true;
+
 $(document).ready(function() {
     $('#wrapper').show();
     $('#comp_wrapper').hide();
@@ -119,14 +163,12 @@ function initializeApp(error, results) {
     // 2010 'backbone' route - both NB and SB
     DATA.backbone_2010 = Object.assign({}, DATA.geojson);
     DATA.backbone_2010.features = _.filter(DATA.backbone_2010.features, function(rec) { 
-        return rec.properties['yr_2010'] === 1 &&
-               rec.properties['data_id'].startsWith('R') === false &&  rec.properties['data_id'].contains('hov') == false;
+        return rec.properties['yr_2010'] === 1 && rec.properties['data_id'].contains('hov') == false;
     });
      // 1999 'backbone' route - both NB and SB
     DATA.backbone_1999 = Object.assign({}, DATA.geojson);
     DATA.backbone_1999.features = _.filter(DATA.backbone_1999.features, function(rec) { 
-        return rec.properties['yr_1999'] === 1 &&
-               rec.properties['data_id'].startsWith('R') === false &&  rec.properties['data_id'].contains('hov') == false;
+        return rec.properties['yr_1999'] === 1 && rec.properties['data_id'].contains('hov') == false;
     });
     
     // Prep tabular (CSV) data loaded for use in app
@@ -189,7 +231,6 @@ function initializeApp(error, results) {
     DATA.nb_data.forEach(cleanupCsvRec);    
 
     // Determine the upper bound of domains of width scales ('widthPalettes');
-    // We rashly assume that the 2018 values will always be greater than the 2010 or 1999 value
     var max_awdt = _.max([_.max(_.pluck(DATA.sb_data, 'awdt_1999')), _.max(_.pluck(DATA.sb_data, 'awdt_2010')), _.max(_.pluck(DATA.sb_data, 'awdt_2018')),
                           _.max(_.pluck(DATA.nb_data, 'awdt_1999')), _.max(_.pluck(DATA.nb_data, 'awdt_2010')), _.max(_.pluck(DATA.nb_data, 'awdt_2018'))]);
     widthPalettes.absolute.awdt.domain([0, max_awdt]);
@@ -201,10 +242,19 @@ function initializeApp(error, results) {
                             _.max(_.pluck(DATA.nb_data, 'peak_2018_6_to_7_am')), _.max(_.pluck(DATA.nb_data, 'peak_2018_7_to_8_am')), 
                             _.max(_.pluck(DATA.nb_data, 'peak_2018_8_to_9_am')), _.max(_.pluck(DATA.nb_data, 'peak_2018_9_to_10_am')), 
                             _.max(_.pluck(DATA.nb_data, 'peak_2018_3_to_4_pm')), _.max(_.pluck(DATA.nb_data, 'peak_2018_4_to_5_pm')), 
-                            _.max(_.pluck(DATA.nb_data, 'peak_2018_5_to_6_pm')), _.max(_.pluck(DATA.nb_data, 'peak_2018_6_to_7_pm'))]);
+                            _.max(_.pluck(DATA.nb_data, 'peak_2018_5_to_6_pm')), _.max(_.pluck(DATA.nb_data, 'peak_2018_6_to_7_pm')),
+                            _.max(_.pluck(DATA.sb_data, 'peak_2010_6_to_7_am')), _.max(_.pluck(DATA.sb_data, 'peak_2010_7_to_8_am')), 
+                            _.max(_.pluck(DATA.sb_data, 'peak_2010_8_to_9_am')), _.max(_.pluck(DATA.sb_data, 'peak_2010_9_to_10_am')), 
+                            _.max(_.pluck(DATA.sb_data, 'peak_2010_3_to_4_pm')), _.max(_.pluck(DATA.sb_data, 'peak_2010_4_to_5_pm')), 
+                            _.max(_.pluck(DATA.sb_data, 'peak_2010_5_to_6_pm')), _.max(_.pluck(DATA.sb_data, 'peak_2010_6_to_7_pm')),                           
+                            _.max(_.pluck(DATA.nb_data, 'peak_2010_6_to_7_am')), _.max(_.pluck(DATA.nb_data, 'peak_2010_7_to_8_am')), 
+                            _.max(_.pluck(DATA.nb_data, 'peak_2010_8_to_9_am')), _.max(_.pluck(DATA.nb_data, 'peak_2010_9_to_10_am')), 
+                            _.max(_.pluck(DATA.nb_data, 'peak_2010_3_to_4_pm')), _.max(_.pluck(DATA.nb_data, 'peak_2010_4_to_5_pm')), 
+                            _.max(_.pluck(DATA.nb_data, 'peak_2010_5_to_6_pm')), _.max(_.pluck(DATA.nb_data, 'peak_2010_6_to_7_pm'))]);
     widthPalettes.absolute.hourly.domain([0, max_hourly]);                        
                             
-    var max_cum = _.max([_.max(_.pluck(DATA.sb_data, 'cum_2018_6_to_9_am')), _.max(_.pluck(DATA.sb_data, 'cum_2018_3_to_6_pm'))]);
+    var max_cum = _.max([_.max(_.pluck(DATA.sb_data, 'cum_2018_6_to_9_am')), _.max(_.pluck(DATA.sb_data, 'cum_2018_3_to_6_pm')),
+                         _.max(_.pluck(DATA.sb_data, 'cum_2010_6_to_9_am')), _.max(_.pluck(DATA.sb_data, 'cum_2010_3_to_6_pm'))]);
     widthPalettes.absolute.cum.domain([0, max_cum]);
     
     // Handlers for various events on the main SVG <line>-work (a.k.a. 'stick diagram')
@@ -385,44 +435,6 @@ function initializeApp(error, results) {
     // (3d) On-scroll handler for scrollbars of the main view
     //
     // Synchronize the bounds of the Google Map with the elements in the relevant viewport
-    function scrollHandler(e) {
-        var container = $('#' + e.target.id);
-        var contHeight = container.height();
-        var contTop = container.scrollTop();
-        var contBottom = contTop + contHeight;
-        // console.log('top = ' + contTop + ' bottom = ' + contBottom);
-        var elts = _.filter(DATA.sb_data, function(rec) { return rec.y1 >= contTop && rec.y2 <= contBottom; });       
-        // Get the data_ids to search for in the GeoJSON; filter out HOV lanes and ramps
-        var searchIds = _.pluck(elts, 'data_id');
-        searchIds = _.filter(searchIds, function(id) { return  id.contains('hov') === false && id.startsWith('R') === false; });
-        // Make a deep copy of the GeoJSON...
-        var gj = Object.assign({}, DATA.geojson);
-        // ... and filter out everything except the records with the matching data_ids.
-        // Yes, we know this is an O(n^2) operation... to be optimized when time is avaialble...
-        gj.features = _.filter(gj.features, function(rec) { 
-            var i;
-            var retval = false;
-            for (i = 0; i < searchIds.length; i++) {
-                if (rec.properties['data_id'] === searchIds[i]) {
-                    retval = true;
-                    // console.log('Found ' + searchIds[i]);
-                    break;
-                }
-            }
-            return retval;
-        });
-        // Now, all we have to do is to get the bounding box of the filtered feature colleciton... :-)
-        map.tmpDataLayer = new google.maps.Data();
-        map.tmpDataLayer.addGeoJson(gj);
-        map.tmpDataLayer.setStyle({ strokeWidth: 0, opacity : 1.0 });
-        var bounds = new google.maps.LatLngBounds(); 
-        map.tmpDataLayer.forEach(function(feature){
-            feature.getGeometry().forEachLatLng(function(latlng){
-                bounds.extend(latlng);
-            });
-        });
-        map.fitBounds(bounds);
-    }
     $('#sb_viz,#nb_viz').scroll(function(e) { scrollHandler(e); });
  
     // (4) Download data button
@@ -1046,11 +1058,7 @@ function initMap(data) {
         }
         return retval;
     });
-    map.data.addListener('click', function(e) {
-        var data_id = e.feature.getProperty('data_id');
-        console.log('You clicked on: ' + data_id);
-        var _DEBUG_HOOK = 0;
-    });
+    
     //  Now pan/zoom map to the full extent of the route
     //  With credit to: https://stackoverflow.com/questions/32615267/zoom-on-google-maps-data-layer
     var bounds = new google.maps.LatLngBounds(); 
@@ -1059,7 +1067,47 @@ function initMap(data) {
             bounds.extend(latlng);
         });
     });
-    map.fitBounds(bounds); 
+    map.fitBounds(bounds);    
+    
+    // Work-in-progress to try to synchronize the graphic displays with the map...
+    map.data.addListener('click', function(e) {
+        var _DEBUG_HOOK = 0;
+        var data_id = e.feature.getProperty('data_id');
+        console.log('You clicked on: ' + data_id);
+/*        
+        var rte = e.feature.getProperty('backbone_rte');
+        console.log('backbone_rte: ' + rte);
+        
+        var data = primaryDirectionP(rte) ? DATA.nb_data : DATA.sb_data;
+        var fullHeight = _.max(data, 'y2').y2;
+        console.log('fullHeight: ' + fullHeight);
+        
+        var rec = _.find(data, function(r) { return r.data_id === data_id; });
+        var y1 = rec.y1, y2 = rec.y2;
+        var scrollPct = ((y1 + (y2 - y1)/2) / fullHeight) * 100;     
+        console.log('scrollPct: ' + scrollPct);
+        
+        var divId = primaryDirectionP(rte) ? 'nb_viz' : 'sb_viz';
+        console.log('divId: ' + divId);
+        
+        var otherDivId = primaryDirectionP(rte) ? 'sb_viz' : 'nb_viz';
+        
+        // Prevent the map from being repositioned in response to the scroll event(s) we're about to trigger
+        scrollHandler.cascadeScrollToMap = false;
+        
+        // TBD: disable sync-scrolling if 'on'
+        
+        // Scroll the graphic div, and re-enable cascading scroll events to the map
+        $.when($('#' + divId).scrollTo(scrollPct + '%', 500))
+            .then(function() { 
+                    scrollHandler.cascadeScrollToMap = true; 
+            });
+        
+        // TBD: scroll the OTHER 'viz' div
+        
+        // TBD: re-enable sync-scrolling if it was 'on'
+*/       
+    });
 } // initMap()
 
 function downloadData(e) {
