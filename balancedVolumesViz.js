@@ -85,36 +85,45 @@ function primaryDirectionP(backboneRouteName) {
     return (backboneRouteName.endsWith('_nb') || backboneRouteName.endsWith('_eb'));
 } // primaryDirectionP
 
+var cascadeScrollToMap = true;
+function get_cascadeScrollToMap() { return cascadeScrollToMap; }
+function set_cascadeScrollToMap(val) { 
+    console.log('Setting cascadeScrollToMap to ' + val);
+    cascadeScrollToMap = val;
+}
+
 // Function to synchronize the bounds of the Google Map with the elements in the relevant viewport
 // This needs to be visible throughout this file
 function scrollHandler(e) {
-    var container = $('#' + e.target.id);
-    var contHeight = container.height();
-    var contTop = container.scrollTop();
-    var contBottom = contTop + contHeight;
-    // console.log('top = ' + contTop + ' bottom = ' + contBottom);
-    var elts = _.filter(DATA.sb_data, function(rec) { return rec.y1 >= contTop && rec.y2 <= contBottom; });       
-    // Get the data_ids to search for in the GeoJSON; filter out HOV lanes and ramps
-    var searchIds = _.pluck(elts, 'data_id');
-    searchIds = _.filter(searchIds, function(id) { return  id.contains('hov') === false && id.startsWith('R') === false; });
-    // Make a deep copy of the GeoJSON...
-    var gj = Object.assign({}, DATA.geojson);
-    // ... and filter out everything except the records with the matching data_ids.
-    // Yes, we know this is an O(n^2) operation... to be optimized when time is avaialble...
-    gj.features = _.filter(gj.features, function(rec) { 
-        var i;
-        var retval = false;
-        for (i = 0; i < searchIds.length; i++) {
-            if (rec.properties['data_id'] === searchIds[i]) {
-                retval = true;
-                // console.log('Found ' + searchIds[i]);
-                break;
+    var cascadeFlag = get_cascadeScrollToMap();
+    console.log('Entering on-scroll handler for: ' + e.target.id + ' cascadeScrollToMap: ' + cascadeScrollToMap);
+    if (cascadeFlag === true) {
+        var container = $('#' + e.target.id);
+        var contHeight = container.height();
+        var contTop = container.scrollTop();
+        var contBottom = contTop + contHeight;
+        // console.log('top = ' + contTop + ' bottom = ' + contBottom);
+        var elts = _.filter(DATA.sb_data, function(rec) { return rec.y1 >= contTop && rec.y2 <= contBottom; });       
+        // Get the data_ids to search for in the GeoJSON; filter out HOV lanes and ramps
+        var searchIds = _.pluck(elts, 'data_id');
+        searchIds = _.filter(searchIds, function(id) { return  id.contains('hov') === false && id.startsWith('R') === false; });
+        // Make a deep copy of the GeoJSON...
+        var gj = Object.assign({}, DATA.geojson);
+        // ... and filter out everything except the records with the matching data_ids.
+        // Yes, we know this is an O(n^2) operation... to be optimized when time is avaialble...
+        gj.features = _.filter(gj.features, function(rec) { 
+            var i;
+            var retval = false;
+            for (i = 0; i < searchIds.length; i++) {
+                if (rec.properties['data_id'] === searchIds[i]) {
+                    retval = true;
+                    // console.log('Found ' + searchIds[i]);
+                    break;
+                }
             }
-        }
-        return retval;
-    });
-    // Now, all we have to do is to get the bounding box of the filtered feature colleciton... :-)
-    if (e.data.cascadeScrollToMap === true) {
+            return retval;
+        });
+        // Now, all we have to do is to get the bounding box of the filtered feature colleciton... :-)
         map.tmpDataLayer = new google.maps.Data();
         map.tmpDataLayer.addGeoJson(gj);
         map.tmpDataLayer.setStyle({ strokeWidth: 0, opacity : 1.0 });
@@ -125,7 +134,8 @@ function scrollHandler(e) {
             });
         });
         map.fitBounds(bounds);
-    }
+    } // if
+    return;
 } // scrollHandler()
 
 $(document).ready(function() {
@@ -296,7 +306,7 @@ function initializeApp(error, results) {
                             // turf.js doest the job well for *single* features, and is lightweight. 
                             // I've had it fail when when called to compute the bbox of a feature collection,
                             // and so we employ a bit of slight-of-hand using a Google Maps Data layer when
-                            // performing that operation. See the code for scrollHandler(), below.
+                            // performing that operation. See the code for scrollHandler().
                             var bbox = turf.bbox(lineFeature);
                             // Return value of turf.bbox() has the form: [minX, minY, maxX, maxY]
                             // Morph this into a form Google Maps can digest
@@ -337,6 +347,11 @@ function initializeApp(error, results) {
                                 .style("opacity", 0);	            
                         }      
     }; // handlers{}
+    
+    function setMainCaption(route, year) {
+        var tmp = route + "&nbsp;-&nbsp;" + year;
+        $('#central_caption').html(tmp);
+    } // setMainCaption()
     
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // Initialize stuff for the 'main' view: 
@@ -392,6 +407,7 @@ function initializeApp(error, results) {
         metric = $("#select_metric option:selected").attr('value');
         symbolizeSvgWireframe(VIZ.sb, 'sb_viz', metric, year, lineColorPalette.secondary);
         symbolizeSvgWireframe(VIZ.nb, 'nb_viz', metric, year, lineColorPalette.primary);       
+        setMainCaption("I-93/SR-3", year);
     });
     
     // (3b) Arm event handler for select_metric combo box
@@ -404,7 +420,8 @@ function initializeApp(error, results) {
             metric = $("#select_metric option:selected").attr('value');
         }       
         symbolizeSvgWireframe(VIZ.sb, 'sb_viz', metric, year, lineColorPalette.secondary);
-        symbolizeSvgWireframe(VIZ.nb, 'nb_viz', metric, year, lineColorPalette.primary);                
+        symbolizeSvgWireframe(VIZ.nb, 'nb_viz', metric, year, lineColorPalette.primary);   
+        setMainCaption("I-93/SR-3", year);        
      });
     
     // (3c) On-change handler for sync_scrollbars checkbox
@@ -434,7 +451,7 @@ function initializeApp(error, results) {
     // (3d) On-scroll handler for scrollbars of the main view
     //
     // Synchronize the bounds of the Google Map with the elements in the relevant viewport
-    $('#sb_viz,#nb_viz').on('scroll', { cascadeScrollToMap : true }, scrollHandler);
+    $('#sb_viz,#nb_viz').on('scroll', scrollHandler);
  
     // (4) Download data button
     // 
@@ -940,9 +957,7 @@ function symbolizeSvgWireframe(vizWireframe, divId, metric, year, color) {
     
     // Body of symbolizeSvgWireframe() begins here:
     //
-    var attrName, widthPalette, colorPalette, tmp; 
-    tmp = "I-93/SR-3&nbsp;-&nbsp;" + year;
-    $('#central_caption').html(tmp);
+    var attrName, widthPalette, colorPalette;
     attrName = getAttrName(metric, year);
     // console.log('Symbolizing attribute; attrName = ' + attrName);
         
@@ -1072,9 +1087,8 @@ function initMap(data) {
     map.data.addListener('click', function(e) {
         var _DEBUG_HOOK = 0;
         var data_id = e.feature.getProperty('data_id');
-        console.log('You clicked on: ' + data_id);
-
-/*        
+        console.log('Entering map on-click handler. You clicked on: ' + data_id);
+    
         var rte = e.feature.getProperty('backbone_rte');
         console.log('backbone_rte: ' + rte);
         
@@ -1093,22 +1107,30 @@ function initMap(data) {
         var otherDivId = primaryDirectionP(rte) ? 'sb_viz' : 'nb_viz';
         
         // Prevent the map from being repositioned in response to the scroll event(s) we're about to trigger
-        $('#' + divId).off('scroll');
-        $('#' + divId).on('scroll', { cascadeScrollToMap : false }, scrollHandler);
+        set_cascadeScrollToMap(false);
+        
+        // Check
+        var tmp = get_cascadeScrollToMap();
+        console.log('map click handler: cascadeScrollToMap = ' + cascadeScrollToMap);
         
         // TBD: disable sync-scrolling if 'on'
         
-        // Scroll the graphic div, and 
-        $('#' + divId).scrollTo(scrollPct + '%', 500);
+        // Scroll the graphic div
+        // $('#' + divId).scrollTo(scrollPct + '%'); // Temp: Removed '500' (time duration) parameter
+        $.when($('#' + divId).scrollTo(scrollPct + '%'))
+            .done(function() { 
+                $('#' + divId).clearQueue();
+                set_cascadeScrollToMap(true);
+            });
         
         // Re-enable cascading scroll events to the map
-        $('#' + divId).off('scroll');
-        $('#' + divId).on('scroll', { cascadeScrollToMap : true }, scrollHandler);
+        // set_cascadeScrollToMap(true);
         
+          
         // TBD: scroll the OTHER 'viz' div
         
         // TBD: re-enable sync-scrolling if it was 'on'
-*/    
+ 
     });
 } // initMap()
 
