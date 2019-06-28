@@ -25,7 +25,7 @@
 	<div class="darkBlue"></div>
     <div id="banner"><a href="https://www.ctps.org/" target="_blank" title="Boston MPO"><img style="height:59px" src="./img/ctps_header.png" title="Opens Boston MPO website in a new window"></a></div>
 </div>
-<h1 class="pagetitle">Balanced Volumes - Development Version</h1>
+<h1 class="pagetitle">Balanced Volumes Visualization - Development Version</h1>
 <div id="header_div">
     <div class="options_div">
         <label for="select_main_view">Main View</label>
@@ -44,7 +44,6 @@
                 <option value="2018" selected>2018</option>
                 <option value="2010">2010</option>
                 <option value="1999">1999</option>
-                <!-- <option value"delta_2018_2010"= year="delta_2018_2010">Change between 2018 and 2010</option> -->
             </select>               
             Select metric:
             <select id="select_metric" class="app_select_box">
@@ -65,8 +64,7 @@
             &nbsp;
             <input type="button" id="download_button" name="download_button" value="Download Data">
         </span>
-    </div>
-      
+    </div>   
     <div id="gfx_wrapper_1">
         <!-- Gross, but effective, table layout... for now -->
         <table>
@@ -113,7 +111,6 @@
             </select>
         </span>
     </div>
-    
     <div id="comp_options_2" class="options_div">
         <label for="sync_all_scrollbars">Synchronize all scrollbars:</label>
         <input type="radio" name="scroll_radio" class="scroll_radio" id="sync_all_scrollbars"  value="sync_all_scrollbars">   
@@ -124,7 +121,6 @@
         <label for="unsync_scrollbars">Un-synchronize scrollbars:</label>
         <input type="radio" name="scroll_radio" class="scroll_radio" id="unsyc_scrollbars"  value="unsync_scrollbars">     
     </div>
-    
     <div id="gfx_wrapper_2">
         <!-- Gross, but effective, table layout... for now -->
         <table>
@@ -162,7 +158,6 @@
             </tr>
         </table> 
     </div> <!-- gfx_wrapper_2 -->
-    
 </div> <!-- comp_wrapper div -->
 
 <script src="balancedVolumesViz.js"></script>

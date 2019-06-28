@@ -29,17 +29,6 @@ var widthPalettes = {
                     'cum'   :   d3.scaleLinear()
                                     .domain([0, 20000])
                                     .range(["1px", "15px"])
-                },       
-    'delta':    {
-                    'awdt'  :   d3.scaleLinear()
-                                    .domain([0, 20000])
-                                    .range(["1px", "15px"]),
-                    'hourly':   d3.scaleLinear()
-                                    .domain([0, 2000])
-                                    .range(["1px", "15px"]),
-                    'cum'   :   d3.scaleLinear()
-                                    .domain([0, 3000])
-                                    .range(["1px", "15px"])
                 }
 };
 
@@ -54,26 +43,21 @@ var tooltipDiv = d3.select("body").append("div")
 //
 // Return name of relevant property in the in-memory array, 
 // given 'metric' and 'logicalYear' specified in "select_metric" and "select_year" combo boxes.
-// The 'logicalYear' parameter may be '2018, '2010' or 'delta_2018_2010'
+// The 'logicalYear' parameter may be '2018, '2010' or '1999'.
 function getAttrName(metric, logicalYear) {
     var part1, part2, retval;
     retval = '';    
-    if (logicalYear.startsWith('delta')) {
-        retval = logicalYear + '_' + metric;     
+    if (metric.startsWith('peak') === true) {
+        part1 = 'peak_';
+        part2 = metric.replace('peak','');
+        retval = part1 + logicalYear + part2;
+    } else if (metric.startsWith('cum') === true) {
+        part1 = 'cum_';
+        part2 = metric.replace('cum','');
+        retval = part1 + logicalYear + part2;            
     } else {
-        // Non-delta attribute
-        if (metric.startsWith('peak') === true) {
-            part1 = 'peak_';
-            part2 = metric.replace('peak','');
-            retval = part1 + logicalYear + part2;
-        } else if (metric.startsWith('cum') === true) {
-            part1 = 'cum_';
-            part2 = metric.replace('cum','');
-            retval = part1 + logicalYear + part2;            
-        } else {
-            // Rash assumption: metric.startsWith('awdt') === true
-            retval = metric + '_' + logicalYear;
-        }
+        // Rash assumption: metric.startsWith('awdt') === true
+        retval = metric + '_' + logicalYear;
     }
     return retval;
 } // getAttrName()
@@ -232,8 +216,6 @@ function initializeApp(error, results) {
         rec['peak_2018_5_to_6_pm']  = +rec['peak_2018_5_to_6_pm'];
         rec['cum_2018_3_to_6_pm']   = +rec['cum_2018_3_to_6_pm'];
         rec['peak_2018_6_to_7_pm']  = +rec['peak_2018_6_to_7_pm'];   
-        // Synthesize the 'delta' of the 2018 and 2010 awdt values
-        rec['delta_2018_2010_awdt'] = (rec['awdt_2018'] != NO_DATA) ? rec['awdt_2018'] - rec['awdt_2010'] : NO_DATA;
     } // cleanupCsvRec()
 
     DATA.sb_data.forEach(cleanupCsvRec);
@@ -324,12 +306,7 @@ function initializeApp(error, results) {
                             year = $("#select_year option:selected").attr('value');
                             yearTxt = $("#select_year option:selected").text();
                             attrName = getAttrName(metric,year); 
-                            if (year.contains('delta')) {
-                                // Current assumption: all "deltas" are between 2018 and 2010
-                                tmpstr += 'Change in ' + metricTxt + ' between 2018 and 2010: ' + d[attrName].toLocaleString();
-                            } else {
-                                tmpstr += yearTxt + ' ' + metricTxt + ': ' + d[attrName].toLocaleString();
-                            }
+                            tmpstr += yearTxt + ' ' + metricTxt + ': ' + d[attrName].toLocaleString();
                             tmpstr += '<br>'+ 'Number of lanes: ' + d.nlanes + '<br>';
                             backgroundColor = (primaryDirectionP(d.backbone_rte)) ? lineColorPalette.primary : lineColorPalette.secondary;
                             // console.log(tmpstr);                 
@@ -932,18 +909,15 @@ function generateSvgWireframe(wireframe_data, div_id, yDir_is_routeDir, handlers
 //      vizWireframe : 'wireframe' of SVG <line> elements, and assocated <text> and <tspan> elements for labels
 //      divId  : the ID of the <div> contaiing the SVG 'wireframe'
 //      metric : the metric to be displayed, e.g., 'awdt' or '6_to_7_am' (6 - 7 am peak period volume)
-//      year : may be either the string for a single year, e.g., "2018" or a string beginning with "delta", 
-//             followed an underscore, and the strings for 2 years delimited by another underscore, e.g., "delta_2018_2010".
-//             The former is self-explanatory; the latter indicates that a comparison of the data for the relevant metric for
-//             the 2 years (first - last) is to be rendered.
-//      color : the color to be used to render the SVG <line>s
+//      year   : 2019, 2010, or 1999
+//      color  : the color to be used to render the SVG <line>s
 // return value : none
 function symbolizeSvgWireframe(vizWireframe, divId, metric, year, color) {
     // Given a 'logical' metric to symbolize (denoted by a 'metric' and 'logicalYear'
     // return the witdh palette to use for it
     function getWidthPalette(metric, logicalYear) {
         var base, retval;
-        base = (logicalYear.startsWith('delta')) ? widthPalettes['delta'] : widthPalettes['absolute'];
+        base = widthPalettes['absolute'];
         if (metric.contains('awdt')) {
             retval = base['awdt'];
         } else if (metric.contains('cum')) {
