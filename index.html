@@ -30,8 +30,10 @@
     <div class="options_div">
         <label for="select_main_view">Main View</label>
         <input type="radio" name="select_view" class="select_view" id="select_main_view"  value="select_main_view" checked>     
-        <label for="select_comp_view">AWDT Comparision View</label>
-        <input type="radio" name="select_view" class="select_view" id="select_comp_view" value="select_comp_view">   
+        <label for="select_awdt_comp_view">AWDT Comparision View</label>
+        <input type="radio" name="select_view" class="select_view" id="select_awdt_comp_view" value="select_awdt_comp_view">   
+        <label for="select_peak_comp_view">2018 Peak Period Comparison View</label>
+        <input type="radio" name="select_view" class="select_view" id="select_peak_comp_view" value="select_peak_comp_view">              
     </div>
 </div> <!-- header_div -->
 
@@ -93,9 +95,8 @@
     </div> <!-- gfx_wrapper_1 -->
 </div> <!-- main_wrapper div -->
 
-<div id="comp_wrapper">
-    <!-- <h3>AWDT Comparator View</h3> -->
-    <div id="comp_options_1" class="options_div">
+<div id="awdt_comp_wrapper">
+    <div id="awdt_comp_options_1" class="options_div">
         <span>
             Select AWDT year 1:
             <select id="select_year_1" class="app_select_box">
@@ -111,7 +112,7 @@
             </select>
         </span>
     </div>
-    <div id="comp_options_2" class="options_div">
+    <div id="awdt_comp_options_2" class="options_div">
         <label for="sync_all_scrollbars">Synchronize all scrollbars:</label>
         <input type="radio" name="scroll_radio" class="scroll_radio" id="sync_all_scrollbars"  value="sync_all_scrollbars">   
         <label for="sync_sb_scrollbars">Synchronize scrollbars for southbound direction:</label>
@@ -126,39 +127,90 @@
         <table>
             <tr>
                 <!-- Southbound, year 1 -->
-                <td id="comp_caption_sb_yr_1" class="viz_caption">Southbound 2018 AWDT &darr;</td>
+                <td id="awdt_comp_caption_sb_yr_1" class="viz_caption">Southbound 2018 AWDT &darr;</td>
                 <!-- Southbound, year 2 -->
-                <td id="comp_caption_sb_yr_2" class="viz_caption">Southbound 2010 AWDT &darr;</td>
+                <td id="awdt_comp_caption_sb_yr_2" class="viz_caption">Southbound 2010 AWDT &darr;</td>
                 <!-- Northbound, year 1 -->
-                <td id="comp_caption_nb_yr_1" class="viz_caption">Northbound 2018 AWDT &uarr;</td>
+                <td id="awdt_comp_caption_nb_yr_1" class="viz_caption">Northbound 2018 AWDT &uarr;</td>
                 <!-- Northbound, year 2 -->
-                <td id="comp_caption_nb_yr_2" class="viz_caption">Northbound 2010 AWDT &uarr;</td>
+                <td id="awdt_comp_caption_nb_yr_2" class="viz_caption">Northbound 2010 AWDT &uarr;</td>
             </tr>
             <tr>
                 <!-- Southbound, year 1 -->
                 <td>
-                    <div id="sb_viz_yr_1" class="comp_viz syncscroll" role="presentation">
+                    <div id="sb_viz_yr_1" class="awdt_comp_viz syncscroll" role="presentation">
                     </div>
                 </td>
                 <!-- Southbound, year 2 -->
                 <td>
-                    <div id="sb_viz_yr_2" class="comp_viz syncscroll" role="presentation">
+                    <div id="sb_viz_yr_2" class="awdt_comp_viz syncscroll" role="presentation">
                     </div>
                 </td>  
                 <!-- Northbound, year 1 -->                
                 <td>
-                    <div id="nb_viz_yr_1" class="comp_viz syncscroll" role="presentation">
+                    <div id="nb_viz_yr_1" class="awdt_comp_viz syncscroll" role="presentation">
                     </div> 
                 </td>
                 <!-- Northbound, year 2 -->
                 <td>
-                    <div id="nb_viz_yr_2" class="comp_viz syncscroll" role="presentation">
+                    <div id="nb_viz_yr_2" class="awdt_comp_viz syncscroll" role="presentation">
                     </div> 
                 </td>
             </tr>
         </table> 
     </div> <!-- gfx_wrapper_2 -->
-</div> <!-- comp_wrapper div -->
+</div> <!-- awdt_comp_wrapper div -->
+
+<div id="peak_comp_wrapper">
+    <div id="awdt_comp_options_1" class="options_div">
+        <span>
+            Select peak period:
+            <select id="select_peak_period" class="app_select_box">
+                <option value="AM" selected>AM</option>
+                <option value="PM">PM</option>
+            </select>
+            Select direction:
+            <select id="select_direction" class="app_select_box">
+                <option value="Southbound" selected>Southbound</option>
+                <option value="Northbound">Northbound</option>
+            </select>
+        </span>
+    </div>
+
+    <div id="gfx_wrapper_3">
+        <!-- Gross, but effective, table layout... for now -->
+        <table>
+            <tr>
+                <td id="peak_comp_caption_1" class="viz_caption">Coming Soon</td>
+                <td id="peak_comp_caption_2" class="viz_caption">Coming Soon</td>
+                <td id="peak_comp_caption_3" class="viz_caption">Coming Soon</td>
+                <td id="peak_comp_caption_4" class="viz_caption">Coming Soon</td>
+            </tr>
+            <tr>
+                <!-- Peak hour 1 (6-7 AM or 3-4 PM) -->
+                <td>
+                    <div id="peak_viz_hr_1" class="peak_comp_viz syncscroll" role="presentation">
+                    </div>
+                </td>
+                <!-- Peak hour 2 (7-8 AM or 4-5 PM)-->
+                <td>
+                    <div id="peak_viz_hr_2" class="peak_comp_viz syncscroll" role="presentation">
+                    </div>
+                </td>  
+                <!-- Peak hour 3 (8-9 AM or 5-6 PM) -->                
+                <td>
+                    <div id="peak_viz_hr_3" class="peak_comp_viz syncscroll" role="presentation">
+                    </div> 
+                </td>
+                <!-- Sum of 3 peak hours-->
+                <td>
+                    <div id="peak_viz_sum" class="peak_comp_viz syncscroll" role="presentation">
+                    </div> 
+                </td>
+            </tr>
+        </table> 
+    </div> <!-- gfx_wrapper_3 -->
+</div> <!-- peak_comp_wrapper div -->
 
 <script src="balancedVolumesViz.js"></script>
 </body>

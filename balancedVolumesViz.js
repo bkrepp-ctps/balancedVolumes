@@ -80,7 +80,7 @@ function set_cascadeScrollToMap(val) {
 // This needs to be visible throughout this file
 function scrollHandler(e) {
     var cascadeFlag = get_cascadeScrollToMap();
-    console.log('Entering on-scroll handler for: ' + e.target.id + ' cascadeScrollToMap: ' + cascadeScrollToMap);
+    // console.log('Entering on-scroll handler for: ' + e.target.id + ' cascadeScrollToMap: ' + cascadeScrollToMap);
     if (cascadeFlag === true) {
         var container = $('#' + e.target.id);
         var contHeight = container.height();
@@ -123,17 +123,31 @@ function scrollHandler(e) {
 } // scrollHandler()
 
 $(document).ready(function() {
-    $('#wrapper').show();
-    $('#comp_wrapper').hide();
+    $('#main_wrapper').show();
+    $('#awdt_comp_wrapper').hide();
+    $('#peak_comp_wrapper').hide();
+    // Arm event handler for select_view radio buttons
     $('.select_view').on("click", function(e) {
         var view = $('.select_view:checked').val();
-        if (view === 'select_main_view') {
-            $('#comp_wrapper').hide();   
+        switch(view) {
+        case 'select_main_view':
+            $('#awdt_comp_wrapper').hide(); 
+            $('#peak_comp_wrapper').hide();
             $('#main_wrapper').show();
-        } else {
+            break;
+        case 'select_awdt_comp_view':
             $('#main_wrapper').hide();
-            $('#comp_wrapper').show();
-        }
+            $('#peak_comp_wrapper').hide();
+            $('#awdt_comp_wrapper').show();
+            break;
+        case 'select_peak_comp_view':
+            $('#main_wrapper').hide();
+            $('#awdt_comp_wrapper').hide();
+            $('#peak_comp_wrapper').show();
+            break;
+        default:
+            break;
+       }
     });
     var q = d3.queue()
                 .defer(d3.json, geojsonURL)
@@ -436,7 +450,7 @@ function initializeApp(error, results) {
     
     
     ///////////////////////////////////////////////////////////////////////////////////////////////
-    // Initialize stuff for 'comparison' view:
+    // Initialize stuff for the 'awdt comparison' view:
     //      1. SVG wireframes
     //      2. Event handlers for UI controls
     //          a. select_year_1 and select_year_2 combo boxes
@@ -460,18 +474,18 @@ function initializeApp(error, results) {
     $('#select_year_1').change(function(e) {
         var year_1 = $("#select_year_1 option:selected").attr('value');   
         var tmp = 'Southbound' + '&nbsp;' + year_1 + '&nbsp;AWDT&nbsp;' + '&darr;';
-        $('#comp_caption_sb_yr_1').html(tmp);
+        $('#awdt_comp_caption_sb_yr_1').html(tmp);
         tmp = 'Northbound' + '&nbsp;' + year_1 + '&nbsp;AWDT&nbsp;' + '&uarr;';
-        $('#comp_caption_nb_yr_1').html(tmp);
+        $('#awdt_comp_caption_nb_yr_1').html(tmp);
         symbolizeSvgWireframe(VIZ.sb_yr_1, 'sb_viz_yr_1', 'awdt', year_1,  lineColorPalette.secondary);  
         symbolizeSvgWireframe(VIZ.nb_yr_1, 'nb_viz_yr_1', 'awdt', year_1,  lineColorPalette.primary); 
     });
     $('#select_year_2').change(function(e) {
         var year_2 = $("#select_year_2 option:selected").attr('value');      
         var tmp = 'Southbound' + '&nbsp;' + year_2 + '&nbsp;AWDT&nbsp;' + '&darr;';
-        $('#comp_caption_sb_yr_2').html(tmp);
+        $('#awdt_comp_caption_sb_yr_2').html(tmp);
         tmp = 'Northbound' + '&nbsp;' + year_2 + '&nbsp;AWDT&nbsp;' + '&uarr;';
-        $('#comp_caption_nb_yr_2').html(tmp);     
+        $('#awdt_comp_caption_nb_yr_2').html(tmp);     
         symbolizeSvgWireframe(VIZ.sb_yr_2, 'sb_viz_yr_2', 'awdt', year_2,  lineColorPalette.secondary);  
         symbolizeSvgWireframe(VIZ.nb_yr_2, 'nb_viz_yr_2', 'awdt', year_2,  lineColorPalette.primary);         
     }); 
