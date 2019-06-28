@@ -470,7 +470,7 @@ function initializeApp(error, results) {
     VIZ.nb_yr_2 = generateSvgWireframe(DATA.nb_data, 'nb_viz_yr_2', false, null);  
     symbolizeSvgWireframe(VIZ.nb_yr_2, 'nb_viz_yr_2', 'awdt', '2010', lineColorPalette.primary);   
 
-    // (2a) Arm event handlers for select_year_ and select_year_2 combo boxes
+    // (2a) Arm event handlers for select_year_1 and select_year_2 combo boxes
     $('#select_year_1').change(function(e) {
         var year_1 = $("#select_year_1 option:selected").attr('value');   
         var tmp = 'Southbound' + '&nbsp;' + year_1 + '&nbsp;AWDT&nbsp;' + '&darr;';
@@ -536,6 +536,54 @@ function initializeApp(error, results) {
         }      
         syncscroll.reset();  
     }); 
+    
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // Initialize stuff for the 'peak (hours) comparison' view:
+    //      1. SVG wireframes
+    //      2. Event handlers for UI controls
+    //          a. select_peak_period and select_direction combo boxes
+    //          b. sync_*_scrollbars radio buttons
+    //
+    // (1) Initialize SVG wireframes:
+    //      hour 1 - default is 6-7 AM
+    //      hour 2 - default is 7-8 AM
+    //      hour 3 - default is 8-9 AM
+    //      sum    - default is 6-9 AM 
+    VIZ.hourly_1 = generateSvgWireframe(DATA.nb_data, 'peak_viz_hr_1', true, null);
+    symbolizeSvgWireframe(VIZ.hourly_1, 'peak_viz_hr_1', 'peak_6_to_7_am', '2018', lineColorPalette.primary);    
+    VIZ.hourly_2 = generateSvgWireframe(DATA.nb_data, 'peak_viz_hr_2', true, null);
+    symbolizeSvgWireframe(VIZ.hourly_2, 'peak_viz_hr_2', 'peak_7_to_8_am', '2018', lineColorPalette.primary);    
+    VIZ.hourly_3 = generateSvgWireframe(DATA.nb_data, 'peak_viz_hr_3', true, null);
+    symbolizeSvgWireframe(VIZ.hourly_3, 'peak_viz_hr_3', 'peak_8_to_9_am', '2018', lineColorPalette.primary);    
+    VIZ.hourly_sum = generateSvgWireframe(DATA.nb_data, 'peak_viz_sum', true, null);
+    symbolizeSvgWireframe(VIZ.hourly_sum, 'peak_viz_sum', 'cum_6_to_9_am', '2018', lineColorPalette.primary);    
+    
+    
+    function symbolizeHourlyComparison(period, direction) {
+        var _DEBUG_HOOK;
+    } // symbolizeHourlyComparison()
+
+     // (2a) Arm event handlers for select_peak_period and select_direction combo boxes
+    $('#select_peak_period').change(function(e) {
+        alert('Implementation of the hourly peak period display has not been completed.\nTry again later!');
+        return;
+    /*
+        var period = $("#select_peak_period option:selected").attr('value');   
+        var direction = $("#select_direction option:selected").attr('value');
+        symbolizeHourlyComparison(period, direction);
+    */
+    });   
+    $('#select_direction').change(function(e) {
+        alert('Implementation of the hourly peak period display has not been completed.\nTry again later!');
+        return;
+    /*
+        var direction = $("#select_direction option:selected").attr('value');
+        var period = $("#select_peak_period option:selected").attr('value');   
+        // UGGH - have to generate a different wireframe before we can symbolize it...
+        symbolizeHourlyComparison(period, direction);
+    */
+    });     
+    
 } // initializeApp()
 
 // function: generateSvgWireframe
@@ -987,13 +1035,15 @@ function symbolizeSvgWireframe(vizWireframe, divId, metric, year, color) {
     
     // Folderol to hide linework for HOV lane that's only present in the PM if the selected metric is for an AM time period,
     // and hide the linework for HOV lane that's only present in the AM if the selected metric is for a PM time period.
-    $('.restriction_am_only').show();
-    $('.restriction_pm_only').show();
-    if (metric.endsWith('_am')) {
-        $('#' + divId + ' .restriction_pm_only').hide();
-    } else if (metric.endsWith('_pm')) {
-        $('#' + divId + ' .restriction_am_only').hide();
+    var elts;
+    $('#' + divId + ' .restriction_am_only').show();
+    $('#' + divId + ' .restriction_pm_only').show();
+    if (divId === 'sb_viz' && metric.endsWith('_am')) {
+        $('#sb_viz .restriction_pm_only').hide();
+    } else if (divId == 'nb_viz' && metric.endsWith('_pm')) {
+        $('#nb_viz .restriction_am_only').hide();
     }
+        
 
     vizWireframe.label_txt_1
         .text(function(d,i) { return d.description; });
