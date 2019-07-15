@@ -544,7 +544,8 @@ function initializeApp(error, results) {
     //          a. select_peak_period and select_direction combo boxes
     //          b. sync_*_scrollbars radio buttons
     //
-    // (1) Initialize SVG wireframes:
+    // (1) Initialize SVG wireframes - we initialize with data for the northbound (i.e., primary) direction:
+    //
     //      hour 1 - default is 6-7 AM
     //      hour 2 - default is 7-8 AM
     //      hour 3 - default is 8-9 AM
@@ -560,28 +561,58 @@ function initializeApp(error, results) {
     
     
     function symbolizeHourlyComparison(period, direction) {
-        var _DEBUG_HOOK;
+        var color = direction === "Northbound" ? lineColorPalette.primary : lineColorPalette.secondary;
+        if (period === "AM") {
+            $('#peak_comp_caption_1').html('6 to 7 AM');
+            $('#peak_comp_caption_2').html('7 to 8 AM');
+            $('#peak_comp_caption_3').html('8 to 9 AM');
+            $('#peak_comp_caption_4').html('6 to 9 AM');
+            symbolizeSvgWireframe(VIZ.hourly_1, 'peak_viz_hr_1', 'peak_6_to_7_am', '2018', color);     
+            symbolizeSvgWireframe(VIZ.hourly_2, 'peak_viz_hr_2', 'peak_7_to_8_am', '2018', color); 
+            symbolizeSvgWireframe(VIZ.hourly_3, 'peak_viz_hr_3', 'peak_8_to_9_am', '2018', color); 
+            symbolizeSvgWireframe(VIZ.hourly_sum, 'peak_viz_sum', 'cum_6_to_9_am', '2018', color);  
+        } else {
+            // Assume period === "PM"
+            $('#peak_comp_caption_1').html('3 to 4 PM');
+            $('#peak_comp_caption_2').html('4 to 5 PM');
+            $('#peak_comp_caption_3').html('5 to 6 PM');
+            $('#peak_comp_caption_4').html('3 to 6 PM');
+            symbolizeSvgWireframe(VIZ.hourly_1, 'peak_viz_hr_1', 'peak_3_to_4_pm', '2018', color);     
+            symbolizeSvgWireframe(VIZ.hourly_2, 'peak_viz_hr_2', 'peak_4_to_5_pm', '2018', color); 
+            symbolizeSvgWireframe(VIZ.hourly_3, 'peak_viz_hr_3', 'peak_5_to_6_pm', '2018', color); 
+            symbolizeSvgWireframe(VIZ.hourly_sum, 'peak_viz_sum', 'cum_3_to_6_pm', '2018', color);            
+        }
     } // symbolizeHourlyComparison()
 
      // (2a) Arm event handlers for select_peak_period and select_direction combo boxes
     $('#select_peak_period').change(function(e) {
-        alert('Implementation of the hourly peak period display has not been completed.\nTry again later!');
-        return;
-    /*
         var period = $("#select_peak_period option:selected").attr('value');   
         var direction = $("#select_direction option:selected").attr('value');
         symbolizeHourlyComparison(period, direction);
-    */
     });   
+    
     $('#select_direction').change(function(e) {
-        alert('Implementation of the hourly peak period display has not been completed.\nTry again later!');
-        return;
-    /*
-        var direction = $("#select_direction option:selected").attr('value');
         var period = $("#select_peak_period option:selected").attr('value');   
-        // UGGH - have to generate a different wireframe before we can symbolize it...
+        var direction = $("#select_direction option:selected").attr('value');    
+
+        alert('Change of direction in peak comparison view not yet supported.');
+        return;
+
+        // Clear existing wireframes, and generate new ones for the newly selected direction
+        // before they can be symbolized      
+        $('#peak_viz_hr_1').html('');
+        $('#peak_viz_hr_2').html('');
+        $('#peak_viz_hr_3').html('');
+        $('#peak_viz_hr_sum').html('');
+        
+        var data = direction === 'Northbound' ? DATA.nb_data : DATA.sb_data;
+        var color = direction === "Northbound" ? lineColorPalette.primary : lineColorPalette.secondary;
+        
+        VIZ.hourly_1 = generateSvgWireframe(data, 'peak_viz_hr_1', true, null);        
+        VIZ.hourly_2 = generateSvgWireframe(data, 'peak_viz_hr_2', true, null);      
+        VIZ.hourly_3 = generateSvgWireframe(data, 'peak_viz_hr_3', true, null);       
+        VIZ.hourly_sum = generateSvgWireframe(data, 'peak_viz_sum', true, null);
         symbolizeHourlyComparison(period, direction);
-    */
     });     
     
 } // initializeApp()
@@ -1015,7 +1046,7 @@ function symbolizeSvgWireframe(vizWireframe, divId, metric, year, color) {
             var retval;
             // Do not 'lablel':
             //     1. segments with NO DATA values (i.e., === -9999
-            //     2. segments with type 'ramphov'
+            //     2. segments with type 'ramphov'            
             if (d[attrName] === NO_DATA || d.type == 'ramphov') {
                 retval = '';
             } else {
