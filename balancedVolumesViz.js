@@ -271,7 +271,6 @@ function initializeApp(error, results) {
                             var lineFeature = _.find(DATA.geojson.features, function(f) { return f.properties['data_id'] == d.data_id; } );
                             if (lineFeature == null) {
                                 alert('Segment ' + d.unique_id + ' not found in GeoJSON.');
-                                // console.log('Segment ' + d.unique_id + ' not found in GeoJSON.');
                                 return;
                             }
                             primaryDir = primaryDirectionP(lineFeature.properties.backbone_rte);
@@ -322,8 +321,7 @@ function initializeApp(error, results) {
                             attrName = getAttrName(metric,year); 
                             tmpstr += yearTxt + ' ' + metricTxt + ': ' + d[attrName].toLocaleString();
                             tmpstr += '<br>'+ 'Number of lanes: ' + d.nlanes + '<br>';
-                            backgroundColor = (primaryDirectionP(d.backbone_rte)) ? lineColorPalette.primary : lineColorPalette.secondary;
-                            // console.log(tmpstr);                 
+                            backgroundColor = (primaryDirectionP(d.backbone_rte)) ? lineColorPalette.primary : lineColorPalette.secondary;                 
                             tooltipDiv.transition()		
                                 .duration(200)		
                                 .style("opacity", .9);                              
@@ -1009,12 +1007,10 @@ function symbolizeSvgWireframe(vizWireframe, divId, metric, year, color) {
         return retval;
     } // getWidthPalette()
   
-    
     // Body of symbolizeSvgWireframe() begins here:
     //
     var attrName, widthPalette, colorPalette;
     attrName = getAttrName(metric, year);
-    // console.log('Symbolizing attribute; attrName = ' + attrName);
         
     widthPalette = getWidthPalette(metric, year); 
     vizWireframe.lines
@@ -1024,7 +1020,6 @@ function symbolizeSvgWireframe(vizWireframe, divId, metric, year, color) {
         }) 
         .style("stroke-width", function(d, i) { 
             var retval = widthPalette(d[attrName]);
-            // console.log('Segment: ' + d.unique_id + ' width = ' + retval);
             return retval;
         });
             
@@ -1063,7 +1058,6 @@ function symbolizeSvgWireframe(vizWireframe, divId, metric, year, color) {
         $('#nb_viz .restriction_am_only').hide();
     }
         
-
     vizWireframe.label_txt_1
         .text(function(d,i) { return d.description; });
     vizWireframe.label_txt_2
@@ -1248,4 +1242,4 @@ function downloadData(e) {
     writeRecords(DATA.sb_data, 'sb');
     sessionStorage.setItem("sent", newstring); 
     download(newstring, "i93_sr3_balanced_volumes.csv", "text/csv");
-}
+} // downloadData()
