@@ -1024,11 +1024,11 @@ function symbolizeSvgWireframe(vizWireframe, divId, metric, year, color) {
         });
             
    vizWireframe.volume_txt
-        // Textual display of NO DATA values should be blank
+        // Textual display of NO_DATA values should be blank
         .text(function(d, i) { 
             var retval;
-            // Do not 'lablel':
-            //     1. segments with NO DATA values (i.e., === -9999
+            // Do not display volume data for:
+            //     1. segments with a NO_DATA value (i.e., value === -9999)
             //     2. segments with type 'ramphov'            
             if (d[attrName] === NO_DATA || d.type == 'ramphov') {
                 retval = '';
@@ -1047,8 +1047,8 @@ function symbolizeSvgWireframe(vizWireframe, divId, metric, year, color) {
         $('#' + divId + ' .yr_2010_only').hide();
     }
     
-    // Folderol to hide linework for HOV lane that's only present in the PM if the selected metric is for an AM time period,
-    // and hide the linework for HOV lane that's only present in the AM if the selected metric is for a PM time period.
+    // Folderol to hide linework for the southern HOV lane that's only present in the PM if the selected metric is for an AM time period,
+    // and to hide linework for the southern HOV lane that's only present in the AM if the selected metric is for a PM time period.
     var elts;
     $('#' + divId + ' .restriction_am_only').show();
     $('#' + divId + ' .restriction_pm_only').show();
@@ -1057,7 +1057,8 @@ function symbolizeSvgWireframe(vizWireframe, divId, metric, year, color) {
     } else if (divId == 'nb_viz' && metric.endsWith('_pm')) {
         $('#nb_viz .restriction_am_only').hide();
     }
-        
+    
+    // Descriptive labels
     vizWireframe.label_txt_1
         .text(function(d,i) { return d.description; });
     vizWireframe.label_txt_2
