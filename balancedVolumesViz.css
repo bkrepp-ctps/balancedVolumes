@@ -63,6 +63,14 @@
     margin-right: 5%; */
     height: 100%;
 }
+#sb_lanes {
+    width: 130px;
+    height: 700px;
+    border: 2px solid #B87F32;
+    margin-right: 10px;
+    overflow: scroll;
+    overflow-x:  hidden;    
+}
 #sb_viz {
     width: 450px;
     height: 700px;
@@ -83,6 +91,14 @@
     margin-left: 10px;
     overflow: scroll;
     overflow-x:  hidden;
+}
+#nb_lanes {
+    width: 130px;
+    height: 700px;
+    border: 2px solid #B87F32;;
+    margin-left: 10px;
+    overflow: scroll;
+    overflow-x:  hidden;    
 }
 /* End of rules for elements of the main view. */
 

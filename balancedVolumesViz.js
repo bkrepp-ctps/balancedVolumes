@@ -1,6 +1,8 @@
 var geojsonURL = 'data/geojson/i93_and_sr3_complete.geojson';
 var csvWireFrame_sb_URL = 'data/csv/join_i93_sr3_sb_wireframe_and_volumes.csv';
 var csvWireFrame_nb_URL = 'data/csv/join_i93_sr3_nb_wireframe_and_volumes.csv';
+var csvLanes_sb_URL = 'data/csv/i93_sr3_sb_LANES_2010.csv';
+var csvLanes_nb_URL = 'data/csv/i93_sr3_nb_LANES_2010.csv';
 
 // Pseudo-const "var" for NO_DATA flag value
 var NO_DATA = -9999;
@@ -153,6 +155,8 @@ $(document).ready(function() {
                 .defer(d3.json, geojsonURL)
                 .defer(d3.csv, csvWireFrame_sb_URL)
                 .defer(d3.csv, csvWireFrame_nb_URL)
+                .defer(d3.csv, csvLanes_sb_URL)
+                .defer(d3.csv, csvLanes_nb_URL)
                 .awaitAll(initializeApp);
 });
 
@@ -164,6 +168,8 @@ function initializeApp(error, results) {
     DATA.geojson = results[0];
     DATA.sb_data = results[1];
     DATA.nb_data = results[2];
+    DATA.sb_lanes = results[3];
+    DATA.nb_lanes = results[4];
 
     // Prep GeoJSON data loaded for use in app
     //
@@ -178,7 +184,7 @@ function initializeApp(error, results) {
         return rec.properties['yr_1999'] === 1 && rec.properties['data_id'].contains('hov') == false;
     });
     
-    // Prep tabular (CSV) data loaded for use in app
+    // Prep tabular (CSV) volume data loaded for use in app
     function cleanupCsvRec(rec) {
         var tmp1, tmp2;
         rec.x1 = +rec.x1;
@@ -342,6 +348,24 @@ function initializeApp(error, results) {
         $('#central_caption').html(tmp);
     } // setMainCaption()
     
+    // Prep CSV data for lanes diagrams
+    //
+    function cleanupCsvLanesRec(rec) {
+        rec.x1 = +rec.x1;
+        rec.y1 = +rec.y1;
+        rec.x2 = +rec.x2;
+        rec.y2 = +rec.y2;
+        rec.yr_2010 = +rec.yr_2010;
+    }
+    
+    DATA.sb_lanes.forEach(cleanupCsvLanesRec);
+    DATA.sb_lanes = _.filter(DATA.sb_lanes, function(d) { return d.yr_2010 === 1; });
+    DATA.nb_lanes.forEach(cleanupCsvLanesRec);
+    DATA.nb_lanes = _.filter(DATA.nb_lanes, function(d) { return d.yr_2010 === 1; });
+    
+    generateSvgLanesChart(DATA.sb_lanes, 'sb_lanes');
+    generateSvgLanesChart(DATA.nb_lanes, 'nb_lanes');
+    
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // Initialize machinery for the 'main' view: 
     //      1. SVG wireframe
@@ -421,19 +445,30 @@ function initializeApp(error, results) {
     // Note: This handler also arms the 'scroll' handler for the sb_viz and nb_viz divs,
     // as appropriate
     $('#sync_scrollbars').change(function(e) {
-        var checked = $('#sync_scrollbars').prop('checked');
-        var newName = checked ? 'syncMyScrollbar' : '';
+        var new_name_attr_nb, new_name_attr_sb;
+        var checked = $('#sync_scrollbars').prop('checked');       
+        if (checked) {
+            new_name_attr_nb = 'sync_nb_and_sb';
+            new_name_attr_sb = 'sync_nb_and_sb';
+        } else {
+            new_name_attr_nb = 'sync_nb';
+            new_name_attr_sb = 'sync_sb';            
+        }       
         var elt = $('#nb_viz').get()[0];
-        elt.setAttribute('name', newName);   
+        elt.setAttribute('name', new_name_attr_nb);   
+        elt = $('#nb_lanes').get()[0];
+        elt.setAttribute('name', new_name_attr_nb);                
         elt =  $('#sb_viz').get()[0];
-        elt.setAttribute('name', newName);
+        elt.setAttribute('name', new_name_attr_sb);      
+        elt = $('#sb_lanes').get()[0];
+        elt.setAttribute('name', new_name_attr_sb);        
         syncscroll.reset();  
-        // If checked, only arm the scroll event handler for one of the two main viz divs;
+        // If checked, only arm the scroll event handler for either the SB or NB divs;
         // this will prevent duplicate calls to the handler.
         if (checked) {
-            $('#sb_viz').scroll(function(e) { scrollHandler(e); });
+            $('#sb_viz,#sb_lanes').scroll(function(e) { scrollHandler(e); });
         } else {
-            $('#sb_viz,#nb_viz').scroll(function(e) { scrollHandler(e); });
+            $('#sb_viz,#nb_viz,#sb_lanes,#nb_lanes').scroll(function(e) { scrollHandler(e); });
         }
     });
     
@@ -1066,6 +1101,36 @@ function symbolizeSvgWireframe(vizWireframe, divId, metric, year, color) {
     vizWireframe.label_txt_3
         .text(function(d,i) { return d.description3; });   
 } // symbolizeSvgWireframe()
+
+function generateSvgLanesChart(lanes_data, div_id) {    
+    var tmp = _.max(lanes_data, function(d) { return d.x2; });
+    var x_max = tmp.x2;
+    tmp = _.max(lanes_data, function(d) { return d.y2; });
+    var y_max = tmp.y2;
+    
+	var width = x_max +10,
+        height = y_max + 10;
+                     
+	var svgContainer = d3.select('#' + div_id)
+        .append("svg")
+            .attr("width", width)
+            .attr("height", height);
+       
+    var svgLaneSegs = svgContainer
+		.selectAll("line")
+		.data(lanes_data)
+		.enter()
+		.append("line")
+            // .attr("id", function(d, i) { return d.unique_id; })
+            .attr("x1", function(d, i) { return d.x1; })
+            .attr("y1", function(d, i) { return d.y1; })
+            .attr("x2", function(d, i) { return d.x2; })
+            .attr("y2", function(d, i) { return d.y2; })
+            // .attr("class", function(d, i) { return d.type; })
+			.style("stroke", "black")
+			.style("stroke-width", "2px")
+			.on("click", function(d, i) { console.log(d.unique_id); });    
+} // generateSvgLanesChart()
 
 function initMap(data) {
     var regionCenterLat = 42.345111165; 

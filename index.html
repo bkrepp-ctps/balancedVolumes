@@ -60,7 +60,7 @@
                 <option value="cum_3_to_6_pm">Cumulative volume 3 to 6 PM</option>
                 <option value="peak_6_to_7_pm">Volume 6 to 7 PM</option>        
             </select>
-            <label for="sync_scrollbars">&nbsp;&nbsp;Synchronize scrollbars</label>
+            <label for="sync_scrollbars">&nbsp;&nbsp;Synchronize southbound/northbound scrolling</label>
             <input type="checkbox" id="sync_scrollbars" name="sync_scrollbars" value="sync_scrollbars"> 
             &nbsp;
             <input type="button" id="download_button" name="download_button" value="Download Data">
@@ -70,13 +70,20 @@
         <!-- Gross, but effective, table layout... for now -->
         <table>
             <tr>
+                <td class="viz_caption">Lane<br>Configuration<br>(2010)</td>
                 <td class="viz_caption">Southbound &darr;</td>
                 <td id="central_caption" class="viz_caption">I-93/SR-3&nbsp;-&nbsp;2018</td>
                 <td class="viz_caption">Northbound &uarr;</td>
+                <td class="viz_caption">Lane<br>Configuration<br>(2010)</td>
             </tr>
             <tr>
+                <!-- Note: At initialization, scrolling of the two 'southbound' viz's are synchronized. -->
                 <td>
-                    <div id="sb_viz" class="syncscroll" role="presentation">
+                    <div id="sb_lanes" class="syncscroll" name="sync_sb" role="presentation">
+                    </div>
+                </td>
+                <td>
+                    <div id="sb_viz" class="syncscroll" name="sync_sb" role="presentation">
                     </div>
                 </td>
                 <td>
@@ -85,9 +92,14 @@
                         </div>  
                     </div>
                 </td>
+                <!-- Note: At initialization, scrolling of the two 'northbound' viz's are synchronized. -->
                 <td>
-                    <div id="nb_viz" class="syncscroll" role="presentation">
+                    <div id="nb_viz" class="syncscroll" name="sync_nb" role="presentation">
                     </div> 
+                </td>
+                <td>
+                    <div id="nb_lanes" class="syncscroll" name="sync_nb" role="presentation">
+                    </div>
                 </td>
             </tr>
         </table> 
