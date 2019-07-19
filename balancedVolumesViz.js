@@ -79,7 +79,7 @@ function set_cascadeScrollToMap(val) {
 }
 
 // Function to synchronize the bounds of the Google Map with the elements in the relevant viewport
-// This needs to be visible throughout this file
+// Moved to the top-level scope in case it needs to be visible throughout the file
 function scrollHandler(e) {
     var cascadeFlag = get_cascadeScrollToMap();
     // console.log('Entering on-scroll handler for: ' + e.target.id + ' cascadeScrollToMap: ' + cascadeScrollToMap);
@@ -126,8 +126,10 @@ function scrollHandler(e) {
 
 $(document).ready(function() {
     $('#main_wrapper').show();
+    $('#sb_lanes,#nb_lanes').hide();
     $('#awdt_comp_wrapper').hide();
     $('#peak_comp_wrapper').hide();
+
     // Arm event handler for select_view radio buttons
     $('.select_view').on("click", function(e) {
         var view = $('.select_view:checked').val();
@@ -444,9 +446,9 @@ function initializeApp(error, results) {
     // 
     // Note: This handler also arms the 'scroll' handler for the sb_viz and nb_viz divs,
     // as appropriate
-    $('#sync_scrollbars').change(function(e) {
+    $('#main_sync_scrollbars').change(function(e) {
         var new_name_attr_nb, new_name_attr_sb;
-        var checked = $('#sync_scrollbars').prop('checked');       
+        var checked = $('#main_sync_scrollbars').prop('checked');       
         if (checked) {
             new_name_attr_nb = 'sync_nb_and_sb';
             new_name_attr_sb = 'sync_nb_and_sb';
@@ -476,6 +478,32 @@ function initializeApp(error, results) {
     //
     // Synchronize the bounds of the Google Map with the elements in the relevant viewport
     $('#sb_viz,#nb_viz').on('scroll', scrollHandler);
+    
+    // (3e) On-click handler for visibility toggles for SB and NB viz's of the main view
+    //
+    $('.viz_toggle_button').on('click', function(e) {      
+        var target = e.target.id;
+        var curValue = $('#' + target).val();
+        var newValue = (curValue === '-') ? '+' : '-';
+        var div_id = target.replace('toggle_','');
+        if (curValue === '-') {
+            $('#' + div_id).hide();
+        } else {
+            $('#' + div_id).show(); 
+        }
+        $('#' + target).val(newValue);
+    });   
+    
+    // (3f) Show/hide 2010 lane configuration <div>s
+    //
+    $('#main_show_lane_config').change(function(e) {
+        var checked = $('#main_show_lane_config').prop('checked');  
+        if (checked) {
+           $('#sb_lanes,#nb_lanes').show();
+        } else {
+           $('#sb_lanes,#nb_lanes').hide();
+        }
+    });
  
     // (4) Download data button
     // 
@@ -527,11 +555,11 @@ function initializeApp(error, results) {
     //      https://github.com/asvd/syncscroll
     $('.scroll_radio').on("click", function(e) {
         var checked = $('.scroll_radio:checked').val();
-        var newName = (checked !== 'unsync_scrollbars') ? checked : '';
+        var newName = (checked !== 'awdt_unsync_scrollbars') ? checked : '';
         var elt;
         switch(checked) {
-        case "sync_all_scrollbars":
-        case "unsync_scrollbars":
+        case "awdt_sync_all_scrollbars":
+        case "awdt_unsync_scrollbars":
             elt = $('#nb_viz_yr_1').get()[0];
             elt.setAttribute('name', newName);   
             elt = $('#nb_viz_yr_2').get()[0];
@@ -541,7 +569,7 @@ function initializeApp(error, results) {
             elt =  $('#sb_viz_yr_2').get()[0];
             elt.setAttribute('name', newName);            
             break;           
-        case "sync_sb_scrollbars":
+        case "awdt_sync_sb_scrollbars":
             elt = $('#nb_viz_yr_1').get()[0];
             elt.setAttribute('name', 'name_1');   
             elt = $('#nb_viz_yr_2').get()[0];
@@ -551,7 +579,7 @@ function initializeApp(error, results) {
             elt =  $('#sb_viz_yr_2').get()[0];
             elt.setAttribute('name', newName);             
             break;
-        case "sync_nb_scrollbars":
+        case "awdt_sync_nb_scrollbars":
             elt = $('#nb_viz_yr_1').get()[0];
             elt.setAttribute('name', newName);   
             elt = $('#nb_viz_yr_2').get()[0];
@@ -563,7 +591,7 @@ function initializeApp(error, results) {
             break;
         default:
             // Should never get here
-            console.log("Unrecognized 'checked' value: " + checked);
+            console.log("Event handler for scroll buttons in AWDT comparison view: Unrecognized 'checked' value: " + checked);
             break;
         }      
         syncscroll.reset();  
