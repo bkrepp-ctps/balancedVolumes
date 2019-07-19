@@ -2,7 +2,7 @@
 	font-family:"Trebuchet MS","sans-serif";
 }
 
-/* Stuff for CTPS "branding" */
+/* Rules for CTPS "branding" */
 #banner{
 	position:relative;
 	height:100%;
@@ -30,7 +30,7 @@
 	background-color:rgb(13,72,127);
 	z-index:10;
 }
-/* End of stuff for CTPS "branding" */
+/* End of rules for CTPS "branding" */
 
 /* Throttle the jQueryUI font size back a bit */
 .ui-widget {
@@ -45,6 +45,13 @@
 .options_div {
     margin-top: 5px;
     margin-bottom: 5px;
+}
+/* The following rule is now a fossil. */
+.viz_toggle_td {
+    text-align:right;
+}
+.viz_toggle_button {
+    font-size: 12pt;
 }
 /* End of general rules. */
 
@@ -102,7 +109,7 @@
 }
 /* End of rules for elements of the main view. */
 
-/* Rules for elements of the comparator view. */
+/* Rules for elements of the AWDT comparator view. */
 #comp_wrapper {
     width: 100%;
     /* height: 600px; */
@@ -122,15 +129,21 @@
 #nb_viz_yr_1, #nb_viz_yr_2 {
     width: 450px;
     height: 700px;
-    border: 2px solid #B87F32;;
+    border: 2px solid #B87F32;
     margin-left: 10px;
     overflow: scroll;
     overflow-x:  hidden;
 }
-.comp_viz {
+.awdt_comp_viz {
     width: 450px;
 }
-/* End of rules for elements of the comparator view. */
+/* End of rules for elements of the AWDT comparator view. */
+
+/* Rules for the peak hours comparator view. */
+.peak_comp_viz {
+    border: 2px solid #B87F32;
+}
+/* End of rules for the peak hours comparator view. */
 
 /* Rule for the new 'simple' tooltip. */
 div.tooltip {	
