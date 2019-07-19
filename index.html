@@ -61,8 +61,12 @@
                 <option value="peak_6_to_7_pm">Volume 6 to 7 PM</option>        
             </select>
             <label for="sync_scrollbars">&nbsp;&nbsp;Synchronize southbound/northbound scrolling</label>
-            <input type="checkbox" id="sync_scrollbars" name="sync_scrollbars" value="sync_scrollbars"> 
+            <input type="checkbox" id="main_sync_scrollbars" name="main_sync_scrollbars" value="main_sync_scrollbars"> 
             &nbsp;
+            <label for="main_show_lane_config">Display 2010 lane configuration</label>
+            <input type="checkbox" id="main_show_lane_config" name="main_show_lane_config" value="main_show_lane_config"> 
+            &nbsp;           
+            
             <input type="button" id="download_button" name="download_button" value="Download Data">
         </span>
     </div>   
@@ -70,11 +74,11 @@
         <!-- Gross, but effective, table layout... for now -->
         <table>
             <tr>
-                <td class="viz_caption">Lane<br>Configuration<br>(2010)</td>
-                <td class="viz_caption">Southbound &darr;</td>
+                <td></td>
+                <td class="viz_caption"> <div><span>Southbound&nbsp;&darr;&nbsp;<input type="button" id="toggle_sb_viz" class="viz_toggle_button" value="-"> </span></div>  </td>
                 <td id="central_caption" class="viz_caption">I-93/SR-3&nbsp;-&nbsp;2018</td>
-                <td class="viz_caption">Northbound &uarr;</td>
-                <td class="viz_caption">Lane<br>Configuration<br>(2010)</td>
+                <td class="viz_caption"> <div><span>Northbound&nbsp;&uarr;&nbsp; <input type="button" id="toggle_nb_viz" class="viz_toggle_button" value="-"> </span></div> </td>
+                <td></td>
             </tr>
             <tr>
                 <!-- Note: At initialization, scrolling of the two 'southbound' viz's are synchronized. -->
@@ -124,14 +128,14 @@
         </span>
     </div>
     <div id="awdt_comp_options_2" class="options_div">
-        <label for="sync_all_scrollbars">Synchronize all scrollbars:</label>
-        <input type="radio" name="scroll_radio" class="scroll_radio" id="sync_all_scrollbars"  value="sync_all_scrollbars">   
-        <label for="sync_sb_scrollbars">Synchronize scrollbars for southbound direction:</label>
-        <input type="radio" name="scroll_radio" class="scroll_radio" id="sync_sb_scrollbars" value="sync_sb_scrollbars"> 
-        <label for="sync_nb_scrollbars">Synchronize scrollbars for northbound direction:</label>
-        <input type="radio" name="scroll_radio" class="scroll_radio" id="sync_nb_scrollbars" value="sync_nb_scrollbars">   
-        <label for="unsync_scrollbars">Un-synchronize scrollbars:</label>
-        <input type="radio" name="scroll_radio" class="scroll_radio" id="unsyc_scrollbars"  value="unsync_scrollbars">     
+        <label for="awdt_sync_all_scrollbars">Synchronize all scrollbars:</label>
+        <input type="radio" name="scroll_radio" class="scroll_radio" id="awdt_sync_all_scrollbars"  value="awdt_sync_all_scrollbars">   
+        <label for="awdt_sync_sb_scrollbars">Synchronize scrollbars for southbound direction:</label>
+        <input type="radio" name="scroll_radio" class="scroll_radio" id="awdt_sync_sb_scrollbars" value="awdt_sync_sb_scrollbars"> 
+        <label for="awdt_sync_nb_scrollbars">Synchronize scrollbars for northbound direction:</label>
+        <input type="radio" name="scroll_radio" class="scroll_radio" id="awdt_sync_nb_scrollbars" value="awdt_sync_nb_scrollbars">   
+        <label for="awdt_unsync_scrollbars">Un-synchronize scrollbars:</label>
+        <input type="radio" name="scroll_radio" class="scroll_radio" id="awdt_unsyc_scrollbars"  value="awdt_unsync_scrollbars">     
     </div>
     <div id="gfx_wrapper_2">
         <!-- Gross, but effective, table layout... for now -->
@@ -198,7 +202,8 @@
                 <td id="peak_comp_caption_3" class="viz_caption">8 to 9 AM</td>
                 <td id="peak_comp_caption_4" class="viz_caption">6 to 9 AM<br>(cumulative)</td>
             </tr>
-            <tr>
+            <!-- Wrap the set of all 4 'hourly' viz'es with a single border -->
+            <tr id="peak_comp_tr_wrapper">
                 <!-- Peak hour 1 (6-7 AM or 3-4 PM) -->
                 <td>
                     <div id="peak_viz_hr_1" class="peak_comp_viz syncscroll" role="presentation">
