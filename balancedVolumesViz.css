@@ -74,12 +74,12 @@
     width: 130px;
     height: 700px;
     border: 2px solid #B87F32;
-    margin-right: 10px;
+    margin-right: none; /* was: 10px */
     overflow: scroll;
     overflow-x:  hidden;    
 }
 #sb_viz {
-    width: 450px;
+    width: 465px;
     height: 700px;
     border: 2px solid #B87F32;
     margin-right: 10px;
@@ -92,7 +92,7 @@
     border: 2px solid #B87F32; 
 }
 #nb_viz {
-    width: 450px;
+    width: 465px;
     height: 700px;
     border: 2px solid #B87F32;;
     margin-left: 10px;
@@ -103,8 +103,8 @@
     width: 130px;
     height: 700px;
     border: 2px solid #B87F32;;
-    margin-left: 10px;
-    overflow: scroll;
+    margin-left: none; /* was: 10px  */
+    overflow: scroll; 
     overflow-x:  hidden;    
 }
 /* End of rules for elements of the main view. */
@@ -118,24 +118,40 @@
     display:flex;
     justify-content:center;
 }
-#sb_viz_yr_1, #sb_viz_yr_2 {
-    width: 450px;
+#sb_viz_yr_1 {
+    width: 465px;
     height: 700px;
     border: 2px solid #B87F32;
-    margin-right: 10px;
+    margin-right: 5px;
     overflow: scroll;
     overflow-x:  hidden;
 }
-#nb_viz_yr_1, #nb_viz_yr_2 {
-    width: 450px;
+
+#sb_viz_yr_2 {
+    width: 465px;
     height: 700px;
     border: 2px solid #B87F32;
-    margin-left: 10px;
+    margin-right: 2.5px;
+    overflow: scroll;
+    overflow-x:  hidden;
+}
+#nb_viz_yr_1 {
+    width: 465px;
+    height: 700px;
+    border: 2px solid #B87F32;
+    margin-left: 2.5px;
+    overflow: scroll;
+    overflow-x:  hidden;
+}    #nb_viz_yr_2 {
+    width: 465px;
+    height: 700px;
+    border: 2px solid #B87F32;
+    margin-left: 5px;
     overflow: scroll;
     overflow-x:  hidden;
 }
 .awdt_comp_viz {
-    width: 450px;
+    width: 465px;
 }
 /* End of rules for elements of the AWDT comparator view. */
 

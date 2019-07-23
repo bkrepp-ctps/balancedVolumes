@@ -4,6 +4,9 @@ var csvWireFrame_nb_URL = 'data/csv/join_i93_sr3_nb_wireframe_and_volumes.csv';
 var csvLanes_sb_URL = 'data/csv/i93_sr3_sb_LANES_2010.csv';
 var csvLanes_nb_URL = 'data/csv/i93_sr3_nb_LANES_2010.csv';
 
+var csvTownBoundaries_sb_URL = 'data/csv/i93_sr3_sb_TOWNS.csv';
+var csvTownBoundaries_nb_URL = 'data/csv/i93_sr3_nb_TOWNS.csv';
+
 // Pseudo-const "var" for NO_DATA flag value
 var NO_DATA = -9999;
 // Global "database" of data read in from CSV and JSON files
@@ -159,6 +162,8 @@ $(document).ready(function() {
                 .defer(d3.csv, csvWireFrame_nb_URL)
                 .defer(d3.csv, csvLanes_sb_URL)
                 .defer(d3.csv, csvLanes_nb_URL)
+                .defer(d3.csv, csvTownBoundaries_sb_URL)
+                .defer(d3.csv, csvTownBoundaries_nb_URL)
                 .awaitAll(initializeApp);
 });
 
@@ -172,6 +177,8 @@ function initializeApp(error, results) {
     DATA.nb_data = results[2];
     DATA.sb_lanes = results[3];
     DATA.nb_lanes = results[4];
+    DATA.sb_towns = results[5];
+    DATA.nb_towns = results[6];
 
     // Prep GeoJSON data loaded for use in app
     //
@@ -273,7 +280,7 @@ function initializeApp(error, results) {
     // Handlers for various events on the main SVG <line>-work (a.k.a. 'stick diagram')
     var handlers = {
         'click' :       function(d,i) {
-                            // console.log('On-click handler: unique_id = ' + d.unique_id + ' data_id = ' + d.data_id); 
+                            console.log('On-click handler: unique_id = ' + d.unique_id + ' data_id = ' + d.data_id); 
                             var primaryDir, color;
                             var dottedLine = false;
                             var lineFeature = _.find(DATA.geojson.features, function(f) { return f.properties['data_id'] == d.data_id; } );
@@ -358,19 +365,28 @@ function initializeApp(error, results) {
         rec.x2 = +rec.x2;
         rec.y2 = +rec.y2;
         rec.yr_2010 = +rec.yr_2010;
-    }
-    
+    }   
     DATA.sb_lanes.forEach(cleanupCsvLanesRec);
     DATA.sb_lanes = _.filter(DATA.sb_lanes, function(d) { return d.yr_2010 === 1; });
     DATA.nb_lanes.forEach(cleanupCsvLanesRec);
-    DATA.nb_lanes = _.filter(DATA.nb_lanes, function(d) { return d.yr_2010 === 1; });
-    
+    DATA.nb_lanes = _.filter(DATA.nb_lanes, function(d) { return d.yr_2010 === 1; });    
     generateSvgLanesChart(DATA.sb_lanes, 'sb_lanes');
     generateSvgLanesChart(DATA.nb_lanes, 'nb_lanes');
     
+    // Prep CSV data for town boundary lines
+    // 
+    function cleanupCsvTownBoundaryRec(rec) {
+        rec.seg_y1 = +rec.seg_y1;
+        rec.seg_y2 = +rec.seg_y2;
+    }
+    DATA.sb_towns.forEach(cleanupCsvTownBoundaryRec);
+    DATA.nb_towns.forEach(cleanupCsvTownBoundaryRec);
+    
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // Initialize machinery for the 'main' view: 
-    //      1. SVG wireframe
+    //      1. SVG (route) wireframe and town boundary lines
+    //          a. route wireframe
+    //          b. town boundary lines
     //      2. Google Map
     //      3. Event handlers for UI controls
     //          a. select_year combo box
@@ -379,9 +395,9 @@ function initializeApp(error, results) {
     //      4. Download data button
     // 
     // (1)  Initialize SVG wireframes
-    VIZ.sb = generateSvgWireframe(DATA.sb_data, 'sb_viz', true, handlers);
+    VIZ.sb = generateSvgWireframe(DATA.sb_data, DATA.sb_towns, 'sb_viz', true, handlers);
     symbolizeSvgWireframe(VIZ.sb, 'sb_viz', 'awdt', '2018', lineColorPalette.secondary);
-    VIZ.nb = generateSvgWireframe(DATA.nb_data, 'nb_viz', false, handlers);  
+    VIZ.nb = generateSvgWireframe(DATA.nb_data, DATA.nb_towns, 'nb_viz', false, handlers);  
     symbolizeSvgWireframe(VIZ.nb, 'nb_viz', 'awdt', '2018', lineColorPalette.primary);    
     
     // (2) Initialize Google Map
@@ -521,13 +537,13 @@ function initializeApp(error, results) {
     //      Southbound route, year 2 - default is 2010
     //      Northbound route, year 1 - default is 2018
     //      Northbound route, year 2 - default is 2010
-    VIZ.sb_yr_1 = generateSvgWireframe(DATA.sb_data, 'sb_viz_yr_1', true, null);
+    VIZ.sb_yr_1 = generateSvgWireframe(DATA.sb_data, DATA.sb_towns, 'sb_viz_yr_1', true, null);
     symbolizeSvgWireframe(VIZ.sb_yr_1, 'sb_viz_yr_1', 'awdt', '2018', lineColorPalette.secondary);
-    VIZ.sb_yr_2 = generateSvgWireframe(DATA.sb_data, 'sb_viz_yr_2', true, null);
+    VIZ.sb_yr_2 = generateSvgWireframe(DATA.sb_data, DATA.sb_towns, 'sb_viz_yr_2', true, null);
     symbolizeSvgWireframe(VIZ.sb_yr_2, 'sb_viz_yr_2', 'awdt', '2010', lineColorPalette.secondary);   
-    VIZ.nb_yr_1 = generateSvgWireframe(DATA.nb_data, 'nb_viz_yr_1', false, null);  
+    VIZ.nb_yr_1 = generateSvgWireframe(DATA.nb_data, DATA.nb_towns, 'nb_viz_yr_1', false, null);  
     symbolizeSvgWireframe(VIZ.nb_yr_1, 'nb_viz_yr_1', 'awdt', '2018', lineColorPalette.primary);    
-    VIZ.nb_yr_2 = generateSvgWireframe(DATA.nb_data, 'nb_viz_yr_2', false, null);  
+    VIZ.nb_yr_2 = generateSvgWireframe(DATA.nb_data, DATA.nb_towns, 'nb_viz_yr_2', false, null);  
     symbolizeSvgWireframe(VIZ.nb_yr_2, 'nb_viz_yr_2', 'awdt', '2010', lineColorPalette.primary);   
 
     // (2a) Arm event handlers for select_year_1 and select_year_2 combo boxes
@@ -609,13 +625,13 @@ function initializeApp(error, results) {
     //      hour 2 - default is 7-8 AM
     //      hour 3 - default is 8-9 AM
     //      sum    - default is 6-9 AM 
-    VIZ.hourly_1 = generateSvgWireframe(DATA.nb_data, 'peak_viz_hr_1', true, null);
+    VIZ.hourly_1 = generateSvgWireframe(DATA.nb_data, DATA.nb_towns, 'peak_viz_hr_1', true, null);
     symbolizeSvgWireframe(VIZ.hourly_1, 'peak_viz_hr_1', 'peak_6_to_7_am', '2018', lineColorPalette.primary);    
-    VIZ.hourly_2 = generateSvgWireframe(DATA.nb_data, 'peak_viz_hr_2', true, null);
+    VIZ.hourly_2 = generateSvgWireframe(DATA.nb_data, DATA.nb_towns, 'peak_viz_hr_2', true, null);
     symbolizeSvgWireframe(VIZ.hourly_2, 'peak_viz_hr_2', 'peak_7_to_8_am', '2018', lineColorPalette.primary);    
-    VIZ.hourly_3 = generateSvgWireframe(DATA.nb_data, 'peak_viz_hr_3', true, null);
+    VIZ.hourly_3 = generateSvgWireframe(DATA.nb_data, DATA.nb_towns, 'peak_viz_hr_3', true, null);
     symbolizeSvgWireframe(VIZ.hourly_3, 'peak_viz_hr_3', 'peak_8_to_9_am', '2018', lineColorPalette.primary);    
-    VIZ.hourly_sum = generateSvgWireframe(DATA.nb_data, 'peak_viz_sum', true, null);
+    VIZ.hourly_sum = generateSvgWireframe(DATA.nb_data, DATA.nb_towns, 'peak_viz_sum', true, null);
     symbolizeSvgWireframe(VIZ.hourly_sum, 'peak_viz_sum', 'cum_6_to_9_am', '2018', lineColorPalette.primary);    
     
     // Helper function for select_peak_period and select_direction combo boxes on-change event handlers
@@ -653,24 +669,28 @@ function initializeApp(error, results) {
         var period = $("#select_peak_period option:selected").attr('value');   
         var direction = $("#select_direction option:selected").attr('value');    
         var color = (direction === 'Northbound') ? lineColorPalette.primary : lineColorPalette.secondary;
-        var data = (direction === 'Northbound') ? DATA.nb_data : DATA.sb_data;
+        var volumeData = (direction === 'Northbound') ? DATA.nb_data : DATA.sb_data;
+        var townBoundaryData = (direction === 'Northbound') ? DATA.nb_towns : DATA.sb_towns;
         // Need to cear existing SVG wireframes, and generate new ones for the newly selected direction    
         $('#peak_viz_hr_1').html('');
         $('#peak_viz_hr_2').html('');
         $('#peak_viz_hr_3').html('');
         $('#peak_viz_sum').html('');
-        VIZ.hourly_1 = generateSvgWireframe(data, 'peak_viz_hr_1', true, null);        
-        VIZ.hourly_2 = generateSvgWireframe(data, 'peak_viz_hr_2', true, null);      
-        VIZ.hourly_3 = generateSvgWireframe(data, 'peak_viz_hr_3', true, null);       
-        VIZ.hourly_sum = generateSvgWireframe(data, 'peak_viz_sum', true, null);
+        VIZ.hourly_1 = generateSvgWireframe(volumeData, townBoundaryData, 'peak_viz_hr_1', true, null);        
+        VIZ.hourly_2 = generateSvgWireframe(volumeData, townBoundaryData, 'peak_viz_hr_2', true, null);      
+        VIZ.hourly_3 = generateSvgWireframe(volumeData, townBoundaryData, 'peak_viz_hr_3', true, null);       
+        VIZ.hourly_sum = generateSvgWireframe(volumeData, townBoundaryData, 'peak_viz_sum', true, null);
         symbolizeHourlyComparison(period, direction);
     });        
 } // initializeApp()
 
 // function: generateSvgWireframe
 // parameters:
-//      wireframe_data - data from CSV file containing data on layout of the 'wireframe'
-//                       and the actual balanced volume data
+//      wireframeData -  data from main CSV file containing data on layout of the SVG <line>
+//                       elements (a 'wireframe') that will be symbolized to represent
+//                       the actual balanced volume data values
+//      townBoundaryData - data from "_TOWNS" CSV file with info on the location of (logical) town
+//                         boundaries within the schematic 'wireframe'
 //      div_id - the ID of the HTML <div> into which to place the SVG elements
 //      yDir_is_routeDir - boolean flag indicating whether the route travels in the same
 //                         direction as increasing Y-values in the SVG space;
@@ -681,25 +701,98 @@ function initializeApp(error, results) {
 //                 the SVG <line>-work. If these are non-null, they are bound to
 //                 to the SVG <line>-work; otherwise no function9s) is/are so bound
 //
-// notes: This function generates three SVG structures, each contained within 
+// notes: This function generates four SVG structures, each contained within 
 //        an SVG <g> element:
-//          1. svgRouteSegs_g - <line> elements comprising the schematic 'wireframe'
-//          2. svgVolumeText_g - <text> elements containing balanced volume numbers
-//          3. svgLabelText_g - <text> and <tspan> elements containing descriptive 
-//                              text about route segments
+//          1. svgRouteSegs_g  - contains <line> elements comprising the schematic route 'wireframe'
+//          2. svgVolumeText_g - contains <text> elements containing balanced volume numbers
+//          3. svgLabelText_g  - contains <text> and <tspan> elements containing descriptive 
+//                               text about route segments
+//          4. svgTownBoundaries_g - contains <line> elements indicating town boundary lines
+//                                   with respect to route schematic route linework;
+//                                   this is generated first, so the schematic linework
+//                                   is rendered on top of it
+//          5. svgTownNamesBefore_g and svgTownNamesAfter_g - contains <text> elements for
+//                                town names on either side of a schematic town boundary
 //
-function generateSvgWireframe(wireframe_data, div_id, yDir_is_routeDir, handlers) {	
+function generateSvgWireframe(wireframeData, townBoundaryData, div_id, yDir_is_routeDir, handlers) {	
     var verticalPadding = 10;
     var width = 450;
-    var height = d3.max([d3.max(wireframe_data, function(d) { return d.y1; }),
-                         d3.max(wireframe_data, function(d) { return d.y2; })]) + verticalPadding; 
+    var height = d3.max([d3.max(wireframeData, function(d) { return d.y1; }),
+                         d3.max(wireframeData, function(d) { return d.y2; })]) + verticalPadding; 
     
    var svgContainer = d3.select('#' + div_id)
         .append("svg")
             .attr("width", width)
             .attr("height", height);
-
-    // The x-offset of the main barrel is 150 in the CSV wireframe layout data;
+                      
+    // (4) SVG <line> elements for schematic town boundaries
+    //
+    var svgTownBoundaries_g = svgContainer.append("g");
+    var svgTownBoundaries = svgTownBoundaries_g;
+    svgTownBoundaries
+        .selectAll("line.town_boundary")
+        .data(townBoundaryData)
+        .enter()
+        .append("line")
+            .attr("id", function(d, i) { return d.unique_id; })
+            .attr("class", "town_boundary")
+            .attr("x1", 10)
+            .attr("x2", width - 10)
+            .attr("y1", function(d,i) {
+                            var retval;
+                            retval = d.seg_y1 + ((d.seg_y2 - d.seg_y1) / 2) + 10;
+                            return retval;
+                 })                    
+            .attr("y2", function(d,i) {
+                            var retval;
+                            retval = d.seg_y1 + ((d.seg_y2 - d.seg_y1) / 2) + 10;
+                            return retval;
+                 })
+            .style("stroke", "firebrick")
+            .style("stroke-width", "2px")
+            .style("stroke-dasharray", "10, 5");
+    
+    // (5)  SVG <text> elements for the names of the towns on each side of each town boundary <line>
+    // (5a) Name of town "before" town boundary
+    var svgTownNamesBefore_g = svgContainer.append("g");
+    var svgTownNamesBefore = svgTownNamesBefore_g;
+    svgTownNamesBefore
+        .selectAll("text.town_name_before")
+        .data(townBoundaryData)
+        .enter()
+        .append("text")
+            .attr("class", "town_name_before")
+            .attr("font-size", 12)
+            .attr("fill", "firebrick")  // font color
+            .attr("x", width - 10)
+            .attr("y", function(d, i) {
+                            var retval;
+                            retval = d.seg_y1 + ((d.seg_y2 - d.seg_y1) / 2) + 5;
+                            return retval;
+                })
+            .attr("text-anchor", "end")
+            .text(function(d,i) { return d.town_before; });
+    // (5b) Name of town "after" town boundary
+    var svgTownNamesAfter_g = svgContainer.append("g");
+    var svgTownNamesAfter = svgTownNamesAfter_g;
+    svgTownNamesAfter
+        .selectAll("text.town_name_after")
+        .data(townBoundaryData)
+        .enter()
+        .append("text")
+            .attr("class", "town_name_after")
+            .attr("font-size", 12)
+            .attr("fill", "firebrick")  // font color
+            .attr("x", width - 10)
+            .attr("y", function(d, i) {
+                            var retval;
+                            retval = d.seg_y1 + ((d.seg_y2 - d.seg_y1) / 2) + 25;
+                            return retval;
+                })
+            .attr("text-anchor", "end")
+            .text(function(d,i) { return d.town_after; });           
+    
+    // The x-offset of the main barrel of the 'wireframe' is 150 in the CSV wireframe layout data;
     // Given an SVG drawing area width of 450, translate x +75px to center the main barrel
     var svgRouteSegs_g = svgContainer
         .append("g")
@@ -708,14 +801,15 @@ function generateSvgWireframe(wireframe_data, div_id, yDir_is_routeDir, handlers
     // (1) 'wireframe' for the schematic route outline, consisting of SVG <line> elements
     //
     var svgRouteSegs = svgRouteSegs_g     
-        .selectAll("line")
-        .data(wireframe_data)
+        .selectAll("line.wireframe")
+        .data(wireframeData)
         .enter()
         .append("line")
             .attr("id", function(d, i) { return d.unique_id; })
             .attr("class", function(d, i) { 
                 var retval = '';
-                retval += 'volume_' + d.type; 
+                retval += 'wireframe';
+                retval += ' volume_' + d.type; 
                 retval += ' ' + 'restriction_' + d.restriction;
                 retval += ' ' + d.year_restriction; 
                 return retval;
@@ -740,13 +834,13 @@ function generateSvgWireframe(wireframe_data, div_id, yDir_is_routeDir, handlers
     
     // (2) SVG <text> elements for the balanced volume data itself
     // Do not show volume data for pseudo-ramps for HOV lanes - these are just graphical decorations
-   var filtered_wireframe_data1 = _.filter(wireframe_data, function(rec) { return (rec.type != 'ramphov'); });
+   var filtered_wireframeData1 = _.filter(wireframeData, function(rec) { return (rec.type != 'ramphov'); });
     var svgVolumeText_g = svgContainer
             .append("g")
             .attr("transform", "translate(75,0)");  
     var svgVolumeText = svgVolumeText_g
         .selectAll("text.vol_txt")
-        .data(filtered_wireframe_data1)
+        .data(filtered_wireframeData1)
         .enter()
         .append("text")
             .attr("id", function(d, i) { return 'vol_txt_' +d.unique_id; })
@@ -890,11 +984,11 @@ function generateSvgWireframe(wireframe_data, div_id, yDir_is_routeDir, handlers
 
     // (3) SVG <text> and <tspan> elements for descriptive labels, e.g., "Interchange X off-ramp to Y"
     // These are only applied for certain records in the input data, essentially interchange on/off ramps
-    var filtered_wireframe_data2 = _.filter(wireframe_data, function(rec) { return (rec.showdesc === 1); });
+    var filtered_wireframeData2 = _.filter(wireframeData, function(rec) { return (rec.showdesc === 1); });
     var svgLabelText_g = svgContainer.append("g");
     var svgLabelText = svgLabelText_g
         .selectAll("text.label_txt")
-        .data(filtered_wireframe_data2)
+        .data(filtered_wireframeData2)
         .enter()
         .append("text")
             .attr("id", function(d, i) { return 'label_txt_' + d.unique_id; })
@@ -1040,9 +1134,9 @@ function generateSvgWireframe(wireframe_data, div_id, yDir_is_routeDir, handlers
             return retval; 
         }) 
         .attr("dy", 20)
-        .text(''); // Placeholder        
+        .text(''); // Placeholder     
         
-    var retval = { lines : svgRouteSegs, volume_txt : svgVolumeText, label_txt_1 : line1, label_txt_2 : line2, label_txt_3: line3 };
+    var retval = { volumeLines : svgRouteSegs,  volume_txt : svgVolumeText,  label_txt_1 : line1,  label_txt_2 : line2,  label_txt_3: line3 };
     return retval;
 } // generateSvgWireframe()
 
@@ -1076,7 +1170,7 @@ function symbolizeSvgWireframe(vizWireframe, divId, metric, year, color) {
     attrName = getAttrName(metric, year);
         
     widthPalette = getWidthPalette(metric, year); 
-    vizWireframe.lines
+    vizWireframe.volumeLines
         .style("stroke", function(d, i) { 
             var retval = color; 
             return retval;
