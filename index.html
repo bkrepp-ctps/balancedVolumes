@@ -27,12 +27,14 @@
 <h1 class="pagetitle">Balanced Volumes Visualization - Development Version</h1>
 <div id="header_div">
     <div class="options_div">
-        <label for="select_main_view">Main View</label>
-        <input type="radio" name="select_view" class="select_view" id="select_main_view"  value="select_main_view" checked>     
-        <label for="select_awdt_comp_view">AWDT Comparision View</label>
-        <input type="radio" name="select_view" class="select_view" id="select_awdt_comp_view" value="select_awdt_comp_view">   
-        <label for="select_peak_comp_view">2018 Peak Period Comparison View</label>
-        <input type="radio" name="select_view" class="select_view" id="select_peak_comp_view" value="select_peak_comp_view">              
+        <div class="options_div">
+            <label for="select_main_view">Main View</label>
+            <input type="radio" name="select_view" class="select_view" id="select_main_view"  value="select_main_view" checked>     
+            <label for="select_awdt_comp_view">AWDT Comparision View</label>
+            <input type="radio" name="select_view" class="select_view" id="select_awdt_comp_view" value="select_awdt_comp_view">   
+            <label for="select_peak_comp_view">2018 Peak Period Comparison View</label>
+            <input type="radio" name="select_view" class="select_view" id="select_peak_comp_view" value="select_peak_comp_view">  
+        </div>
     </div>
 </div> <!-- header_div -->
 
@@ -63,7 +65,7 @@
             <label for="sync_scrollbars">&nbsp;&nbsp;Synchronize southbound/northbound scrolling</label>
             <input type="checkbox" id="main_sync_scrollbars" name="main_sync_scrollbars" value="main_sync_scrollbars"> 
             &nbsp;
-            <label for="main_show_lane_config">Display 2010 lane configuration</label>
+            <label for="main_show_lane_config">Display current lane configuration</label>
             <input type="checkbox" id="main_show_lane_config" name="main_show_lane_config" value="main_show_lane_config"> 
             &nbsp;           
             
