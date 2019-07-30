@@ -78,7 +78,7 @@ function primaryDirectionP(backboneRouteName) {
 // Function to synchronize the bounds of the Google Map with the elements in the relevant viewport
 // Moved to the top-level scope in case it needs to be visible throughout the file
 function scrollHandler(e) {
-    var container = $('#' + e.target.id);   // Get ID of div being scrolled
+    var container = $('#' + e.target.id);   // Get ID of the <div> being scrolled
     var contHeight = container.height();
     var contTop = container.scrollTop();
     var contBottom = contTop + contHeight;
