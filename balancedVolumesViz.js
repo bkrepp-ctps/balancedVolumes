@@ -74,56 +74,46 @@ function primaryDirectionP(backboneRouteName) {
     return (backboneRouteName.endsWith('_nb') || backboneRouteName.endsWith('_eb'));
 } // primaryDirectionP
 
-var cascadeScrollToMap = true;
-function get_cascadeScrollToMap() { return cascadeScrollToMap; }
-function set_cascadeScrollToMap(val) { 
-    console.log('Setting cascadeScrollToMap to ' + val);
-    cascadeScrollToMap = val;
-}
 
 // Function to synchronize the bounds of the Google Map with the elements in the relevant viewport
 // Moved to the top-level scope in case it needs to be visible throughout the file
 function scrollHandler(e) {
-    var cascadeFlag = get_cascadeScrollToMap();
-    // console.log('Entering on-scroll handler for: ' + e.target.id + ' cascadeScrollToMap: ' + cascadeScrollToMap);
-    if (cascadeFlag === true) {
-        var container = $('#' + e.target.id);
-        var contHeight = container.height();
-        var contTop = container.scrollTop();
-        var contBottom = contTop + contHeight;
-        // console.log('top = ' + contTop + ' bottom = ' + contBottom);
-        var elts = _.filter(DATA.sb_data, function(rec) { return rec.y1 >= contTop && rec.y2 <= contBottom; });       
-        // Get the data_ids to search for in the GeoJSON; filter out HOV lanes and ramps
-        var searchIds = _.pluck(elts, 'data_id');
-        searchIds = _.filter(searchIds, function(id) { return  id.contains('hov') === false && id.startsWith('R') === false; });
-        // Make a deep copy of the GeoJSON...
-        var gj = Object.assign({}, DATA.geojson);
-        // ... and filter out everything except the records with the matching data_ids.
-        // Yes, we know this is an O(n^2) operation... to be optimized when time is avaialble...
-        gj.features = _.filter(gj.features, function(rec) { 
-            var i;
-            var retval = false;
-            for (i = 0; i < searchIds.length; i++) {
-                if (rec.properties['data_id'] === searchIds[i]) {
-                    retval = true;
-                    // console.log('Found ' + searchIds[i]);
-                    break;
-                }
+    var container = $('#' + e.target.id);   // Get ID of div being scrolled
+    var contHeight = container.height();
+    var contTop = container.scrollTop();
+    var contBottom = contTop + contHeight;
+    // console.log('top = ' + contTop + ' bottom = ' + contBottom);
+    var elts = _.filter(DATA.sb_data, function(rec) { return rec.y1 >= contTop && rec.y2 <= contBottom; });       
+    // Get the data_ids to search for in the GeoJSON; filter out HOV lanes and ramps
+    var searchIds = _.pluck(elts, 'data_id');
+    searchIds = _.filter(searchIds, function(id) { return  id.contains('hov') === false && id.startsWith('R') === false; });
+    // Make a deep copy of the GeoJSON...
+    var gj = Object.assign({}, DATA.geojson);
+    // ... and filter out everything except the records with the matching data_ids.
+    // Yes, we know this is an O(n^2) operation... to be optimized when time is avaialble...
+    gj.features = _.filter(gj.features, function(rec) { 
+        var i;
+        var retval = false;
+        for (i = 0; i < searchIds.length; i++) {
+            if (rec.properties['data_id'] === searchIds[i]) {
+                retval = true;
+                // console.log('Found ' + searchIds[i]);
+                break;
             }
-            return retval;
+        }
+        return retval;
+    });
+    // Now, all we have to do is to get the bounding box of the filtered feature colleciton... :-)
+    map.tmpDataLayer = new google.maps.Data();
+    map.tmpDataLayer.addGeoJson(gj);
+    map.tmpDataLayer.setStyle({ strokeWidth: 0, opacity : 1.0 });
+    var bounds = new google.maps.LatLngBounds(); 
+    map.tmpDataLayer.forEach(function(feature){
+        feature.getGeometry().forEachLatLng(function(latlng){
+            bounds.extend(latlng);
         });
-        // Now, all we have to do is to get the bounding box of the filtered feature colleciton... :-)
-        map.tmpDataLayer = new google.maps.Data();
-        map.tmpDataLayer.addGeoJson(gj);
-        map.tmpDataLayer.setStyle({ strokeWidth: 0, opacity : 1.0 });
-        var bounds = new google.maps.LatLngBounds(); 
-        map.tmpDataLayer.forEach(function(feature){
-            feature.getGeometry().forEachLatLng(function(latlng){
-                bounds.extend(latlng);
-            });
-        });
-        map.fitBounds(bounds);
-    } // if
+    });
+    map.fitBounds(bounds);
     return;
 } // scrollHandler()
 
@@ -1306,56 +1296,6 @@ function initMap(data) {
         });
     });
     map.fitBounds(bounds);    
-    
-    // Work-in-progress to try to synchronize the graphic displays with the map...
-    map.data.addListener('click', function(e) {
-        var _DEBUG_HOOK = 0;
-        var data_id = e.feature.getProperty('data_id');
-        console.log('Entering map on-click handler. You clicked on: ' + data_id);
-    
-        var rte = e.feature.getProperty('backbone_rte');
-        console.log('backbone_rte: ' + rte);
-        
-        var data = primaryDirectionP(rte) ? DATA.nb_data : DATA.sb_data;
-        var fullHeight = _.max(data, 'y2').y2;
-        console.log('fullHeight: ' + fullHeight);
-        
-        var rec = _.find(data, function(r) { return r.data_id === data_id; });
-        var y1 = rec.y1, y2 = rec.y2;
-        var scrollPct = ((y1 + (y2 - y1)/2) / fullHeight) * 100;     
-        console.log('scrollPct: ' + scrollPct);
-        
-        var divId = primaryDirectionP(rte) ? 'nb_viz' : 'sb_viz';
-        console.log('divId: ' + divId);
-        
-        var otherDivId = primaryDirectionP(rte) ? 'sb_viz' : 'nb_viz';
-        
-        // Prevent the map from being repositioned in response to the scroll event(s) we're about to trigger
-        set_cascadeScrollToMap(false);
-        
-        // Check
-        var tmp = get_cascadeScrollToMap();
-        console.log('map click handler: cascadeScrollToMap = ' + cascadeScrollToMap);
-        
-        // TBD: disable sync-scrolling if 'on'
-        
-        // Scroll the graphic div
-        // $('#' + divId).scrollTo(scrollPct + '%'); // Temp: Removed '500' (time duration) parameter
-        $.when($('#' + divId).scrollTo(scrollPct + '%'))
-            .done(function() { 
-                $('#' + divId).clearQueue();
-                set_cascadeScrollToMap(true);
-            });
-        
-        // Re-enable cascading scroll events to the map
-        // set_cascadeScrollToMap(true);
-        
-          
-        // TBD: scroll the OTHER 'viz' div
-        
-        // TBD: re-enable sync-scrolling if it was 'on'
- 
-    });
 } // initMap()
 
 function downloadData(e) {
