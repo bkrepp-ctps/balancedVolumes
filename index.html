@@ -27,6 +27,15 @@
 <h1 class="pagetitle">Balanced Volumes Visualization - Development Version</h1>
 <div id="header_div">
     <div class="options_div">
+        <!--
+        <div class="options_div">
+            Select route:
+            <select id="select_route" class="app_select_box">
+                <option value="I93-SR3" selected>I-93 / SR-3</option>
+                <option value="I90">I-90</option>
+            </select> 
+        </div>
+    -->
         <div class="options_div">
             <label for="select_main_view">Main View</label>
             <input type="radio" name="select_view" class="select_view" id="select_main_view"  value="select_main_view" checked>     
@@ -38,9 +47,9 @@
     </div>
 </div> <!-- header_div -->
 
-<div id="main_wrapper">
+<div id="main_view_wrapper">
     <!-- <h3>Main View</h3> -->
-    <div id="main_options_1" class="options_div">
+    <div id="main_view_options_1" class="options_div">
         <span>
             Select year:
             <select id="select_year" class="app_select_box">
@@ -72,7 +81,7 @@
             <input type="button" id="download_button" name="download_button" value="Download Data">
         </span>
     </div>   
-    <div id="gfx_wrapper_1">
+    <div id="gfx_wrapper_main_nbsb">
         <!-- Gross, but effective, table layout... for now -->
         <table>
             <tr>
@@ -83,7 +92,7 @@
                 <td></td>
             </tr>
             <tr>
-                <!-- Note: At initialization, scrolling of the two 'southbound' viz's are synchronized. -->
+                <!-- Note: At initialization, scrolling of the two 'southbound' viz's (volumes viz and lanes viz) are synchronized. -->
                 <td>
                     <div id="sb_lanes" class="syncscroll" name="sync_sb" role="presentation">
                     </div>
@@ -98,7 +107,7 @@
                         </div>  
                     </div>
                 </td>
-                <!-- Note: At initialization, scrolling of the two 'northbound' viz's are synchronized. -->
+                <!-- Note: At initialization, scrolling of the two 'northbound' viz's (volumes viz and lanes viz) are synchronized. -->
                 <td>
                     <div id="nb_viz" class="syncscroll" name="sync_nb" role="presentation">
                     </div> 
@@ -109,11 +118,11 @@
                 </td>
             </tr>
         </table> 
-    </div> <!-- gfx_wrapper_1 -->
-</div> <!-- main_wrapper div -->
+    </div> <!-- gfx_wrapper_main_nb_sb -->
+</div> <!-- main_view_wrapper div -->
 
-<div id="awdt_comp_wrapper">
-    <div id="awdt_comp_options_1" class="options_div">
+<div id="awdt_comp_view_wrapper">
+    <div id="awdt_comp_view_options_1" class="options_div">
         <span>
             Select AWDT year 1:
             <select id="select_year_1" class="app_select_box">
@@ -129,7 +138,7 @@
             </select>
         </span>
     </div>
-    <div id="awdt_comp_options_2" class="options_div">
+    <div id="awdt_comp_view_options_2" class="options_div">
         <label for="awdt_sync_all_scrollbars">Synchronize all scrollbars:</label>
         <input type="radio" name="scroll_radio" class="scroll_radio" id="awdt_sync_all_scrollbars"  value="awdt_sync_all_scrollbars">   
         <label for="awdt_sync_sb_scrollbars">Synchronize scrollbars for southbound direction:</label>
@@ -139,7 +148,7 @@
         <label for="awdt_unsync_scrollbars">Un-synchronize all scrollbars:</label>
         <input type="radio" name="scroll_radio" class="scroll_radio" id="awdt_unsyc_scrollbars"  value="awdt_unsync_scrollbars">     
     </div>
-    <div id="gfx_wrapper_2">
+    <div id="gfx_wrapper_awdt_nbsb">
         <!-- Gross, but effective, table layout... for now -->
         <table>
             <tr>
@@ -175,11 +184,11 @@
                 </td>
             </tr>
         </table> 
-    </div> <!-- gfx_wrapper_2 -->
-</div> <!-- awdt_comp_wrapper div -->
+    </div> <!-- gfx_wrapper_awdt_nbsb -->
+</div> <!-- awdt_comp_view_wrapper div -->
 
-<div id="peak_comp_wrapper">
-    <div id="peak_comp_options_1" class="options_div">
+<div id="peak_comp_view_wrapper">
+    <div id="peak_comp_view_options_1" class="options_div">
         <span>
             Select peak period:
             <select id="select_peak_period" class="app_select_box">
@@ -195,7 +204,7 @@
         </span>
     </div>
 
-    <div id="gfx_wrapper_3">
+    <div id="gfx_wrapper_peak_nbsb">
         <!-- Gross, but effective, table layout... for now -->
         <table>
             <tr>
@@ -228,8 +237,8 @@
                 </td>
             </tr>
         </table> 
-    </div> <!-- gfx_wrapper_3 -->
-</div> <!-- peak_comp_wrapper div -->
+    </div> <!-- gfx_wrapper_peak_nbsb -->
+</div> <!-- peak_comp_view_wrapper div -->
 
 <script src="balancedVolumesViz.js"></script>
 </body>

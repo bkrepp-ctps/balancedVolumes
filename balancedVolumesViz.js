@@ -128,29 +128,29 @@ function scrollHandler(e) {
 } // scrollHandler()
 
 $(document).ready(function() {
-    $('#main_wrapper').show();
+    $('#main_view_wrapper').show();
     $('#sb_lanes,#nb_lanes').hide();
-    $('#awdt_comp_wrapper').hide();
-    $('#peak_comp_wrapper').hide();
+    $('#awdt_comp_view_wrapper').hide();
+    $('#peak_comp_view_wrapper').hide();
 
     // Arm event handler for select_view radio buttons
     $('.select_view').on("click", function(e) {
         var view = $('.select_view:checked').val();
         switch(view) {
         case 'select_main_view':
-            $('#awdt_comp_wrapper').hide(); 
-            $('#peak_comp_wrapper').hide();
-            $('#main_wrapper').show();
+            $('#awdt_comp_view_wrapper').hide(); 
+            $('#peak_comp_view_wrapper').hide();
+            $('#main_view_wrapper').show();
             break;
         case 'select_awdt_comp_view':
-            $('#main_wrapper').hide();
-            $('#peak_comp_wrapper').hide();
-            $('#awdt_comp_wrapper').show();
+            $('#main_view_wrapper').hide();
+            $('#peak_comp_view_wrapper').hide();
+            $('#awdt_comp_view_wrapper').show();
             break;
         case 'select_peak_comp_view':
-            $('#main_wrapper').hide();
-            $('#awdt_comp_wrapper').hide();
-            $('#peak_comp_wrapper').show();
+            $('#main_view_wrapper').hide();
+            $('#awdt_comp_view_wrapper').hide();
+            $('#peak_comp_view_wrapper').show();
             break;
         default:
             break;
