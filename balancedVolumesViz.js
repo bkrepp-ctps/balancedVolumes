@@ -494,23 +494,8 @@ function initializeApp(error, results) {
     //
     // Synchronize the bounds of the Google Map with the elements in the relevant viewport
     $('#sb_viz,#nb_viz').on('scroll', scrollHandler);
-    
-    // (3e) On-click handler for visibility toggles for SB and NB viz's of the main view
-    //
-    $('.viz_toggle_button').on('click', function(e) {      
-        var target = e.target.id;
-        var curValue = $('#' + target).val();
-        var newValue = (curValue === '-') ? '+' : '-';
-        var div_id = target.replace('toggle_','');
-        if (curValue === '-') {
-            $('#' + div_id).hide();
-        } else {
-            $('#' + div_id).show(); 
-        }
-        $('#' + target).val(newValue);
-    });   
-    
-    // (3f) Show/hide 2010 lane configuration <div>s
+      
+    // (3e) Show/hide 2010 lane configuration <div>s
     //
     $('#main_show_lane_config').change(function(e) {
         var checked = $('#main_show_lane_config').prop('checked');  
