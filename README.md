@@ -2,7 +2,7 @@
 
 This repository is devoted to the visualizations of balanced traffic volume data.
 
-The raw balanced volume data and data used to generate a schematic visualization of the routes in question (currently I-93 northbound and southbound and Massachusetts SR-3 northbound and southbound) are found in the subdiretory data/csv. The balanced volume data itself was produced by Bill Kuttner.
+The raw balanced volume data and data used to generate a schematic visualization of the routes in question (currently I-93 northbound and southbound and Massachusetts SR-3 northbound and southbound) are found in the subdiretory data/csv. The balanced volume data for 2018 was produced by Bill Kuttner; the balanced volume data for 2010 and 199 was produced by Tom Lisco.
 
 The geojson data representing the routes in question is found in the subdirectory data/geojson.
 
