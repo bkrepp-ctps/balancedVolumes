@@ -83,7 +83,7 @@ function scrollHandler(e) {
     var contTop = container.scrollTop();
     var contBottom = contTop + contHeight;
     // console.log('top = ' + contTop + ' bottom = ' + contBottom);
-    var elts = _.filter(DATA.sb_data, function(rec) { return rec.y1 >= contTop && rec.y2 <= contBottom; });       
+    var elts = _.filter(DATA.secondaryDir_data, function(rec) { return rec.y1 >= contTop && rec.y2 <= contBottom; });       
     // Get the data_ids to search for in the GeoJSON; filter out HOV lanes and ramps
     var searchIds = _.pluck(elts, 'data_id');
     searchIds = _.filter(searchIds, function(id) { return  id.contains('hov') === false && id.startsWith('R') === false; });
@@ -163,12 +163,12 @@ function initializeApp(error, results) {
         return;         
     }        
     DATA.geojson = results[0];
-    DATA.sb_data = results[1];
-    DATA.nb_data = results[2];
-    DATA.sb_lanes = results[3];
-    DATA.nb_lanes = results[4];
-    DATA.sb_towns = results[5];
-    DATA.nb_towns = results[6];
+    DATA.secondaryDir_data = results[1];
+    DATA.primaryDir_data = results[2];
+    DATA.secondaryDir_lanes = results[3];
+    DATA.primaryDir_lanes = results[4];
+    DATA.secondaryDir_towns = results[5];
+    DATA.primaryDir_towns = results[6];
 
     // Prep GeoJSON data loaded for use in app
     //
@@ -237,34 +237,34 @@ function initializeApp(error, results) {
         rec['peak_2018_6_to_7_pm']  = +rec['peak_2018_6_to_7_pm'];   
     } // cleanupCsvRec()
 
-    DATA.sb_data.forEach(cleanupCsvRec);
-    DATA.nb_data.forEach(cleanupCsvRec);    
+    DATA.secondaryDir_data.forEach(cleanupCsvRec);
+    DATA.primaryDir_data.forEach(cleanupCsvRec);    
 
     // Determine the upper bound of domains of width scales ('widthPalettes');
-    var max_awdt = _.max([_.max(_.pluck(DATA.sb_data, 'awdt_1999')), _.max(_.pluck(DATA.sb_data, 'awdt_2010')), _.max(_.pluck(DATA.sb_data, 'awdt_2018')),
-                          _.max(_.pluck(DATA.nb_data, 'awdt_1999')), _.max(_.pluck(DATA.nb_data, 'awdt_2010')), _.max(_.pluck(DATA.nb_data, 'awdt_2018'))]);
+    var max_awdt = _.max([_.max(_.pluck(DATA.secondaryDir_data, 'awdt_1999')), _.max(_.pluck(DATA.secondaryDir_data, 'awdt_2010')), _.max(_.pluck(DATA.secondaryDir_data, 'awdt_2018')),
+                          _.max(_.pluck(DATA.primaryDir_data, 'awdt_1999')), _.max(_.pluck(DATA.primaryDir_data, 'awdt_2010')), _.max(_.pluck(DATA.primaryDir_data, 'awdt_2018'))]);
     widthPalettes.absolute.awdt.domain([0, max_awdt]);
     
-    var max_hourly = _.max([_.max(_.pluck(DATA.sb_data, 'peak_2018_6_to_7_am')), _.max(_.pluck(DATA.sb_data, 'peak_2018_7_to_8_am')), 
-                            _.max(_.pluck(DATA.sb_data, 'peak_2018_8_to_9_am')), _.max(_.pluck(DATA.sb_data, 'peak_2018_9_to_10_am')), 
-                            _.max(_.pluck(DATA.sb_data, 'peak_2018_3_to_4_pm')), _.max(_.pluck(DATA.sb_data, 'peak_2018_4_to_5_pm')), 
-                            _.max(_.pluck(DATA.sb_data, 'peak_2018_5_to_6_pm')), _.max(_.pluck(DATA.sb_data, 'peak_2018_6_to_7_pm')),                           
-                            _.max(_.pluck(DATA.nb_data, 'peak_2018_6_to_7_am')), _.max(_.pluck(DATA.nb_data, 'peak_2018_7_to_8_am')), 
-                            _.max(_.pluck(DATA.nb_data, 'peak_2018_8_to_9_am')), _.max(_.pluck(DATA.nb_data, 'peak_2018_9_to_10_am')), 
-                            _.max(_.pluck(DATA.nb_data, 'peak_2018_3_to_4_pm')), _.max(_.pluck(DATA.nb_data, 'peak_2018_4_to_5_pm')), 
-                            _.max(_.pluck(DATA.nb_data, 'peak_2018_5_to_6_pm')), _.max(_.pluck(DATA.nb_data, 'peak_2018_6_to_7_pm')),
-                            _.max(_.pluck(DATA.sb_data, 'peak_2010_6_to_7_am')), _.max(_.pluck(DATA.sb_data, 'peak_2010_7_to_8_am')), 
-                            _.max(_.pluck(DATA.sb_data, 'peak_2010_8_to_9_am')), _.max(_.pluck(DATA.sb_data, 'peak_2010_9_to_10_am')), 
-                            _.max(_.pluck(DATA.sb_data, 'peak_2010_3_to_4_pm')), _.max(_.pluck(DATA.sb_data, 'peak_2010_4_to_5_pm')), 
-                            _.max(_.pluck(DATA.sb_data, 'peak_2010_5_to_6_pm')), _.max(_.pluck(DATA.sb_data, 'peak_2010_6_to_7_pm')),                           
-                            _.max(_.pluck(DATA.nb_data, 'peak_2010_6_to_7_am')), _.max(_.pluck(DATA.nb_data, 'peak_2010_7_to_8_am')), 
-                            _.max(_.pluck(DATA.nb_data, 'peak_2010_8_to_9_am')), _.max(_.pluck(DATA.nb_data, 'peak_2010_9_to_10_am')), 
-                            _.max(_.pluck(DATA.nb_data, 'peak_2010_3_to_4_pm')), _.max(_.pluck(DATA.nb_data, 'peak_2010_4_to_5_pm')), 
-                            _.max(_.pluck(DATA.nb_data, 'peak_2010_5_to_6_pm')), _.max(_.pluck(DATA.nb_data, 'peak_2010_6_to_7_pm'))]);
+    var max_hourly = _.max([_.max(_.pluck(DATA.secondaryDir_data, 'peak_2018_6_to_7_am')), _.max(_.pluck(DATA.secondaryDir_data, 'peak_2018_7_to_8_am')), 
+                            _.max(_.pluck(DATA.secondaryDir_data, 'peak_2018_8_to_9_am')), _.max(_.pluck(DATA.secondaryDir_data, 'peak_2018_9_to_10_am')), 
+                            _.max(_.pluck(DATA.secondaryDir_data, 'peak_2018_3_to_4_pm')), _.max(_.pluck(DATA.secondaryDir_data, 'peak_2018_4_to_5_pm')), 
+                            _.max(_.pluck(DATA.secondaryDir_data, 'peak_2018_5_to_6_pm')), _.max(_.pluck(DATA.secondaryDir_data, 'peak_2018_6_to_7_pm')),                           
+                            _.max(_.pluck(DATA.primaryDir_data, 'peak_2018_6_to_7_am')), _.max(_.pluck(DATA.primaryDir_data, 'peak_2018_7_to_8_am')), 
+                            _.max(_.pluck(DATA.primaryDir_data, 'peak_2018_8_to_9_am')), _.max(_.pluck(DATA.primaryDir_data, 'peak_2018_9_to_10_am')), 
+                            _.max(_.pluck(DATA.primaryDir_data, 'peak_2018_3_to_4_pm')), _.max(_.pluck(DATA.primaryDir_data, 'peak_2018_4_to_5_pm')), 
+                            _.max(_.pluck(DATA.primaryDir_data, 'peak_2018_5_to_6_pm')), _.max(_.pluck(DATA.primaryDir_data, 'peak_2018_6_to_7_pm')),
+                            _.max(_.pluck(DATA.secondaryDir_data, 'peak_2010_6_to_7_am')), _.max(_.pluck(DATA.secondaryDir_data, 'peak_2010_7_to_8_am')), 
+                            _.max(_.pluck(DATA.secondaryDir_data, 'peak_2010_8_to_9_am')), _.max(_.pluck(DATA.secondaryDir_data, 'peak_2010_9_to_10_am')), 
+                            _.max(_.pluck(DATA.secondaryDir_data, 'peak_2010_3_to_4_pm')), _.max(_.pluck(DATA.secondaryDir_data, 'peak_2010_4_to_5_pm')), 
+                            _.max(_.pluck(DATA.secondaryDir_data, 'peak_2010_5_to_6_pm')), _.max(_.pluck(DATA.secondaryDir_data, 'peak_2010_6_to_7_pm')),                           
+                            _.max(_.pluck(DATA.primaryDir_data, 'peak_2010_6_to_7_am')), _.max(_.pluck(DATA.primaryDir_data, 'peak_2010_7_to_8_am')), 
+                            _.max(_.pluck(DATA.primaryDir_data, 'peak_2010_8_to_9_am')), _.max(_.pluck(DATA.primaryDir_data, 'peak_2010_9_to_10_am')), 
+                            _.max(_.pluck(DATA.primaryDir_data, 'peak_2010_3_to_4_pm')), _.max(_.pluck(DATA.primaryDir_data, 'peak_2010_4_to_5_pm')), 
+                            _.max(_.pluck(DATA.primaryDir_data, 'peak_2010_5_to_6_pm')), _.max(_.pluck(DATA.primaryDir_data, 'peak_2010_6_to_7_pm'))]);
     widthPalettes.absolute.hourly.domain([0, max_hourly]);                        
                             
-    var max_cum = _.max([_.max(_.pluck(DATA.sb_data, 'cum_2018_6_to_9_am')), _.max(_.pluck(DATA.sb_data, 'cum_2018_3_to_6_pm')),
-                         _.max(_.pluck(DATA.sb_data, 'cum_2010_6_to_9_am')), _.max(_.pluck(DATA.sb_data, 'cum_2010_3_to_6_pm'))]);
+    var max_cum = _.max([_.max(_.pluck(DATA.secondaryDir_data, 'cum_2018_6_to_9_am')), _.max(_.pluck(DATA.secondaryDir_data, 'cum_2018_3_to_6_pm')),
+                         _.max(_.pluck(DATA.secondaryDir_data, 'cum_2010_6_to_9_am')), _.max(_.pluck(DATA.secondaryDir_data, 'cum_2010_3_to_6_pm'))]);
     widthPalettes.absolute.cum.domain([0, max_cum]);
     
     // Handlers for various events on the main SVG <line>-work (a.k.a. 'stick diagram')
@@ -356,12 +356,12 @@ function initializeApp(error, results) {
         rec.y2 = +rec.y2;
         rec.yr_2010 = +rec.yr_2010;
     }   
-    DATA.sb_lanes.forEach(cleanupCsvLanesRec);
-    DATA.sb_lanes = _.filter(DATA.sb_lanes, function(d) { return d.yr_2010 === 1; });
-    DATA.nb_lanes.forEach(cleanupCsvLanesRec);
-    DATA.nb_lanes = _.filter(DATA.nb_lanes, function(d) { return d.yr_2010 === 1; });    
-    generateSvgLanesChart(DATA.sb_lanes, 'sb_lanes');
-    generateSvgLanesChart(DATA.nb_lanes, 'nb_lanes');
+    DATA.secondaryDir_lanes.forEach(cleanupCsvLanesRec);
+    DATA.secondaryDir_lanes = _.filter(DATA.secondaryDir_lanes, function(d) { return d.yr_2010 === 1; });
+    DATA.primaryDir_lanes.forEach(cleanupCsvLanesRec);
+    DATA.primaryDir_lanes = _.filter(DATA.primaryDir_lanes, function(d) { return d.yr_2010 === 1; });    
+    generateSvgLanesChart(DATA.secondaryDir_lanes, 'sb_lanes');
+    generateSvgLanesChart(DATA.primaryDir_lanes, 'nb_lanes');
     
     // Prep CSV data for town boundary lines
     // 
@@ -369,8 +369,8 @@ function initializeApp(error, results) {
         rec.seg_y1 = +rec.seg_y1;
         rec.seg_y2 = +rec.seg_y2;
     }
-    DATA.sb_towns.forEach(cleanupCsvTownBoundaryRec);
-    DATA.nb_towns.forEach(cleanupCsvTownBoundaryRec);
+    DATA.secondaryDir_towns.forEach(cleanupCsvTownBoundaryRec);
+    DATA.primaryDir_towns.forEach(cleanupCsvTownBoundaryRec);
     
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // Initialize machinery for the 'main' view: 
@@ -385,10 +385,10 @@ function initializeApp(error, results) {
     //      4. Download data button
     // 
     // (1)  Initialize SVG wireframes
-    VIZ.sb = generateSvgWireframe(DATA.sb_data, DATA.sb_towns, 'sb_viz', true, handlers);
-    symbolizeSvgWireframe(VIZ.sb, 'sb_viz', 'awdt', '2018', lineColorPalette.secondary);
-    VIZ.nb = generateSvgWireframe(DATA.nb_data, DATA.nb_towns, 'nb_viz', false, handlers);  
-    symbolizeSvgWireframe(VIZ.nb, 'nb_viz', 'awdt', '2018', lineColorPalette.primary);    
+    VIZ.secondaryDir = generateSvgWireframe(DATA.secondaryDir_data, DATA.secondaryDir_towns, 'sb_viz', true, handlers);
+    symbolizeSvgWireframe(VIZ.secondaryDir, 'sb_viz', 'awdt', '2018', lineColorPalette.secondary);
+    VIZ.primaryDir = generateSvgWireframe(DATA.primaryDir_data, DATA.primaryDir_towns, 'nb_viz', false, handlers);  
+    symbolizeSvgWireframe(VIZ.primaryDir, 'nb_viz', 'awdt', '2018', lineColorPalette.primary);    
     
     // (2) Initialize Google Map
     initMap(DATA);
@@ -426,8 +426,8 @@ function initializeApp(error, results) {
             $("#select_metric option[value='peak_6_to_7_pm']").prop('disabled', false);              
         }
         metric = $("#select_metric option:selected").attr('value');
-        symbolizeSvgWireframe(VIZ.sb, 'sb_viz', metric, year, lineColorPalette.secondary);
-        symbolizeSvgWireframe(VIZ.nb, 'nb_viz', metric, year, lineColorPalette.primary);       
+        symbolizeSvgWireframe(VIZ.secondaryDir, 'sb_viz', metric, year, lineColorPalette.secondary);
+        symbolizeSvgWireframe(VIZ.primaryDir, 'nb_viz', metric, year, lineColorPalette.primary);       
         setMainCaption("I-93/SR-3", year);
     });
     
@@ -440,8 +440,8 @@ function initializeApp(error, results) {
             $("#select_metric").val('awdt');
             metric = $("#select_metric option:selected").attr('value');
         }       
-        symbolizeSvgWireframe(VIZ.sb, 'sb_viz', metric, year, lineColorPalette.secondary);
-        symbolizeSvgWireframe(VIZ.nb, 'nb_viz', metric, year, lineColorPalette.primary);   
+        symbolizeSvgWireframe(VIZ.secondaryDir, 'sb_viz', metric, year, lineColorPalette.secondary);
+        symbolizeSvgWireframe(VIZ.primaryDir, 'nb_viz', metric, year, lineColorPalette.primary);   
         setMainCaption("I-93/SR-3", year);        
      });
     
@@ -512,14 +512,14 @@ function initializeApp(error, results) {
     //      Southbound route, year 2 - default is 2010
     //      Northbound route, year 1 - default is 2018
     //      Northbound route, year 2 - default is 2010
-    VIZ.sb_yr_1 = generateSvgWireframe(DATA.sb_data, DATA.sb_towns, 'sb_viz_yr_1', true, null);
-    symbolizeSvgWireframe(VIZ.sb_yr_1, 'sb_viz_yr_1', 'awdt', '2018', lineColorPalette.secondary);
-    VIZ.sb_yr_2 = generateSvgWireframe(DATA.sb_data, DATA.sb_towns, 'sb_viz_yr_2', true, null);
-    symbolizeSvgWireframe(VIZ.sb_yr_2, 'sb_viz_yr_2', 'awdt', '2010', lineColorPalette.secondary);   
-    VIZ.nb_yr_1 = generateSvgWireframe(DATA.nb_data, DATA.nb_towns, 'nb_viz_yr_1', false, null);  
-    symbolizeSvgWireframe(VIZ.nb_yr_1, 'nb_viz_yr_1', 'awdt', '2018', lineColorPalette.primary);    
-    VIZ.nb_yr_2 = generateSvgWireframe(DATA.nb_data, DATA.nb_towns, 'nb_viz_yr_2', false, null);  
-    symbolizeSvgWireframe(VIZ.nb_yr_2, 'nb_viz_yr_2', 'awdt', '2010', lineColorPalette.primary);   
+    VIZ.secondaryDir_yr_1 = generateSvgWireframe(DATA.secondaryDir_data, DATA.secondaryDir_towns, 'sb_viz_yr_1', true, null);
+    symbolizeSvgWireframe(VIZ.secondaryDir_yr_1, 'sb_viz_yr_1', 'awdt', '2018', lineColorPalette.secondary);
+    VIZ.secondaryDir_yr_2 = generateSvgWireframe(DATA.secondaryDir_data, DATA.secondaryDir_towns, 'sb_viz_yr_2', true, null);
+    symbolizeSvgWireframe(VIZ.secondaryDir_yr_2, 'sb_viz_yr_2', 'awdt', '2010', lineColorPalette.secondary);   
+    VIZ.primaryDir_yr_1 = generateSvgWireframe(DATA.primaryDir_data, DATA.primaryDir_towns, 'nb_viz_yr_1', false, null);  
+    symbolizeSvgWireframe(VIZ.primaryDir_yr_1, 'nb_viz_yr_1', 'awdt', '2018', lineColorPalette.primary);    
+    VIZ.primaryDir_yr_2 = generateSvgWireframe(DATA.primaryDir_data, DATA.primaryDir_towns, 'nb_viz_yr_2', false, null);  
+    symbolizeSvgWireframe(VIZ.primaryDir_yr_2, 'nb_viz_yr_2', 'awdt', '2010', lineColorPalette.primary);   
 
     // (2a) Arm event handlers for select_year_1 and select_year_2 combo boxes
     $('#select_year_1').change(function(e) {
@@ -528,8 +528,8 @@ function initializeApp(error, results) {
         $('#awdt_comp_caption_sb_yr_1').html(tmp);
         tmp = 'Northbound' + '&nbsp;' + year_1 + '&nbsp;AWDT&nbsp;' + '&uarr;';
         $('#awdt_comp_caption_nb_yr_1').html(tmp);
-        symbolizeSvgWireframe(VIZ.sb_yr_1, 'sb_viz_yr_1', 'awdt', year_1,  lineColorPalette.secondary);  
-        symbolizeSvgWireframe(VIZ.nb_yr_1, 'nb_viz_yr_1', 'awdt', year_1,  lineColorPalette.primary); 
+        symbolizeSvgWireframe(VIZ.secondaryDir_yr_1, 'sb_viz_yr_1', 'awdt', year_1,  lineColorPalette.secondary);  
+        symbolizeSvgWireframe(VIZ.primaryDir_yr_1, 'nb_viz_yr_1', 'awdt', year_1,  lineColorPalette.primary); 
     });
     $('#select_year_2').change(function(e) {
         var year_2 = $("#select_year_2 option:selected").attr('value');      
@@ -537,8 +537,8 @@ function initializeApp(error, results) {
         $('#awdt_comp_caption_sb_yr_2').html(tmp);
         tmp = 'Northbound' + '&nbsp;' + year_2 + '&nbsp;AWDT&nbsp;' + '&uarr;';
         $('#awdt_comp_caption_nb_yr_2').html(tmp);     
-        symbolizeSvgWireframe(VIZ.sb_yr_2, 'sb_viz_yr_2', 'awdt', year_2,  lineColorPalette.secondary);  
-        symbolizeSvgWireframe(VIZ.nb_yr_2, 'nb_viz_yr_2', 'awdt', year_2,  lineColorPalette.primary);         
+        symbolizeSvgWireframe(VIZ.secondaryDir_yr_2, 'sb_viz_yr_2', 'awdt', year_2,  lineColorPalette.secondary);  
+        symbolizeSvgWireframe(VIZ.primaryDir_yr_2, 'nb_viz_yr_2', 'awdt', year_2,  lineColorPalette.primary);         
     }); 
 
     // (2b) Arm-change handlers for sync_*_scrollbars radio buttons
@@ -600,13 +600,13 @@ function initializeApp(error, results) {
     //      hour 2 - default is 7-8 AM
     //      hour 3 - default is 8-9 AM
     //      sum    - default is 6-9 AM 
-    VIZ.hourly_1 = generateSvgWireframe(DATA.nb_data, DATA.nb_towns, 'peak_viz_hr_1', true, null);
+    VIZ.hourly_1 = generateSvgWireframe(DATA.primaryDir_data, DATA.primaryDir_towns, 'peak_viz_hr_1', true, null);
     symbolizeSvgWireframe(VIZ.hourly_1, 'peak_viz_hr_1', 'peak_6_to_7_am', '2018', lineColorPalette.primary);    
-    VIZ.hourly_2 = generateSvgWireframe(DATA.nb_data, DATA.nb_towns, 'peak_viz_hr_2', true, null);
+    VIZ.hourly_2 = generateSvgWireframe(DATA.primaryDir_data, DATA.primaryDir_towns, 'peak_viz_hr_2', true, null);
     symbolizeSvgWireframe(VIZ.hourly_2, 'peak_viz_hr_2', 'peak_7_to_8_am', '2018', lineColorPalette.primary);    
-    VIZ.hourly_3 = generateSvgWireframe(DATA.nb_data, DATA.nb_towns, 'peak_viz_hr_3', true, null);
+    VIZ.hourly_3 = generateSvgWireframe(DATA.primaryDir_data, DATA.primaryDir_towns, 'peak_viz_hr_3', true, null);
     symbolizeSvgWireframe(VIZ.hourly_3, 'peak_viz_hr_3', 'peak_8_to_9_am', '2018', lineColorPalette.primary);    
-    VIZ.hourly_sum = generateSvgWireframe(DATA.nb_data, DATA.nb_towns, 'peak_viz_sum', true, null);
+    VIZ.hourly_sum = generateSvgWireframe(DATA.primaryDir_data, DATA.primaryDir_towns, 'peak_viz_sum', true, null);
     symbolizeSvgWireframe(VIZ.hourly_sum, 'peak_viz_sum', 'cum_6_to_9_am', '2018', lineColorPalette.primary);    
     
     // Helper function for select_peak_period and select_direction combo boxes on-change event handlers
@@ -644,8 +644,8 @@ function initializeApp(error, results) {
         var period = $("#select_peak_period option:selected").attr('value');   
         var direction = $("#select_direction option:selected").attr('value');    
         var color = (direction === 'Northbound') ? lineColorPalette.primary : lineColorPalette.secondary;
-        var volumeData = (direction === 'Northbound') ? DATA.nb_data : DATA.sb_data;
-        var townBoundaryData = (direction === 'Northbound') ? DATA.nb_towns : DATA.sb_towns;
+        var volumeData = (direction === 'Northbound') ? DATA.primaryDir_data : DATA.secondaryDir_data;
+        var townBoundaryData = (direction === 'Northbound') ? DATA.primaryDir_towns : DATA.secondaryDir_towns;
         // Need to cear existing SVG wireframes, and generate new ones for the newly selected direction    
         $('#peak_viz_hr_1').html('');
         $('#peak_viz_hr_2').html('');
@@ -1351,8 +1351,8 @@ function downloadData(e) {
     } // writeRecords()
      
     // Data lines, NB and SB
-    writeRecords(DATA.nb_data, 'nb');
-    writeRecords(DATA.sb_data, 'sb');
+    writeRecords(DATA.primaryDir_data, 'nb');
+    writeRecords(DATA.secondaryDir_data, 'sb');
     sessionStorage.setItem("sent", newstring); 
     download(newstring, "i93_sr3_balanced_volumes.csv", "text/csv");
 } // downloadData()
