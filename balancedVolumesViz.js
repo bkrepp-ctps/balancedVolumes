@@ -365,10 +365,7 @@ function initializeApp(error, results) {
     
     // Prep CSV data for town boundary lines
     // 
-    function cleanupCsvTownBoundaryRec(rec) {
-        rec.seg_y1 = +rec.seg_y1;
-        rec.seg_y2 = +rec.seg_y2;
-    }
+    function cleanupCsvTownBoundaryRec(rec) { rec.y = +rec.y; }
     DATA.secondaryDir_towns.forEach(cleanupCsvTownBoundaryRec);
     DATA.primaryDir_towns.forEach(cleanupCsvTownBoundaryRec);
     
@@ -715,12 +712,12 @@ function generateSvgWireframe(wireframeData, townBoundaryData, div_id, yDir_is_r
             .attr("x2", width - 10)
             .attr("y1", function(d,i) {
                             var retval;
-                            retval = d.seg_y1 + ((d.seg_y2 - d.seg_y1) / 2) + 10;
+                            retval = d.y + 10;
                             return retval;
                  })                    
             .attr("y2", function(d,i) {
                             var retval;
-                            retval = d.seg_y1 + ((d.seg_y2 - d.seg_y1) / 2) + 10;
+                            retval = d.y + 10;
                             return retval;
                  })
             .style("stroke", "firebrick")
@@ -742,7 +739,7 @@ function generateSvgWireframe(wireframeData, townBoundaryData, div_id, yDir_is_r
             .attr("x", width - 10)
             .attr("y", function(d, i) {
                             var retval;
-                            retval = d.seg_y1 + ((d.seg_y2 - d.seg_y1) / 2) + 5;
+                            retval = d.y + 5;
                             return retval;
                 })
             .attr("text-anchor", "end")
@@ -761,7 +758,7 @@ function generateSvgWireframe(wireframeData, townBoundaryData, div_id, yDir_is_r
             .attr("x", width - 10)
             .attr("y", function(d, i) {
                             var retval;
-                            retval = d.seg_y1 + ((d.seg_y2 - d.seg_y1) / 2) + 25;
+                            retval = d.y + 25;
                             return retval;
                 })
             .attr("text-anchor", "end")
