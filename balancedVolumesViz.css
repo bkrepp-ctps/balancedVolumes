@@ -41,6 +41,7 @@
 .viz_caption {
     text-align: center;
     font-size: 18pt;
+    min-height: 30px;
 }
 .options_div {
     margin-top: 5px;
@@ -65,11 +66,7 @@
     display:flex;
     justify-content:center;
 }
-#map_wrapper {
-    /* margin-left: 5%;
-    margin-right: 5%; */
-    height: 100%;
-}
+
 #sb_lanes {
     width: 130px;
     height: 700px;
@@ -85,6 +82,11 @@
     margin-right: 10px;
     overflow: scroll;
     overflow-x:  hidden;
+}
+#map_wrapper {
+    /* margin-left: 5%;
+    margin-right: 5%; */
+    height: 100%;
 }
 #map {
     width:  500px;
