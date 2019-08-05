@@ -43,6 +43,12 @@
     font-size: 18pt;
     min-height: 30px;
 }
+.viz_caption_ebwb {
+    transform: rotate(-90deg);
+    text-align: center;
+    font-size: 18pt;
+    width: 30px;
+}
 .options_div {
     margin-top: 5px;
     margin-bottom: 5px;
@@ -83,12 +89,12 @@
     overflow: scroll;
     overflow-x:  hidden;
 }
-#map_wrapper {
+#map_nbsb_wrapper {
     /* margin-left: 5%;
     margin-right: 5%; */
     height: 100%;
 }
-#map {
+#map_nbsb {
     width:  500px;
     height: 700px;
     border: 2px solid #B87F32; 
@@ -109,6 +115,54 @@
     overflow: scroll; 
     overflow-x:  hidden;    
 }
+
+#gfx_wrapper_main_ebwb {
+    display:flex;
+    justify-content:center;
+}
+/* NEW STUFF */
+#eb_lanes {
+    width: 1400px;
+    height: 130px;
+    border: 2px solid #B87F32;
+    margin-bottom: none; 
+    overflow: scroll;
+    overflow-:  hidden;    
+}
+#eb_viz {
+    width: 1400px;
+    height: 465px;
+    border: 2px solid #B87F32;;
+    margin-bottom: 10px;
+    overflow: scroll;
+    overflow-y:  hidden;  
+} 
+#map_ebwb_wrapper {
+    /* margin-left: 5%;
+    margin-right: 5%; */
+    width: 100%;
+}
+#map_ebwb {
+    width:  1400px;
+    height: 500px;
+    border: 2px solid #B87F32; 
+} 
+#wb_viz {
+    width: 1400px;
+    height: 465px;
+    border: 2px solid #B87F32;;
+    margin-top: 10px;
+    overflow: scroll;
+    overflow-y:  hidden;  
+}
+#wb_lanes {
+    width: 1400px;
+    height: 130px;
+    border: 2px solid #B87F32;;
+    margin-top: none; 
+    overflow: scroll; 
+    overflow-x:  hidden;    
+}      
 /* End of rules for elements of the main view. */
 
 /* Rules for elements of the AWDT comparator view. */
