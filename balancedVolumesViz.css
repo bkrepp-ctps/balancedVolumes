@@ -131,7 +131,7 @@
 }
 #eb_viz {
     width: 1400px;
-    height: 465px;
+    height: 250px;
     border: 2px solid #B87F32;;
     margin-bottom: 10px;
     overflow: scroll;
@@ -149,7 +149,7 @@
 } 
 #wb_viz {
     width: 1400px;
-    height: 465px;
+    height: 250px;
     border: 2px solid #B87F32;;
     margin-top: 10px;
     overflow: scroll;
