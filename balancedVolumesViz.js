@@ -351,7 +351,7 @@ function initializeApp(error, results) {
     
     function setMainCaption(route, year) {
         var tmp = route + "&nbsp;-&nbsp;" + year;
-        $('#central_caption').html(tmp);
+        $('#central_caption_nbsb').html(tmp);
     } // setMainCaption()
     
     // Prep CSV data for lanes diagrams
