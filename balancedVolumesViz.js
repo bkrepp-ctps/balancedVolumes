@@ -1252,7 +1252,7 @@ function initMap(data) {
 		overviewMapControl: false
 	};
 
-	map = new google.maps.Map(document.getElementById("map_nbsb"), mapOptions);
+	map = new google.maps.Map(document.getElementById("map_nbsb"), mapOptions); 
     google.maps.event.addListener(map, "bounds_changed", function boundsChangedHandler(e) { } );
      // Un petit hacque to get the map's "bounds_changed" event to fire.
     // Believe it or not: When a Google Maps map object is created, its bounding
