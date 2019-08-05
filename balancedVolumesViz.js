@@ -1,4 +1,4 @@
-var geojsonURL = 'data/geojson/i93_and_sr3_complete.geojson';
+var geojsonURL = 'data/geojson/roadsegments.geojson';
 var csvWireFrame_sb_URL = 'data/csv/join_i93_sr3_sb_wireframe_and_volumes.csv';
 var csvWireFrame_nb_URL = 'data/csv/join_i93_sr3_nb_wireframe_and_volumes.csv';
 var csvLanes_sb_URL = 'data/csv/i93_sr3_sb_LANES_2010.csv';
@@ -88,7 +88,7 @@ function scrollHandler(e) {
     var searchIds = _.pluck(elts, 'data_id');
     searchIds = _.filter(searchIds, function(id) { return  id.contains('hov') === false && id.startsWith('R') === false; });
     // Make a deep copy of the GeoJSON...
-    var gj = Object.assign({}, DATA.geojson);
+    var gj = Object.assign({}, DATA.geojsonCurrentRoute);
     // ... and filter out everything except the records with the matching data_ids.
     // Yes, we know this is an O(n^2) operation... to be optimized when time is avaialble...
     gj.features = _.filter(gj.features, function(rec) { 
@@ -162,7 +162,14 @@ function initializeApp(error, results) {
         alert("One or more requests to load data failed. Exiting application.");
         return;         
     }        
-    DATA.geojson = results[0];
+    DATA.geojsonAll = results[0];  // This is the GeoJSON for *all* limited-access routes processed thus far
+    // Extract subset of this for the currently selected route 
+    // *** NOTE: This is currently  hard-wired to 'i93_sr3'
+    DATA.geojsonCurrentRoute = Object.assign({}, DATA.geojsonAll);
+    DATA.geojsonCurrentRoute.features = _.filter(DATA.geojsonCurrentRoute.features, function(rec) {
+            return rec.properties['backbone_rte'].startsWith('i93_sr3');
+    });
+    
     DATA.secondaryDir_data = results[1];
     DATA.primaryDir_data = results[2];
     DATA.secondaryDir_lanes = results[3];
@@ -170,15 +177,15 @@ function initializeApp(error, results) {
     DATA.secondaryDir_towns = results[5];
     DATA.primaryDir_towns = results[6];
 
-    // Prep GeoJSON data loaded for use in app
+    // Prep GeoJSON data for the currently selected route for use in app
     //
     // 2010 'backbone' route - both NB and SB
-    DATA.backbone_2010 = Object.assign({}, DATA.geojson);
+    DATA.backbone_2010 = Object.assign({}, DATA.geojsonCurrentRoute);
     DATA.backbone_2010.features = _.filter(DATA.backbone_2010.features, function(rec) { 
         return rec.properties['yr_2010'] === 1 && rec.properties['data_id'].contains('hov') == false;
     });
      // 1999 'backbone' route - both NB and SB
-    DATA.backbone_1999 = Object.assign({}, DATA.geojson);
+    DATA.backbone_1999 = Object.assign({}, DATA.geojsonCurrentRoute);
     DATA.backbone_1999.features = _.filter(DATA.backbone_1999.features, function(rec) { 
         return rec.properties['yr_1999'] === 1 && rec.properties['data_id'].contains('hov') == false;
     });
@@ -273,7 +280,7 @@ function initializeApp(error, results) {
                             console.log('On-click handler: unique_id = ' + d.unique_id + ' data_id = ' + d.data_id); 
                             var primaryDir, color;
                             var dottedLine = false;
-                            var lineFeature = _.find(DATA.geojson.features, function(f) { return f.properties['data_id'] == d.data_id; } );
+                            var lineFeature = _.find(DATA.geojsonCurrentRoute.features, function(f) { return f.properties['data_id'] == d.data_id; } );
                             if (lineFeature == null) {
                                 alert('Segment ' + d.unique_id + ' not found in GeoJSON.');
                                 return;
@@ -1258,7 +1265,7 @@ function initMap(data) {
     // See: https://stackoverflow.com/questions/18067797/how-do-i-change-the-scale-displayed-in-google-maps-api-v3-to-imperial-miles-un
     // and: https://issuetracker.google.com/issues/35825255
     var intervalTimer = window.setInterval(function() {
-        var elements = document.getElementById("map").getElementsByClassName("gm-style-cc");
+        var elements = document.getElementById("map_nbsb").getElementsByClassName("gm-style-cc");
         for (var i in elements) {
             // look for 'km' or 'm' in innerText via regex https://regexr.com/3hiqa
             if ((/\d\s?(km|(m\b))/g).test(elements[i].innerText)) {
@@ -1276,7 +1283,7 @@ function initMap(data) {
     map.data.addGeoJson(data.backbone_2010);
     map.data.setStyle(function(feature) {
         var retval, backbone_rte = feature.getProperty('backbone_rte');
-        if (backbone_rte.endsWith('_nb')) {
+        if (primaryDirectionP(backbone_rte)) {
             retval = { strokeColor : lineColorPalette.primary, strokeWeight: 2.0,  opacity: 1.0 };
         } else {
             retval = { strokeColor : lineColorPalette.secondary, strokeWeight: 2.0,  opacity: 1.0 };
