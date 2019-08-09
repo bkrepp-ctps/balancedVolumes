@@ -131,7 +131,7 @@
 }
 #eb_viz {
     width: 1400px;
-    height: 250px;
+    height: 150px;
     border: 2px solid #B87F32;;
     margin-bottom: 10px;
     overflow: scroll;
@@ -144,12 +144,12 @@
 }
 #map_ebwb {
     width:  1400px;
-    height: 500px;
+    height: 400px;
     border: 2px solid #B87F32; 
 } 
 #wb_viz {
     width: 1400px;
-    height: 250px;
+    height: 150px;
     border: 2px solid #B87F32;;
     margin-top: 10px;
     overflow: scroll;
