@@ -12,7 +12,7 @@ var NO_DATA = -9999;
 // Global "database" of data read in from CSV and JSON files
 var DATA = {};
 // Global access to SVG elements for D3 visualization
-VIZ = {};
+var VIZ = {};
 // Google Maps map object
 var map; 
 // Primary-direction (northbound or eastbound) and secondary-direction (southbound or westbound) 
