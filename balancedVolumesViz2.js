@@ -206,9 +206,8 @@ $(document).ready(function() {
     // Arm event handler for select_route combo box
     $('#select_route').change(function(e) {
         var route = $("#select_route option:selected").attr('value');
-        // *** TBD ***
-        // currentRoute = CONFIG[route];
-        // initializeForRoute(currentRoute.route);        
+        currentRoute = CONFIG[route];
+        initializeForRoute(currentRoute.route);        
     });
     
     // Load GeoJSON with spatial data, and initialize for default "current" route
@@ -232,9 +231,47 @@ $(document).ready(function() {
 // parameter: route - symbolic name of route for which we are to initizlize the app
 //
 // This function kicks-off loading the CSV data for the selected route, and causes
-// "generateViz" when the AJAZ requests for CSV data have completed (or failed).
+// "generateViz" when the AJAX requests for CSV data have completed (or failed).
 // 
 function initializeForRoute(route) {
+    // Populate combo boxes for 'AWDT comparison' and 'peak hours' views for the current route;
+    // First, we must remove any options that are present (i.e., from last selected route)
+    $('#awdt_select_year_1,#awdt_select_year_2').empty();
+    var i;
+    for (i = 0; i < currentRoute.years_awdt.length; i++) {
+        $('#awdt_select_year_1').append(
+            $("<option />")
+                .val(currentRoute.years_awdt[i])
+                .text(currentRoute.years_awdt[i])
+                .prop('selected', currentRoute.years_awdt[i] === currentRoute.awdt_year_1_default)
+        );
+        $('#awdt_select_year_2').append(
+            $("<option />")
+                .val(currentRoute.years_awdt[i])
+                .text(currentRoute.years_awdt[i])
+                .prop('selected', currentRoute.years_awdt[i] === currentRoute.awdt_year_2_default)
+        );        
+    }
+    
+    $('#peak_select_direction').empty();
+    var directions = (currentRoute.orientation === 'nbsb') ? [ 'Northbound', 'Southbound' ] : [ 'Eastbound', 'Westbound' ];
+    for (i = 0; i < directions.length; i++) {
+        $('#peak_select_direction').append(
+            $("<option />")
+                .val(directions[i])
+                .text(directions[i])
+                .prop('selected', i === 0)
+        );
+    }    
+ 
+    // *** TEMP ***
+    if (currentRoute.route !== 'i93_sr3' ) {
+        var s = 'Not yet rendering visualization for currentRoute.route';
+        console.log(s);
+        alert(s);
+        return;
+    }  
+    
     var q = d3.queue()
                 .defer(d3.csv, CONFIG[route].csvWireframe_secondaryDir)
                 .defer(d3.csv, CONFIG[route].csvWireframe_primaryDir)
@@ -264,39 +301,6 @@ function generateViz(error, results) {
         alert('One or more requests to load CSV data for route ' + CONFIG[currentRoute].routeLabel + ' failed. Exiting application.');
         return;         
     } 
-
-    // Populate combo boxes for 'AWDT comparison' and 'peak hours' views for the current route;
-    // First, we must remove any options that are present (i.e., from last selected route)
-    $('#awdt_select_year_1,#awdt_select_year_2').empty();
-    var i;
-    for (i = 0; i < currentRoute.years_awdt.length; i++) {
-        $('#awdt_select_year_1').append(
-            $("<option />")
-                .val(currentRoute.years_awdt[i])
-                .text(currentRoute.years_awdt[i])
-                .prop('selected', currentRoute.years_awdt[i] === currentRoute.awdt_year_1_default)
-        );
-        $('#awdt_select_year_2').append(
-            $("<option />")
-                .val(currentRoute.years_awdt[i])
-                .text(currentRoute.years_awdt[i])
-                .prop('selected', currentRoute.years_awdt[i] === currentRoute.awdt_year_2_default)
-        );        
-    }
-    
-    $('#peak_select_direction').empty();
-    var directions = (currentRoute.orientation === 'nbsb') ? [ 'Northbound', 'Southbound' ] : [ 'Eastbound', 'Westbound' ];
-    for (i = 0; i < directions.length; i++) {
-        $('#peak_select_direction').append(
-            $("<option />")
-                .val(directions[i])
-                .text(directions[i])
-                .prop('selected', i === 0)
-        );
-    }
-   
-
-    
 
     // Extract subset of the GeoJSON data for the currently selected route 
     DATA.geojsonCurrentRoute = Object.assign({}, DATA.geojsonAll);
