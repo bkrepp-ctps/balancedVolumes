@@ -577,7 +577,7 @@ function generateViz(error, results) {
     // Initialize machinery for the 'awdt comparison' view:
     //      1. SVG wireframes
     //      2. Event handlers for UI controls
-    //          a. select_year_1 and select_year_2 combo boxes
+    //          a. awdt_select_year_1 and awdt_select_year_2 combo boxes
     //          b. sync_*_scrollbars radio buttons
     //
     // (1) Initialize SVG wireframes:
@@ -594,9 +594,9 @@ function generateViz(error, results) {
     VIZ.primaryDir_yr_2 = generateSvgWireframe(DATA.primaryDir_data, DATA.primaryDir_towns, 'nb_viz_yr_2', false, null);  
     symbolizeSvgWireframe(VIZ.primaryDir_yr_2, 'nb_viz_yr_2', 'awdt', '2010', lineColorPalette.primary);   
 
-    // (2a) Arm event handlers for select_year_1 and select_year_2 combo boxes
-    $('#select_year_1').change(function(e) {
-        var year_1 = $("#select_year_1 option:selected").attr('value');   
+    // (2a) Arm event handlers for awdt_select_year_1 and awdt_select_year_2 combo boxes
+    $('#awdt_select_year_1').change(function(e) {
+        var year_1 = $("#awdt_select_year_1 option:selected").attr('value');   
         var tmp = 'Southbound' + '&nbsp;' + year_1 + '&nbsp;AWDT&nbsp;' + '&darr;';
         $('#awdt_comp_caption_sb_yr_1').html(tmp);
         tmp = 'Northbound' + '&nbsp;' + year_1 + '&nbsp;AWDT&nbsp;' + '&uarr;';
@@ -604,8 +604,8 @@ function generateViz(error, results) {
         symbolizeSvgWireframe(VIZ.secondaryDir_yr_1, 'sb_viz_yr_1', 'awdt', year_1,  lineColorPalette.secondary);  
         symbolizeSvgWireframe(VIZ.primaryDir_yr_1, 'nb_viz_yr_1', 'awdt', year_1,  lineColorPalette.primary); 
     });
-    $('#select_year_2').change(function(e) {
-        var year_2 = $("#select_year_2 option:selected").attr('value');      
+    $('#awdt_select_year_2').change(function(e) {
+        var year_2 = $("#awdt_select_year_2 option:selected").attr('value');      
         var tmp = 'Southbound' + '&nbsp;' + year_2 + '&nbsp;AWDT&nbsp;' + '&darr;';
         $('#awdt_comp_caption_sb_yr_2').html(tmp);
         tmp = 'Northbound' + '&nbsp;' + year_2 + '&nbsp;AWDT&nbsp;' + '&uarr;';
@@ -662,10 +662,10 @@ function generateViz(error, results) {
     }); 
     
     ///////////////////////////////////////////////////////////////////////////////////////////////
-    // Initialize machinery for the 'peak (hours) comparison' view:
+    // Initialize machinery for the 'peak period comparison' view:
     //      1. SVG wireframes
     //      2. Event handlers for UI controls
-    //          a. select_peak_period and select_direction combo boxes
+    //          a. peak_select_period and peak_select_direction combo boxes
     //          b. sync_*_scrollbars radio buttons
     //
     // (1) Initialize SVG wireframes - we initialize with the data for the northbound (i.e., primary) direction:
@@ -708,14 +708,14 @@ function generateViz(error, results) {
     } // symbolizeHourlyComparison()
 
      // (2a) Arm event handlers for select_peak_period and select_direction combo boxes
-    $('#select_peak_period').change(function(e) {
-        var period = $("#select_peak_period option:selected").attr('value');   
-        var direction = $("#select_direction option:selected").attr('value');
+    $('#peak_select_period').change(function(e) {
+        var period = $("#peak_select_period option:selected").attr('value');   
+        var direction = $("#peak_select_direction option:selected").attr('value');
         symbolizeHourlyComparison(period, direction);
     });   
-    $('#select_direction').change(function(e) {
-        var period = $("#select_peak_period option:selected").attr('value');   
-        var direction = $("#select_direction option:selected").attr('value');    
+    $('#peak_select_direction').change(function(e) {
+        var period = $("#peak_select_period option:selected").attr('value');   
+        var direction = $("#peak_select_direction option:selected").attr('value');    
         var color = (direction === 'Northbound') ? lineColorPalette.primary : lineColorPalette.secondary;
         var volumeData = (direction === 'Northbound') ? DATA.primaryDir_data : DATA.secondaryDir_data;
         var townBoundaryData = (direction === 'Northbound') ? DATA.primaryDir_towns : DATA.secondaryDir_towns;
