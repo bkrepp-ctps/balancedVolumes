@@ -173,6 +173,12 @@ $(document).ready(function() {
                 .prop('selected', CONFIG[prop].defaultRoute)
         );
     }
+    
+     // Arm event handler for download data button
+    $('#download_button').click(function(e) {
+        var url = 'Download.html'
+        window.open(url,'popUpWindow','height=700,width=900,left=10,top=10,resizable=yes,scrollbars=yes,toolbar=no,menubar=no,location=no,directories=no,status=yes')
+    });
       
     $('#main_view_wrapper').show();
     $('#sb_lanes,#nb_lanes,#eb_lanes,#wb_lanes').hide();
@@ -524,7 +530,6 @@ function generateViz(error, results) {
     //          a. select_year combo box
     //          b. select_metric combo box
     //          c. sync_scrollbars checkbox
-    //      4. Download data button
     // 
     // (1)  Initialize SVG wireframes
     VIZ.secondaryDir = generateSvgWireframe(DATA.secondaryDir_data, DATA.secondaryDir_towns, 'sb_viz', true, handlers);
@@ -636,13 +641,6 @@ function generateViz(error, results) {
         } else {
            $('#sb_lanes,#nb_lanes').hide();
         }
-    });
- 
-    // (4) Download data button
-    // 
-    $('#download_button').click(function(e) {
-        var url = 'Download.html'
-        window.open(url,'popUpWindow','height=700,width=900,left=10,top=10,resizable=yes,scrollbars=yes,toolbar=no,menubar=no,location=no,directories=no,status=yes')
     });
     
     ///////////////////////////////////////////////////////////////////////////////////////////////
