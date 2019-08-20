@@ -5,9 +5,11 @@ var CONFIG = {  'i93_sr3'   :   {   'defaultRoute'              : true,
                                     'route'                     : 'i93_sr3',
                                     'orientation'               : 'nbsb',
                                     'mapDiv'                    : 'map_nbsb',
-                                    'years'                     : [ 1999, 2010, 2018 ],
-                                    'years_awdt'                : [ 1999, 2010, 2018 ],
-                                    'years_peak_hours'          : [ 2010, 2018 ],
+                                    'years'                     : [ 2018, 2010, 1999 ],
+                                    'years_awdt'                : [ 2018, 2010, 1999 ],
+                                    'awdt_year_1_default'       : 2018,
+                                    'awdt_year_2_default'       : 2010,
+                                    'years_peak_hours'          : [ 2018, 2010 ],
                                     'peakPeridComparisonYear'   : 2018,
                                     'csvWireframe_primaryDir'   : 'data/csv/join_i93_sr3_nb_wireframe_and_volumes.csv',
                                     'csvWireframe_secondaryDir' : 'data/csv/join_i93_sr3_sb_wireframe_and_volumes.csv',
@@ -23,6 +25,8 @@ var CONFIG = {  'i93_sr3'   :   {   'defaultRoute'              : true,
                                     'mapDiv'                    : 'map_ebwb',
                                     'years'                     : [ 2010 ],
                                     'years_awdt'                : [ 2010 ],
+                                    'awdt_year_1_default'       : 2010,
+                                    'awdt_year_2_default'       : 2010,                                                                      
                                     'years_peak_hours'          : [ 2010 ], 
                                     'peakPeridComparisonYear'   : 2010,
                                     'csvWireframe_primaryDir'   : 'data/csv/i90_eb_wireframe_and_volumes.csv',
@@ -157,7 +161,7 @@ function scrollHandler(e) {
     return;
 } // scrollHandler()
 
-// *** THIS IS WHERE EXECUTION BEGINS ***
+// *** EXECUTION BEGINS HERE ***
 $(document).ready(function() {
     // Populate combo box of routes
     var route;
@@ -261,7 +265,38 @@ function generateViz(error, results) {
         return;         
     } 
 
-    // *** TBD HERE: Populate combo boxes for the 3 'views'...
+    // Populate combo boxes for 'AWDT comparison' and 'peak hours' views for the current route;
+    // First, we must remove any options that are present (i.e., from last selected route)
+    $('#awdt_select_year_1,#awdt_select_year_2').empty();
+    var i;
+    for (i = 0; i < currentRoute.years_awdt.length; i++) {
+        $('#awdt_select_year_1').append(
+            $("<option />")
+                .val(currentRoute.years_awdt[i])
+                .text(currentRoute.years_awdt[i])
+                .prop('selected', currentRoute.years_awdt[i] === currentRoute.awdt_year_1_default)
+        );
+        $('#awdt_select_year_2').append(
+            $("<option />")
+                .val(currentRoute.years_awdt[i])
+                .text(currentRoute.years_awdt[i])
+                .prop('selected', currentRoute.years_awdt[i] === currentRoute.awdt_year_2_default)
+        );        
+    }
+    
+    $('#peak_select_direction').empty();
+    var directions = (currentRoute.orientation === 'nbsb') ? [ 'Northbound', 'Southbound' ] : [ 'Eastbound', 'Westbound' ];
+    for (i = 0; i < directions.length; i++) {
+        $('#peak_select_direction').append(
+            $("<option />")
+                .val(directions[i])
+                .text(directions[i])
+                .prop('selected', i === 0)
+        );
+    }
+   
+
+    
 
     // Extract subset of the GeoJSON data for the currently selected route 
     DATA.geojsonCurrentRoute = Object.assign({}, DATA.geojsonAll);
