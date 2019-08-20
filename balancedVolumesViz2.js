@@ -6,6 +6,8 @@ var CONFIG = {  'i93_sr3'   :   {   'defaultRoute'              : true,
                                     'orientation'               : 'nbsb',
                                     'mapDiv'                    : 'map_nbsb',
                                     'years'                     : [ 1999, 2010, 2018 ],
+                                    'years_awdt'                : [ 1999, 2010, 2018 ],
+                                    'years_peak_hours'          : [ 2010, 2018 ],
                                     'peakPeridComparisonYear'   : 2018,
                                     'csvWireframe_primaryDir'   : 'data/csv/join_i93_sr3_nb_wireframe_and_volumes.csv',
                                     'csvWireframe_secondaryDir' : 'data/csv/join_i93_sr3_sb_wireframe_and_volumes.csv',
@@ -20,6 +22,8 @@ var CONFIG = {  'i93_sr3'   :   {   'defaultRoute'              : true,
                                     'orientation'               : 'ebwb',
                                     'mapDiv'                    : 'map_ebwb',
                                     'years'                     : [ 2010 ],
+                                    'years_awdt'                : [ 2010 ],
+                                    'years_peak_hours'          : [ 2010 ], 
                                     'peakPeridComparisonYear'   : 2010,
                                     'csvWireframe_primaryDir'   : 'data/csv/i90_eb_wireframe_and_volumes.csv',
                                     'csvWireframe_secondaryDir' : 'data/csv/i90_wb_wireframe_and_volumes.csv',
@@ -166,7 +170,6 @@ $(document).ready(function() {
         );
     }
       
-    
     $('#main_view_wrapper').show();
     $('#sb_lanes,#nb_lanes,#eb_lanes,#wb_lanes').hide();
     $('#awdt_comp_view_wrapper').hide();
@@ -199,8 +202,12 @@ $(document).ready(function() {
     // Arm event handler for select_route combo box
     $('#select_route').change(function(e) {
         var route = $("#select_route option:selected").attr('value');
+        // *** TBD ***
+        // currentRoute = CONFIG[route];
+        // initializeForRoute(currentRoute.route);        
     });
     
+    // Load GeoJSON with spatial data, and initialize for default "current" route
     var q = d3.queue()
                 .defer(d3.json, geojsonURL)
                 .awaitAll(function(error, results) {
@@ -216,6 +223,13 @@ $(document).ready(function() {
         });
 }); // document ready event handler
 
+// initializeForRoute()
+// 
+// parameter: route - symbolic name of route for which we are to initizlize the app
+//
+// This function kicks-off loading the CSV data for the selected route, and causes
+// "generateViz" when the AJAZ requests for CSV data have completed (or failed).
+// 
 function initializeForRoute(route) {
     var q = d3.queue()
                 .defer(d3.csv, CONFIG[route].csvWireframe_secondaryDir)
@@ -227,13 +241,29 @@ function initializeForRoute(route) {
                 .awaitAll(generateViz);    
 } // initializeForRoute()
 
+// generateViz()
+// 
+// parameters: 
+//      error - null if no error, otherwise error object from failed XmlHttpRequest
+//      results[0] - CSV balanced volume and "wireframe" layout data for secondary direction of route
+//      results[1] - CSV balanced volume and "wireframe" layout data for primary direction of route
+//      results[2] - CSV data for layout of lanes diagram for secondary direction of route
+//      results[3] - CSV data for layout of lanes diagram for primary direction of route
+//      results[4] - CSV data for location of town boundary lines in viz of secondary direction of route
+//      results[5] - CSV data for location of town boundary lines in viz of primary direction of route
+//
+// This function parses the various pieces of CSV data for the route in question, and then calls
+// subsidiary functions to generate the SVGs for the several visualizations of the data for the route
+//
 function generateViz(error, results) {
     if (error != null) {
         alert('One or more requests to load CSV data for route ' + CONFIG[currentRoute].routeLabel + ' failed. Exiting application.');
         return;         
-    }        
+    } 
 
-    // Extract subset of this for the currently selected route 
+    // *** TBD HERE: Populate combo boxes for the 3 'views'...
+
+    // Extract subset of the GeoJSON data for the currently selected route 
     DATA.geojsonCurrentRoute = Object.assign({}, DATA.geojsonAll);
     DATA.geojsonCurrentRoute.features = _.filter(DATA.geojsonCurrentRoute.features, function(rec) {
             return rec.properties['backbone_rte'].startsWith(currentRoute.route);
@@ -571,7 +601,10 @@ function generateViz(error, results) {
  
     // (4) Download data button
     // 
-    $('#download_button').on('click', downloadData);
+    $('#download_button').click(function(e) {
+        var url = 'Download.html'
+        window.open(url,'popUpWindow','height=700,width=900,left=10,top=10,resizable=yes,scrollbars=yes,toolbar=no,menubar=no,location=no,directories=no,status=yes')
+    });
     
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // Initialize machinery for the 'awdt comparison' view:
