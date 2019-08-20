@@ -502,7 +502,10 @@ function initializeApp(error, results) {
  
     // (4) Download data button
     // 
-    $('#download_button').on('click', downloadData);
+    $('#download_button').click(function(e) {
+        var url = 'Download.html'
+        window.open(url,'popUpWindow','height=700,width=900,left=10,top=10,resizable=yes,scrollbars=yes,toolbar=no,menubar=no,location=no,directories=no,status=yes')
+    });
     
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // Initialize machinery for the 'awdt comparison' view:
