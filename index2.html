@@ -208,6 +208,7 @@
         <label for="awdt_unsync_scrollbars">Un-synchronize all scrollbars:</label>
         <input type="radio" name="scroll_radio" class="scroll_radio" id="awdt_unsyc_scrollbars"  value="awdt_unsync_scrollbars">     
     </div>
+    
     <div id="gfx_wrapper_awdt_nbsb">
         <!-- Gross, but effective, table layout... for now -->
         <table>
@@ -245,6 +246,49 @@
             </tr>
         </table> 
     </div> <!-- gfx_wrapper_awdt_nbsb -->
+    
+    <div id="gfx_wrapper_awdt_ebwb">
+        <!-- Gross, but effective, table layout... for now -->
+        <table> 
+            <tr>
+                <td class="viz_caption_ebwb">
+                    Eastbound&nbsp;&darr;
+                </td>
+                <td>
+                    <div id="eb_viz_yr_1">
+                    </div>
+                </td>
+            </tr>   
+            <tr>
+                <td class="viz_caption_ebwb">
+                    Eastbound&nbsp;&darr;
+                </td>
+                <td>
+                    <div id="eb_viz_yr_2">
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="viz_caption_ebwb">
+                    Westbound&nbsp;&uarr;
+                </td>
+                <td>
+                    <div id="wb_viz_yr_1">
+                    </div>
+                </td>
+            </tr>           
+            <tr>
+                <td class="viz_caption_ebwb">
+                    Westbound&nbsp;&uarr;
+                </td>
+                <td>
+                    <div id="wb_viz_yr_2">
+                    </div>
+                </td>
+            </tr> 
+        </table>
+    </div> <!-- gfx_wrapper_awdt_ebwb -->
+    
 </div> <!-- awdt_comp_view_wrapper div -->
 
 <div id="peak_comp_view_wrapper">
@@ -278,22 +322,22 @@
             <tr id="peak_comp_tr_wrapper">
                 <!-- Peak hour 1 (6-7 AM or 3-4 PM) -->
                 <td>
-                    <div id="peak_viz_hr_1" class="peak_comp_viz syncscroll" role="presentation">
+                    <div id="peak_viz_nbsb_hr_1" class="peak_comp_viz syncscroll" role="presentation">
                     </div>
                 </td>
                 <!-- Peak hour 2 (7-8 AM or 4-5 PM)-->
                 <td>
-                    <div id="peak_viz_hr_2" class="peak_comp_viz syncscroll" role="presentation">
+                    <div id="peak_viz_nbsb_hr_2" class="peak_comp_viz syncscroll" role="presentation">
                     </div>
                 </td>  
                 <!-- Peak hour 3 (8-9 AM or 5-6 PM) -->                
                 <td>
-                    <div id="peak_viz_hr_3" class="peak_comp_viz syncscroll" role="presentation">
+                    <div id="peak_viz_nbsb_hr_3" class="peak_comp_viz syncscroll" role="presentation">
                     </div> 
                 </td>
                 <!-- Sum of 3 peak hours-->
                 <td>
-                    <div id="peak_viz_sum" class="peak_comp_viz syncscroll" role="presentation">
+                    <div id="peak_viz_nbsb_sum" class="peak_comp_viz syncscroll" role="presentation">
                     </div> 
                 </td>
             </tr>

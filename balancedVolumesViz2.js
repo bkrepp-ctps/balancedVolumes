@@ -743,14 +743,14 @@ function generateViz(error, results) {
     //      hour 2 - default is 7-8 AM
     //      hour 3 - default is 8-9 AM
     //      sum    - default is 6-9 AM 
-    VIZ.hourly_1 = generateSvgWireframe(DATA.primaryDir_data, DATA.primaryDir_towns, 'peak_viz_hr_1', true, null);
-    symbolizeSvgWireframe(VIZ.hourly_1, 'peak_viz_hr_1', 'peak_6_to_7_am', '2018', lineColorPalette.primary);    
-    VIZ.hourly_2 = generateSvgWireframe(DATA.primaryDir_data, DATA.primaryDir_towns, 'peak_viz_hr_2', true, null);
-    symbolizeSvgWireframe(VIZ.hourly_2, 'peak_viz_hr_2', 'peak_7_to_8_am', '2018', lineColorPalette.primary);    
-    VIZ.hourly_3 = generateSvgWireframe(DATA.primaryDir_data, DATA.primaryDir_towns, 'peak_viz_hr_3', true, null);
-    symbolizeSvgWireframe(VIZ.hourly_3, 'peak_viz_hr_3', 'peak_8_to_9_am', '2018', lineColorPalette.primary);    
-    VIZ.hourly_sum = generateSvgWireframe(DATA.primaryDir_data, DATA.primaryDir_towns, 'peak_viz_sum', true, null);
-    symbolizeSvgWireframe(VIZ.hourly_sum, 'peak_viz_sum', 'cum_6_to_9_am', '2018', lineColorPalette.primary);    
+    VIZ.hourly_1 = generateSvgWireframe(DATA.primaryDir_data, DATA.primaryDir_towns, 'peak_viz_nbsb_hr_1', true, null);
+    symbolizeSvgWireframe(VIZ.hourly_1, 'peak_viz_nbsb_hr_1', 'peak_6_to_7_am', '2018', lineColorPalette.primary);       
+    VIZ.hourly_2 = generateSvgWireframe(DATA.primaryDir_data, DATA.primaryDir_towns, 'peak_viz_nbsb_hr_2', true, null);
+    symbolizeSvgWireframe(VIZ.hourly_2, 'peak_viz_nbsb_hr_2', 'peak_7_to_8_am', '2018', lineColorPalette.primary);       
+    VIZ.hourly_3 = generateSvgWireframe(DATA.primaryDir_data, DATA.primaryDir_towns, 'peak_viz_nbsb_hr_3', true, null);
+    symbolizeSvgWireframe(VIZ.hourly_3, 'peak_viz_nbsb__hr_3', 'peak_8_to_9_am', '2018', lineColorPalette.primary);       
+    VIZ.hourly_sum = generateSvgWireframe(DATA.primaryDir_data, DATA.primaryDir_towns, 'peak_viz_nbsb_sum', true, null);
+    symbolizeSvgWireframe(VIZ.hourly_sum, 'peak_viz_nbsb_sum', 'cum_6_to_9_am', '2018', lineColorPalette.primary);    
     
     // Helper function for select_peak_period and select_direction combo boxes on-change event handlers
     function symbolizeHourlyComparison(period, direction) {
@@ -760,20 +760,20 @@ function generateViz(error, results) {
             $('#peak_comp_caption_2').html('7 to 8 AM');
             $('#peak_comp_caption_3').html('8 to 9 AM');
             $('#peak_comp_caption_4').html('6 to 9 AM<br>(cumulative)');
-            symbolizeSvgWireframe(VIZ.hourly_1, 'peak_viz_hr_1', 'peak_6_to_7_am', '2018', color);     
-            symbolizeSvgWireframe(VIZ.hourly_2, 'peak_viz_hr_2', 'peak_7_to_8_am', '2018', color); 
-            symbolizeSvgWireframe(VIZ.hourly_3, 'peak_viz_hr_3', 'peak_8_to_9_am', '2018', color); 
-            symbolizeSvgWireframe(VIZ.hourly_sum, 'peak_viz_sum', 'cum_6_to_9_am', '2018', color);  
+            symbolizeSvgWireframe(VIZ.hourly_1, 'peak_viz_nbsb_hr_1', 'peak_6_to_7_am', '2018', color);     
+            symbolizeSvgWireframe(VIZ.hourly_2, 'peak_viz_nbsb_hr_2', 'peak_7_to_8_am', '2018', color); 
+            symbolizeSvgWireframe(VIZ.hourly_3, 'peak_viz_nbsb_hr_3', 'peak_8_to_9_am', '2018', color); 
+            symbolizeSvgWireframe(VIZ.hourly_sum, 'peak_viz_nbsb_sum', 'cum_6_to_9_am', '2018', color);  
         } else {
             // Assume period === "PM"
             $('#peak_comp_caption_1').html('3 to 4 PM');
             $('#peak_comp_caption_2').html('4 to 5 PM');
             $('#peak_comp_caption_3').html('5 to 6 PM');
             $('#peak_comp_caption_4').html('3 to 6 PM<br>(cumulative)');
-            symbolizeSvgWireframe(VIZ.hourly_1, 'peak_viz_hr_1', 'peak_3_to_4_pm', '2018', color);     
-            symbolizeSvgWireframe(VIZ.hourly_2, 'peak_viz_hr_2', 'peak_4_to_5_pm', '2018', color); 
-            symbolizeSvgWireframe(VIZ.hourly_3, 'peak_viz_hr_3', 'peak_5_to_6_pm', '2018', color); 
-            symbolizeSvgWireframe(VIZ.hourly_sum, 'peak_viz_sum', 'cum_3_to_6_pm', '2018', color);            
+            symbolizeSvgWireframe(VIZ.hourly_1, 'peak_viz_nbsb_hr_1', 'peak_3_to_4_pm', '2018', color);     
+            symbolizeSvgWireframe(VIZ.hourly_2, 'peak_viz_nbsb_hr_2', 'peak_4_to_5_pm', '2018', color); 
+            symbolizeSvgWireframe(VIZ.hourly_3, 'peak_viz_nbsb_hr_3', 'peak_5_to_6_pm', '2018', color); 
+            symbolizeSvgWireframe(VIZ.hourly_sum, 'peak_viz_nbsb_sum', 'cum_3_to_6_pm', '2018', color);            
         }
     } // symbolizeHourlyComparison()
 
@@ -790,14 +790,14 @@ function generateViz(error, results) {
         var volumeData = (direction === 'Northbound') ? DATA.primaryDir_data : DATA.secondaryDir_data;
         var townBoundaryData = (direction === 'Northbound') ? DATA.primaryDir_towns : DATA.secondaryDir_towns;
         // Need to cear existing SVG wireframes, and generate new ones for the newly selected direction    
-        $('#peak_viz_hr_1').html('');
-        $('#peak_viz_hr_2').html('');
-        $('#peak_viz_hr_3').html('');
-        $('#peak_viz_sum').html('');
-        VIZ.hourly_1 = generateSvgWireframe(volumeData, townBoundaryData, 'peak_viz_hr_1', true, null);        
-        VIZ.hourly_2 = generateSvgWireframe(volumeData, townBoundaryData, 'peak_viz_hr_2', true, null);      
-        VIZ.hourly_3 = generateSvgWireframe(volumeData, townBoundaryData, 'peak_viz_hr_3', true, null);       
-        VIZ.hourly_sum = generateSvgWireframe(volumeData, townBoundaryData, 'peak_viz_sum', true, null);
+        $('#peak_viz_nbsb_hr_1').html('');
+        $('#peak_viz_nbsb_hr_2').html('');
+        $('#peak_viz_nbsb_hr_3').html('');
+        $('#peak_viz_nbsb_sum').html('');
+        VIZ.hourly_1 = generateSvgWireframe(volumeData, townBoundaryData, 'peak_viz_nbsb_hr_1', true, null);        
+        VIZ.hourly_2 = generateSvgWireframe(volumeData, townBoundaryData, 'peak_viz_nbsb_hr_2', true, null);      
+        VIZ.hourly_3 = generateSvgWireframe(volumeData, townBoundaryData, 'peak_viz_nbsb_hr_3', true, null);       
+        VIZ.hourly_sum = generateSvgWireframe(volumeData, townBoundaryData, 'peak_viz_nbsb_sum', true, null);
         symbolizeHourlyComparison(period, direction);
     });        
 } // generateViz()
