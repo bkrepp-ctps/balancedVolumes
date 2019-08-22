@@ -810,21 +810,22 @@ function generateViz(error, results) {
     // Helper function for select_peak_period and select_direction combo boxes on-change event handlers
     function symbolizeHourlyComparison(period, direction) {
         var color = (direction === "Northbound" || direction === 'Eastbound') ? lineColorPalette.primary : lineColorPalette.secondary;
+        var orientation = currentRoute.orientation;
         if (period === "AM") {
-            $('#peak_comp_caption_1').html('6 to 7 AM');
-            $('#peak_comp_caption_2').html('7 to 8 AM');
-            $('#peak_comp_caption_3').html('8 to 9 AM');
-            $('#peak_comp_caption_4').html('6 to 9 AM<br>(cumulative)');
+            $('#peak_' + orientation + '_caption_1').html('6 to 7 AM');
+            $('#peak_' + orientation + '_caption_2').html('7 to 8 AM');
+            $('#peak_' + orientation + '_caption_3').html('8 to 9 AM');
+            $('#peak_' + orientation + '_caption_4').html('6 to 9 AM<br>(cumulative)');
             symbolizeSvgWireframe(VIZ.hourly_1,   peakViz_hr_1_div, 'peak_6_to_7_am', currentRoute.peak_view_year_default, color);     
             symbolizeSvgWireframe(VIZ.hourly_2,   peakViz_hr_2_div, 'peak_7_to_8_am', currentRoute.peak_view_year_default, color); 
             symbolizeSvgWireframe(VIZ.hourly_3,   peakViz_hr_3_div, 'peak_8_to_9_am', currentRoute.peak_view_year_default, color); 
             symbolizeSvgWireframe(VIZ.hourly_sum, peakViz_sum_div,  'cum_6_to_9_am',  currentRoute.peak_view_year_default, color);  
         } else {
             // Assume period === "PM"
-            $('#peak_comp_caption_1').html('3 to 4 PM');
-            $('#peak_comp_caption_2').html('4 to 5 PM');
-            $('#peak_comp_caption_3').html('5 to 6 PM');
-            $('#peak_comp_caption_4').html('3 to 6 PM<br>(cumulative)');
+            $('#peak_' + orientation + '_caption_1').html('3 to 4 PM');
+            $('#peak_' + orientation + '_caption_2').html('4 to 5 PM');
+            $('#peak_' + orientation + '_caption_3').html('5 to 6 PM');
+            $('#peak_' + orientation + '_caption_4').html('3 to 6 PM<br>(cumulative)');
             symbolizeSvgWireframe(VIZ.hourly_1,   peakViz_hr_1_div, 'peak_3_to_4_pm', currentRoute.peak_view_year_default, color);     
             symbolizeSvgWireframe(VIZ.hourly_2,   peakViz_hr_2_div, 'peak_4_to_5_pm', currentRoute.peak_view_year_default, color); 
             symbolizeSvgWireframe(VIZ.hourly_3,   peakViz_hr_3_div, 'peak_5_to_6_pm', currentRoute.peak_view_year_default, color); 
