@@ -718,9 +718,9 @@ function generateViz(error, results) {
     $('#awdt_select_year_1').change(function(e) {
         var year_1 = $("#awdt_select_year_1 option:selected").attr('value');   
         var tmp = 'Southbound' + '&nbsp;' + year_1 + '&nbsp;AWDT&nbsp;' + '&darr;';
-        $('#awdt_comp_caption_sb_yr_1').html(tmp);
+        $('#awdt_caption_sb_yr_1').html(tmp);
         tmp = 'Northbound' + '&nbsp;' + year_1 + '&nbsp;AWDT&nbsp;' + '&uarr;';
-        $('#awdt_comp_caption_nb_yr_1').html(tmp);
+        $('#awdt_caption_nb_yr_1').html(tmp);
         
         symbolizeSvgWireframe(VIZ.secondaryDir_yr_1, awdtViz_secondaryDir_yr_1_div, 'awdt', year_1, lineColorPalette.secondary);  
         symbolizeSvgWireframe(VIZ.primaryDir_yr_1,   awdtViz_primaryDir_yr_1_div,   'awdt', year_1, lineColorPalette.primary); 
@@ -728,9 +728,9 @@ function generateViz(error, results) {
     $('#awdt_select_year_2').change(function(e) {
         var year_2 = $("#awdt_select_year_2 option:selected").attr('value');      
         var tmp = 'Southbound' + '&nbsp;' + year_2 + '&nbsp;AWDT&nbsp;' + '&darr;';
-        $('#awdt_comp_caption_sb_yr_2').html(tmp);
+        $('#awdt_caption_sb_yr_2').html(tmp);
         tmp = 'Northbound' + '&nbsp;' + year_2 + '&nbsp;AWDT&nbsp;' + '&uarr;';
-        $('#awdt_comp_caption_nb_yr_2').html(tmp); 
+        $('#awdt_caption_nb_yr_2').html(tmp); 
         
         symbolizeSvgWireframe(VIZ.secondaryDir_yr_2, awdtViz_secondaryDir_yr_2_div, 'awdt', year_2, lineColorPalette.secondary);  
         symbolizeSvgWireframe(VIZ.primaryDir_yr_2,   awdtViz_primaryDir_yr_2_div,   'awdt', year_2, lineColorPalette.primary);         
