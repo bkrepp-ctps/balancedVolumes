@@ -4,6 +4,10 @@ var CONFIG = {  'i93_sr3'   :   {   'defaultRoute'              : true,
                                     'routeLabel'                : 'I-93 / SR-3',
                                     'route'                     : 'i93_sr3',
                                     'orientation'               : 'nbsb',
+                                    'primaryDir'                : 'Northbound',
+                                    'primaryDirAbbrev'          : 'nb',
+                                    'secondaryDir'              : 'Southbound',
+                                    'secondaryDirAbbrev'        : 'sb',
                                     'mapDiv'                    : 'map_nbsb',
                                     'years'                     : [ 2018, 2010, 1999 ],
                                     'main_year_default'         : 2018,
@@ -23,6 +27,10 @@ var CONFIG = {  'i93_sr3'   :   {   'defaultRoute'              : true,
                                     'routeLabel'                : 'I-90',
                                     'route'                     : 'i90',
                                     'orientation'               : 'ebwb',
+                                    'primaryDir'                : 'Eastbound',
+                                    'primaryDirAbbrev'          : 'eb',
+                                    'secondaryDir'              : 'Westbound',
+                                    'secondaryDirAbbrev'        : 'wb',                                                                       
                                     'mapDiv'                    : 'map_ebwb',
                                     'years'                     : [ 2010 ],
                                     'main_year_default'         : 2010,
@@ -715,23 +723,21 @@ function generateViz(error, results) {
     symbolizeSvgWireframe(VIZ.primaryDir_yr_2,  awdtViz_primaryDir_yr_2_div, 'awdt', currentRoute.awdt_year_2_default, lineColorPalette.primary);   
 
     // (2a) Arm event handlers for awdt_select_year_1 and awdt_select_year_2 combo boxes
-    $('#awdt_select_year_1').change(function(e) {
+    $('#awdt_select_year_1').change(function(e) {             
         var year_1 = $("#awdt_select_year_1 option:selected").attr('value');   
-        var tmp = 'Southbound' + '&nbsp;' + year_1 + '&nbsp;AWDT&nbsp;' + '&darr;';
-        $('#awdt_caption_sb_yr_1').html(tmp);
-        tmp = 'Northbound' + '&nbsp;' + year_1 + '&nbsp;AWDT&nbsp;' + '&uarr;';
-        $('#awdt_caption_nb_yr_1').html(tmp);
-        
+        var tmp = currentRoute.secondaryDir + '&nbsp;' + year_1 + '&nbsp;AWDT&nbsp;' + '&darr;';
+        $('#awdt_caption_' + currentRoute.secondaryDirAbbrev + '_yr_1').html(tmp);   
+        tmp = currentRoute.primaryDir + '&nbsp;' + year_1 + '&nbsp;AWDT&nbsp;' + '&uarr;';
+        $('#awdt_caption_' + currentRoute.primaryDirAbbrev + '_yr_1').html(tmp);      
         symbolizeSvgWireframe(VIZ.secondaryDir_yr_1, awdtViz_secondaryDir_yr_1_div, 'awdt', year_1, lineColorPalette.secondary);  
         symbolizeSvgWireframe(VIZ.primaryDir_yr_1,   awdtViz_primaryDir_yr_1_div,   'awdt', year_1, lineColorPalette.primary); 
     });
-    $('#awdt_select_year_2').change(function(e) {
+    $('#awdt_select_year_2').change(function(e) {       
         var year_2 = $("#awdt_select_year_2 option:selected").attr('value');      
-        var tmp = 'Southbound' + '&nbsp;' + year_2 + '&nbsp;AWDT&nbsp;' + '&darr;';
-        $('#awdt_caption_sb_yr_2').html(tmp);
-        tmp = 'Northbound' + '&nbsp;' + year_2 + '&nbsp;AWDT&nbsp;' + '&uarr;';
-        $('#awdt_caption_nb_yr_2').html(tmp); 
-        
+        var tmp = currentRoute.secondaryDir + '&nbsp;' + year_2 + '&nbsp;AWDT&nbsp;' + '&darr;';
+        $('#awdt_caption_' + currentRoute.secondaryDirAbbrev + '_yr_2').html(tmp);        
+        tmp = currentRoute.primaryDir + '&nbsp;' + year_2 + '&nbsp;AWDT&nbsp;' + '&uarr;';
+        $('#awdt_caption_' + currentRoute.primaryDirAbbrev + '_yr_2').html(tmp);         
         symbolizeSvgWireframe(VIZ.secondaryDir_yr_2, awdtViz_secondaryDir_yr_2_div, 'awdt', year_2, lineColorPalette.secondary);  
         symbolizeSvgWireframe(VIZ.primaryDir_yr_2,   awdtViz_primaryDir_yr_2_div,   'awdt', year_2, lineColorPalette.primary);         
     }); 
