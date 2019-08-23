@@ -653,30 +653,32 @@ function generateViz(error, results) {
     // Note: This handler also arms the 'scroll' handler for the sb_viz and nb_viz divs,
     // as appropriate
     $('#main_sync_scrollbars').change(function(e) {
-        var new_name_attr_nb, new_name_attr_sb;
-        var checked = $('#main_sync_scrollbars').prop('checked');       
+        var checked, elt, selector, new_name_attr_primary_dir, new_name_attr_secondary_dir;      
+        checked = $('#main_sync_scrollbars').prop('checked');       
         if (checked) {
-            new_name_attr_nb = 'sync_nb_and_sb';
-            new_name_attr_sb = 'sync_nb_and_sb';
+            new_name_attr_primary_dir = 'sync_primary_and_secondary_dirs';
+            new_name_attr_secondary_dir = 'sync_primary_and_secondary_dirs';
         } else {
-            new_name_attr_nb = 'sync_nb';
-            new_name_attr_sb = 'sync_sb';            
-        }       
-        var elt = $('#nb_viz').get()[0];
-        elt.setAttribute('name', new_name_attr_nb);   
-        elt = $('#nb_lanes').get()[0];
-        elt.setAttribute('name', new_name_attr_nb);                
-        elt =  $('#sb_viz').get()[0];
-        elt.setAttribute('name', new_name_attr_sb);      
-        elt = $('#sb_lanes').get()[0];
-        elt.setAttribute('name', new_name_attr_sb);        
+            new_name_attr_primary_dir = 'sync_primary_dir';
+            new_name_attr_sb = 'sync_secondary_dir';            
+        }             
+        elt = $('#' + currentRoute.primaryDirAbbrev + '_viz').get()[0];
+        elt.setAttribute('name', new_name_attr_primary_dir);   
+        elt = $('#' + currentRoute.primaryDirAbbrev + '_lanes').get()[0];
+        elt.setAttribute('name', new_name_attr_primary_dir);         
+        elt =  $('#' + currentRoute.secondaryDirAbbrev + '_viz').get()[0];
+        elt.setAttribute('name', new_name_attr_secondary_dir);      
+        elt = $('#' + currentRoute.secondaryDirAbbrev + '_lanes').get()[0];
+        elt.setAttribute('name', new_name_attr_secondary_dir);        
         syncscroll.reset();  
-        // If checked, only arm the scroll event handler for either the SB or NB divs;
+        // If checked, only arm the scroll event handler for either the primary- or secondary-direction <div>s;
         // this will prevent duplicate calls to the handler.
         if (checked) {
-            $('#sb_viz,#sb_lanes').scroll(function(e) { scrollHandler(e); });
+            selector = '#' + currentRoute.secondaryDirAbbrev + '_viz,#' + currentRoute.secondaryDirAbbrev + ' _lanes';
+            $(selector).scroll(function(e) { scrollHandler(e); });
         } else {
-            $('#sb_viz,#nb_viz,#sb_lanes,#nb_lanes').scroll(function(e) { scrollHandler(e); });
+            selector = '#' + currentRoute.primaryDirAbbrev + '_viz,#' + currentRoute.primaryDirAbbrev + ' _lanes';
+            $(selector).scroll(function(e) { scrollHandler(e); });
         }
     });
     
