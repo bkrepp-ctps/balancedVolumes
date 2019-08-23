@@ -200,11 +200,14 @@
     </div>
     <div id="awdt_comp_view_options_2" class="options_div">
         <label for="awdt_sync_all_scrollbars">Synchronize all scrollbars:</label>
-        <input type="radio" name="scroll_radio" class="scroll_radio" id="awdt_sync_all_scrollbars"  value="awdt_sync_all_scrollbars">   
-        <label for="awdt_sync_sb_scrollbars">Synchronize scrollbars for southbound direction:</label>
-        <input type="radio" name="scroll_radio" class="scroll_radio" id="awdt_sync_sb_scrollbars" value="awdt_sync_sb_scrollbars"> 
-        <label for="awdt_sync_nb_scrollbars">Synchronize scrollbars for northbound direction:</label>
-        <input type="radio" name="scroll_radio" class="scroll_radio" id="awdt_sync_nb_scrollbars" value="awdt_sync_nb_scrollbars">   
+        <input type="radio" name="scroll_radio" class="scroll_radio" id="awdt_sync_all_scrollbars"  value="awdt_sync_all_scrollbars">  
+        
+        <label for="awdt_sync_secondary_dir_scrollbars">Synchronize scrollbars for secondary direction:</label>
+        <input type="radio" name="scroll_radio" class="scroll_radio" id="awdt_sync_secondary_dir_scrollbars" value="awdt_sync_secondary_dir_scrollbars"> 
+        
+        <label for="awdt_sync_primary_dir_scrollbars">Synchronize scrollbars for primary direction:</label>
+        <input type="radio" name="scroll_radio" class="scroll_radio" id="awdt_sync_primary_dir_scrollbars" value="awdt_sync_primary_dir_scrollbars">   
+        
         <label for="awdt_unsync_scrollbars">Un-synchronize all scrollbars:</label>
         <input type="radio" name="scroll_radio" class="scroll_radio" id="awdt_unsyc_scrollbars"  value="awdt_unsync_scrollbars">     
     </div>
@@ -255,7 +258,7 @@
                     Eastbound 2010 AWDT &darr;
                 </td>
                 <td>
-                    <div id="eb_viz_yr_1">
+                    <div id="eb_viz_yr_1" class="awdt_comp_viz syncscroll" role="presentation">
                     </div>
                 </td>
             </tr>   
@@ -264,7 +267,7 @@
                     Eastbound 2010 AWDT &darr;
                 </td>
                 <td>
-                    <div id="eb_viz_yr_2">
+                    <div id="eb_viz_yr_2" class="awdt_comp_viz syncscroll" role="presentation">
                     </div>
                 </td>
             </tr>
@@ -273,7 +276,7 @@
                     Westbound 2010 AWDT &uarr;
                 </td>
                 <td>
-                    <div id="wb_viz_yr_1">
+                    <div id="wb_viz_yr_1" class="awdt_comp_viz syncscroll" role="presentation">
                     </div>
                 </td>
             </tr>           
@@ -282,7 +285,7 @@
                     Westbound 2010 AWDT &uarr;
                 </td>
                 <td>
-                    <div id="wb_viz_yr_2">
+                    <div id="wb_viz_yr_2" class="awdt_comp_viz syncscroll" role="presentation">
                     </div>
                 </td>
             </tr> 

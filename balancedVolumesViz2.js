@@ -753,34 +753,36 @@ function generateViz(error, results) {
         var elt;
         switch(checked) {
         case "awdt_sync_all_scrollbars":
-        case "awdt_unsync_scrollbars":
-            elt = $('#nb_viz_yr_1').get()[0];
+        case "awdt_unsync_scrollbars":       
+            elt = $('#' + currentRoute.primaryDirAbbrev + '_viz_yr_1').get()[0];
             elt.setAttribute('name', newName);   
-            elt = $('#nb_viz_yr_2').get()[0];
+            elt = $('#' +  currentRoute.primaryDirAbbrev + '_viz_yr_2').get()[0];
             elt.setAttribute('name', newName);         
-            elt =  $('#sb_viz_yr_1').get()[0];
+            elt =  $('#' + currentRoute.secondaryDirAbbrev +  '_viz_yr_1').get()[0];
             elt.setAttribute('name', newName);
-            elt =  $('#sb_viz_yr_2').get()[0];
+            elt =  $('#' + currentRoute.secondaryDirAbbrev + '_viz_yr_2').get()[0];
             elt.setAttribute('name', newName);            
-            break;           
-        case "awdt_sync_sb_scrollbars":
-            elt = $('#nb_viz_yr_1').get()[0];
+            break; 
+            
+        case "awdt_sync_secondary_dir_scrollbars":
+            elt = $('#' + currentRoute.primaryDirAbbrev + '_viz_yr_1').get()[0];
             elt.setAttribute('name', 'name_1');   
-            elt = $('#nb_viz_yr_2').get()[0];
+            elt = $('#' +  currentRoute.primaryDirAbbrev + '_viz_yr_2').get()[0];
             elt.setAttribute('name', 'name_2');  
-            elt =  $('#sb_viz_yr_1').get()[0];
+            elt =  $('#' + currentRoute.secondaryDirAbbrev +  '_viz_yr_1').get()[0];
             elt.setAttribute('name', newName);
-            elt =  $('#sb_viz_yr_2').get()[0];
+            elt =  $('#' + currentRoute.secondaryDirAbbrev + '_viz_yr_2').get()[0];
             elt.setAttribute('name', newName);             
             break;
-        case "awdt_sync_nb_scrollbars":
-            elt = $('#nb_viz_yr_1').get()[0];
+            
+        case "awdt_sync_primary_dir_scrollbars":
+            elt = $('#' + currentRoute.primaryDirAbbrev + '_viz_yr_1').get()[0];
             elt.setAttribute('name', newName);   
-            elt = $('#nb_viz_yr_2').get()[0];
+            elt = $('#' +  currentRoute.primaryDirAbbrev + '_viz_yr_2').get()[0];
             elt.setAttribute('name', newName);    
-            elt =  $('#sb_viz_yr_1').get()[0];
+            elt =  $('#' + currentRoute.secondaryDirAbbrev +  '_viz_yr_1').get()[0];
             elt.setAttribute('name', 'name_3');
-            elt =  $('#sb_viz_yr_2').get()[0];
+            elt =  $('#' + currentRoute.secondaryDirAbbrev + '_viz_yr_2').get()[0];
             elt.setAttribute('name', 'name_4');            
             break;
         default:
