@@ -1,4 +1,4 @@
-unique_id,y,town_before,town_after
+unique_id,coord,town_before,town_after
 boundary_i93_nb_580,60,Tewksbury,Wilmington
 boundary_i93_nb_490,1110,Wilmington,Woburn
 boundary_i93_nb_470,1360,Woburn,Reading
