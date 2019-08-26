@@ -557,7 +557,7 @@ function generateViz(error, results) {
     
     // Prep CSV data for town boundary lines
     // 
-    function cleanupCsvTownBoundaryRec(rec) { rec.y = +rec.y; }
+    function cleanupCsvTownBoundaryRec(rec) { rec.coord = +rec.coord; }
     DATA.secondaryDir_towns.forEach(cleanupCsvTownBoundaryRec);
     DATA.primaryDir_towns.forEach(cleanupCsvTownBoundaryRec);
     
@@ -923,12 +923,12 @@ function generateSvgWireframe(wireframeData, townBoundaryData, div_id, yDir_is_r
             .attr("x2", width - 10)
             .attr("y1", function(d,i) {
                             var retval;
-                            retval = d.y + 10;
+                            retval = d.coord + 10;
                             return retval;
                  })                    
             .attr("y2", function(d,i) {
                             var retval;
-                            retval = d.y + 10;
+                            retval = d.coord + 10;
                             return retval;
                  })
             .style("stroke", "firebrick")
@@ -950,7 +950,7 @@ function generateSvgWireframe(wireframeData, townBoundaryData, div_id, yDir_is_r
             .attr("x", width - 10)
             .attr("y", function(d, i) {
                             var retval;
-                            retval = d.y + 5;
+                            retval = d.coord + 5;
                             return retval;
                 })
             .attr("text-anchor", "end")
@@ -969,7 +969,7 @@ function generateSvgWireframe(wireframeData, townBoundaryData, div_id, yDir_is_r
             .attr("x", width - 10)
             .attr("y", function(d, i) {
                             var retval;
-                            retval = d.y + 25;
+                            retval = d.coord + 25;
                             return retval;
                 })
             .attr("text-anchor", "end")
