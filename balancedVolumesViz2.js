@@ -8,7 +8,7 @@ var CONFIG = {  'i93_sr3'   :   {   'defaultRoute'              : true,
                                     'primaryDirAbbrev'          : 'nb',
                                     'secondaryDir'              : 'Southbound',
                                     'secondaryDirAbbrev'        : 'sb',
-                                    'mapDiv'                    : 'map_nbsb',
+                                
                                     'years'                     : [ 2018, 2010, 1999 ],
                                     'main_year_default'         : 2018,
                                     'years_awdt'                : [ 2018, 2010, 1999 ],
@@ -16,6 +16,22 @@ var CONFIG = {  'i93_sr3'   :   {   'defaultRoute'              : true,
                                     'awdt_year_2_default'       : 2010,
                                     'years_peak_hours'          : [ 2018, 2010 ],
                                     'peak_view_year_default'    : 2018,
+                                    
+                                    'mainViz_primaryDir_div'    : 'nb_viz',
+                                    'mainViz_secondaryDir_div'  : 'sb_viz',
+                                    'mapDiv'                    : 'map_nbsb',
+                                    
+                                    'awdtViz_primaryDir_yr_1_div'   : 'nb_viz_yr_1',
+                                    'awdtViz_primaryDir_yr_2_div'   : 'nb_viz_yr_2',
+                                    'awdtViz_secondaryDir_yr_1_div' : 'sb_viz_yr_1',
+                                    'awdtViz_secondaryDir_yr_2_div' : 'sb_viz_yr_2',                                   
+                                    'peakViz_hr_1_div'          : 'peak_viz_nbsb_hr_1',
+                                    'peakViz_hr_2_div'          : 'peak_viz_nbsb_hr_2',       
+                                    'peakViz_hr_3_div'          : 'peak_viz_nbsb_hr_3',          
+                                    'peakViz_sum_div'           : 'peak_viz_nbsb_sum',                                    
+                                    'lanes_primaryDir_div'      : 'nb_lanes',
+                                    'lanes_secondaryDir_div'    : 'sb_lanes',
+                                   
                                     'csvWireframe_primaryDir'   : 'data/csv/join_i93_sr3_nb_wireframe_and_volumes.csv',
                                     'csvWireframe_secondaryDir' : 'data/csv/join_i93_sr3_sb_wireframe_and_volumes.csv',
                                     'csvLanes_primaryDir'       : 'data/csv/i93_sr3_nb_LANES_2010.csv',
@@ -30,8 +46,7 @@ var CONFIG = {  'i93_sr3'   :   {   'defaultRoute'              : true,
                                     'primaryDir'                : 'Eastbound',
                                     'primaryDirAbbrev'          : 'eb',
                                     'secondaryDir'              : 'Westbound',
-                                    'secondaryDirAbbrev'        : 'wb',                                                                       
-                                    'mapDiv'                    : 'map_ebwb',
+                                    'secondaryDirAbbrev'        : 'wb',                                           
                                     'years'                     : [ 2010 ],
                                     'main_year_default'         : 2010,
                                     'years_awdt'                : [ 2010 ],
@@ -39,6 +54,22 @@ var CONFIG = {  'i93_sr3'   :   {   'defaultRoute'              : true,
                                     'awdt_year_2_default'       : 2010,                                                                  
                                     'years_peak_hours'          : [ 2010 ], 
                                     'peak_view_year_default'    : 2010,
+                                    
+                                    'mainViz_primaryDir_div'    : 'eb_viz',
+                                    'mainViz_secondaryDir_div'  : 'wb_viz',
+                                    'mapDiv'                    : 'map_ebwb',
+                                    
+                                    'awdtViz_primaryDir_yr_1_div'   : 'eb_viz_yr_1',
+                                    'awdtViz_primaryDir_yr_2_div'   : 'eb_viz_yr_2',
+                                    'awdtViz_secondaryDir_yr_1_div' : 'wb_viz_yr_1',
+                                    'awdtViz_secondaryDir_yr_2_div' : 'wb_viz_yr_2',                                     
+                                    'peakViz_hr_1_div'          : 'peak_viz_ebwb_hr_1',
+                                    'peakViz_hr_2_div'          : 'peak_viz_ebwb_hr_2',       
+                                    'peakViz_hr_3_div'          : 'peak_viz_ebwb_hr_3',   
+                                    'peakViz_sum_div'           : 'peak_viz_ebwb_sum',                                    
+                                    'lanes_primaryDir_div'      : 'eb_lanes',
+                                    'lanes_secondaryDir_div'    : 'wb_lanes',                                   
+                                                                       
                                     'csvWireframe_primaryDir'   : 'data/csv/i90_eb_wireframe_and_volumes.csv',
                                     'csvWireframe_secondaryDir' : 'data/csv/i90_wb_wireframe_and_volumes.csv',
                                     'csvLanes_primaryDir'       : 'data/csv/i90_eb_LANES.csv',
@@ -316,49 +347,7 @@ function generateViz(error, results) {
         alert('One or more requests to load CSV data for route ' + CONFIG[currentRoute].routeLabel + ' failed. Exiting application.');
         return;         
     } 
-    
-    // Determine the ID's of the <div>s into which the viz'es will be written, 
-    // based on whether the current route is oriented NB/SB or EB/WB.
-    var mainViz_primaryDir_div, mainViz_secondaryDir_div, 
-        awdtViz_primaryDir_yr_1_div, awdtViz_primaryDir_yr_2_div, awdtViz_secondaryDir_yr_1_div, awdtViz_secondaryDir_yr_2_div,
-        
-        peakViz_hr_1_div, peakViz_hr_2_div, peakViz_hr_3_div, peakViz_sum_div,
-        
-        lanes_primaryDir_div, lanes_secondaryDir_div;   
-        
-    if (currentRoute.orientation === 'nbsb') {
-        mainViz_primaryDir_div = 'nb_viz';
-        mainViz_secondaryDir_div = 'sb_viz';
-        awdtViz_primaryDir_yr_1_div = 'nb_viz_yr_1';
-        awdtViz_primaryDir_yr_2_div = 'nb_viz_yr_2';
-        awdtViz_secondaryDir_yr_1_div = 'sb_viz_yr_1';
-        awdtViz_secondaryDir_yr_2_div = 'sb_viz_yr_2';  
-        
-        peakViz_hr_1_div = 'peak_viz_nbsb_hr_1';
-        peakViz_hr_2_div = 'peak_viz_nbsb_hr_2';       
-        peakViz_hr_3_div = 'peak_viz_nbsb_hr_3';          
-        peakViz_sum_div = 'peak_viz_nbsb_sum'; 
-        
-        lanes_primaryDir_div = 'nb_lanes';
-        lanes_secondaryDir_div = 'sb_lanes';
-    } else {
-        // Rash assumption: orientation is 'ebwb'
-        mainViz_primaryDir_div = 'eb_viz';
-        mainViz_secondaryDir_div = 'wb_viz';
-        awdtViz_primaryDir_yr_1_div = 'eb_viz_yr_1';
-        awdtViz_primaryDir_yr_2_div = 'eb_viz_yr_2';
-        awdtViz_secondaryDir_yr_1_div = 'wb_viz_yr_1';
-        awdtViz_secondaryDir_yr_2_div = 'wb_viz_yr_2'; 
-        
-        peakViz_hr_1_div = 'peak_viz_ebwb_hr_1';
-        peakViz_hr_2_div = 'peak_viz_ebwb_hr_2';       
-        peakViz_hr_3_div = 'peak_viz_ebwb_hr_3';   
-        peakViz_sum_div = 'peak_viz_ebwb_sum'; 
-        
-        lanes_primaryDir_div = 'eb_lanes';
-        lanes_secondaryDir_div = 'wb_lanes';        
-    }
-    
+   
     // Extract subset of the GeoJSON data for the currently selected route 
     DATA.geojsonCurrentRoute = Object.assign({}, DATA.geojsonAll);
     DATA.geojsonCurrentRoute.features = _.filter(DATA.geojsonCurrentRoute.features, function(rec) {
@@ -563,8 +552,8 @@ function generateViz(error, results) {
     DATA.secondaryDir_lanes = _.filter(DATA.secondaryDir_lanes, function(d) { return d.yr_2010 === 1; });
     DATA.primaryDir_lanes.forEach(cleanupCsvLanesRec);
     DATA.primaryDir_lanes = _.filter(DATA.primaryDir_lanes, function(d) { return d.yr_2010 === 1; });    
-    generateSvgLanesChart(DATA.secondaryDir_lanes, lanes_secondaryDir_div);
-    generateSvgLanesChart(DATA.primaryDir_lanes, lanes_primaryDir_div);
+    generateSvgLanesChart(DATA.secondaryDir_lanes, currentRoute.lanes_secondaryDir_div);
+    generateSvgLanesChart(DATA.primaryDir_lanes, currentRoute.lanes_primaryDir_div);
     
     // Prep CSV data for town boundary lines
     // 
@@ -585,10 +574,10 @@ function generateViz(error, results) {
     // 
     // (1)  Initialize SVG wireframes, and populate with AWDT data for default year for 'main' viz
     //
-    VIZ.secondaryDir = generateSvgWireframe(DATA.secondaryDir_data, DATA.secondaryDir_towns, mainViz_secondaryDir_div, true, handlers);
-    symbolizeSvgWireframe(VIZ.secondaryDir, mainViz_secondaryDir_div, 'awdt', currentRoute.main_year_default, lineColorPalette.secondary);
-    VIZ.primaryDir = generateSvgWireframe(DATA.primaryDir_data, DATA.primaryDir_towns, mainViz_primaryDir_div, false, handlers);  
-    symbolizeSvgWireframe(VIZ.primaryDir, mainViz_primaryDir_div, 'awdt', currentRoute.main_year_default, lineColorPalette.primary);    
+    VIZ.secondaryDir = generateSvgWireframe(DATA.secondaryDir_data, DATA.secondaryDir_towns, currentRoute.mainViz_secondaryDir_div, true, handlers);
+    symbolizeSvgWireframe(VIZ.secondaryDir, currentRoute.mainViz_secondaryDir_div, 'awdt', currentRoute.main_year_default, lineColorPalette.secondary);
+    VIZ.primaryDir = generateSvgWireframe(DATA.primaryDir_data, DATA.primaryDir_towns, currentRoute.mainViz_primaryDir_div, false, handlers);  
+    symbolizeSvgWireframe(VIZ.primaryDir, currentRoute.mainViz_primaryDir_div, 'awdt', currentRoute.main_year_default, lineColorPalette.primary);    
     
     // (2) Initialize Google Map
     initMap(DATA);
@@ -626,8 +615,8 @@ function generateViz(error, results) {
             $("#select_metric option[value='peak_6_to_7_pm']").prop('disabled', false);              
         }
         metric = $("#select_metric option:selected").attr('value');
-        symbolizeSvgWireframe(VIZ.secondaryDir, mainViz_secondaryDir_div, metric, year, lineColorPalette.secondary);
-        symbolizeSvgWireframe(VIZ.primaryDir, mainViz_primaryDir_div, metric, year, lineColorPalette.primary);       
+        symbolizeSvgWireframe(VIZ.secondaryDir, currentRoute.mainViz_secondaryDir_div, metric, year, lineColorPalette.secondary);
+        symbolizeSvgWireframe(VIZ.primaryDir, currentRoute.mainViz_primaryDir_div, metric, year, lineColorPalette.primary);       
         setMainCaption("I-93/SR-3", year);
     });
     
@@ -640,8 +629,8 @@ function generateViz(error, results) {
             $("#select_metric").val('awdt');
             metric = $("#select_metric option:selected").attr('value');
         }       
-        symbolizeSvgWireframe(VIZ.secondaryDir, mainViz_secondaryDir_div, metric, year, lineColorPalette.secondary);
-        symbolizeSvgWireframe(VIZ.primaryDir, mainViz_primaryDir_div, metric, year, lineColorPalette.primary);   
+        symbolizeSvgWireframe(VIZ.secondaryDir, currentRoute.mainViz_secondaryDir_div, metric, year, lineColorPalette.secondary);
+        symbolizeSvgWireframe(VIZ.primaryDir, currentRoute.mainViz_primaryDir_div, metric, year, lineColorPalette.primary);   
         setMainCaption("I-93/SR-3", year);        
      });
     
@@ -685,7 +674,7 @@ function generateViz(error, results) {
     // (3d) On-scroll handler for scrollbars of the main view
     //
     // Synchronize the bounds of the Google Map with the elements in the relevant viewport
-    $('#' + mainViz_primaryDir_div + ',#' + mainViz_secondaryDir_div).on('scroll', scrollHandler);
+    $('#' + currentRoute.mainViz_primaryDir_div + ',#' + currentRoute.mainViz_secondaryDir_div).on('scroll', scrollHandler);
       
     // (3e) Show/hide 2010 lane configuration <div>s
     //
@@ -693,10 +682,10 @@ function generateViz(error, results) {
         var checked = $('#main_show_lane_config').prop('checked');  
         if (checked) {
            // $('#sb_lanes,#nb_lanes').show();          
-           $('#' + lanes_primaryDir_div + ',' + '#' + lanes_secondaryDir_div).show();          
+           $('#' + currentRoute.lanes_primaryDir_div + ',' + '#' + currentRoute.lanes_secondaryDir_div).show();          
         } else {
            // $('#sb_lanes,#nb_lanes').hide();
-           $('#' + lanes_primaryDir_div + ',' + '#' + lanes_secondaryDir_div).hide();          
+           $('#' + currentRoute.lanes_primaryDir_div + ',' + '#' + currentRoute.lanes_secondaryDir_div).hide();          
         }
     });
     
@@ -715,14 +704,14 @@ function generateViz(error, results) {
     //
     // (1)  Initialize SVG wireframes, and populate with AWDT data the to default 'comparison' years
     //
-    VIZ.secondaryDir_yr_1 = generateSvgWireframe(DATA.secondaryDir_data, DATA.secondaryDir_towns, awdtViz_secondaryDir_yr_1_div, true, null);
-    symbolizeSvgWireframe(VIZ.secondaryDir_yr_1, awdtViz_secondaryDir_yr_1_div, 'awdt', currentRoute.awdt_year_1_default, lineColorPalette.secondary);
-    VIZ.secondaryDir_yr_2 = generateSvgWireframe(DATA.secondaryDir_data, DATA.secondaryDir_towns, awdtViz_secondaryDir_yr_2_div, true, null);
-    symbolizeSvgWireframe(VIZ.secondaryDir_yr_2, awdtViz_secondaryDir_yr_2_div, 'awdt', currentRoute.awdt_year_2_default, lineColorPalette.secondary);   
-    VIZ.primaryDir_yr_1 = generateSvgWireframe(DATA.primaryDir_data, DATA.primaryDir_towns, awdtViz_primaryDir_yr_1_div, false, null);  
-    symbolizeSvgWireframe(VIZ.primaryDir_yr_1, awdtViz_primaryDir_yr_1_div, 'awdt', currentRoute.awdt_year_1_default, lineColorPalette.primary);    
-    VIZ.primaryDir_yr_2 = generateSvgWireframe(DATA.primaryDir_data, DATA.primaryDir_towns, awdtViz_primaryDir_yr_2_div, false, null);  
-    symbolizeSvgWireframe(VIZ.primaryDir_yr_2,  awdtViz_primaryDir_yr_2_div, 'awdt', currentRoute.awdt_year_2_default, lineColorPalette.primary);   
+    VIZ.secondaryDir_yr_1 = generateSvgWireframe(DATA.secondaryDir_data, DATA.secondaryDir_towns, currentRoute.awdtViz_secondaryDir_yr_1_div, true, null);
+    symbolizeSvgWireframe(VIZ.secondaryDir_yr_1, currentRoute.awdtViz_secondaryDir_yr_1_div, 'awdt', currentRoute.awdt_year_1_default, lineColorPalette.secondary);
+    VIZ.secondaryDir_yr_2 = generateSvgWireframe(DATA.secondaryDir_data, DATA.secondaryDir_towns, currentRoute.awdtViz_secondaryDir_yr_2_div, true, null);
+    symbolizeSvgWireframe(VIZ.secondaryDir_yr_2, currentRoute.awdtViz_secondaryDir_yr_2_div, 'awdt', currentRoute.awdt_year_2_default, lineColorPalette.secondary);   
+    VIZ.primaryDir_yr_1 = generateSvgWireframe(DATA.primaryDir_data, DATA.primaryDir_towns, currentRoute.awdtViz_primaryDir_yr_1_div, false, null);  
+    symbolizeSvgWireframe(VIZ.primaryDir_yr_1, currentRoute.awdtViz_primaryDir_yr_1_div, 'awdt', currentRoute.awdt_year_1_default, lineColorPalette.primary);    
+    VIZ.primaryDir_yr_2 = generateSvgWireframe(DATA.primaryDir_data, DATA.primaryDir_towns, currentRoute.awdtViz_primaryDir_yr_2_div, false, null);  
+    symbolizeSvgWireframe(VIZ.primaryDir_yr_2,  currentRoute.awdtViz_primaryDir_yr_2_div, 'awdt', currentRoute.awdt_year_2_default, lineColorPalette.primary);   
 
     // (2a) Arm event handlers for awdt_select_year_1 and awdt_select_year_2 combo boxes
     $('#awdt_select_year_1').change(function(e) {             
@@ -731,8 +720,8 @@ function generateViz(error, results) {
         $('#awdt_caption_' + currentRoute.secondaryDirAbbrev + '_yr_1').html(tmp);   
         tmp = currentRoute.primaryDir + '&nbsp;' + year_1 + '&nbsp;AWDT&nbsp;' + '&uarr;';
         $('#awdt_caption_' + currentRoute.primaryDirAbbrev + '_yr_1').html(tmp);      
-        symbolizeSvgWireframe(VIZ.secondaryDir_yr_1, awdtViz_secondaryDir_yr_1_div, 'awdt', year_1, lineColorPalette.secondary);  
-        symbolizeSvgWireframe(VIZ.primaryDir_yr_1,   awdtViz_primaryDir_yr_1_div,   'awdt', year_1, lineColorPalette.primary); 
+        symbolizeSvgWireframe(VIZ.secondaryDir_yr_1, currentRoute.awdtViz_secondaryDir_yr_1_div, 'awdt', year_1, lineColorPalette.secondary);  
+        symbolizeSvgWireframe(VIZ.primaryDir_yr_1,   currentRoute.awdtViz_primaryDir_yr_1_div,   'awdt', year_1, lineColorPalette.primary); 
     });
     $('#awdt_select_year_2').change(function(e) {       
         var year_2 = $("#awdt_select_year_2 option:selected").attr('value');      
@@ -740,8 +729,8 @@ function generateViz(error, results) {
         $('#awdt_caption_' + currentRoute.secondaryDirAbbrev + '_yr_2').html(tmp);        
         tmp = currentRoute.primaryDir + '&nbsp;' + year_2 + '&nbsp;AWDT&nbsp;' + '&uarr;';
         $('#awdt_caption_' + currentRoute.primaryDirAbbrev + '_yr_2').html(tmp);         
-        symbolizeSvgWireframe(VIZ.secondaryDir_yr_2, awdtViz_secondaryDir_yr_2_div, 'awdt', year_2, lineColorPalette.secondary);  
-        symbolizeSvgWireframe(VIZ.primaryDir_yr_2,   awdtViz_primaryDir_yr_2_div,   'awdt', year_2, lineColorPalette.primary);         
+        symbolizeSvgWireframe(VIZ.secondaryDir_yr_2, currentRoute.awdtViz_secondaryDir_yr_2_div, 'awdt', year_2, lineColorPalette.secondary);  
+        symbolizeSvgWireframe(VIZ.primaryDir_yr_2,   currentRoute.awdtViz_primaryDir_yr_2_div,   'awdt', year_2, lineColorPalette.primary);         
     }); 
 
     // (2b) Arm-change handlers for sync_*_scrollbars radio buttons
@@ -808,14 +797,14 @@ function generateViz(error, results) {
     //
     // (1) Initialize SVG wireframes with the data for the primary direction for the default year for this view
     //
-    VIZ.hourly_1 = generateSvgWireframe(DATA.primaryDir_data, DATA.primaryDir_towns, peakViz_hr_1_div, true, null);
-    symbolizeSvgWireframe(VIZ.hourly_1, peakViz_hr_1_div, 'peak_6_to_7_am', currentRoute.peak_view_year_default, lineColorPalette.primary);       
-    VIZ.hourly_2 = generateSvgWireframe(DATA.primaryDir_data, DATA.primaryDir_towns, peakViz_hr_2_div, true, null);
-    symbolizeSvgWireframe(VIZ.hourly_2, peakViz_hr_2_div, 'peak_7_to_8_am', currentRoute.peak_view_year_default, lineColorPalette.primary);       
-    VIZ.hourly_3 = generateSvgWireframe(DATA.primaryDir_data, DATA.primaryDir_towns, peakViz_hr_3_div, true, null);
-    symbolizeSvgWireframe(VIZ.hourly_3, peakViz_hr_3_div, 'peak_8_to_9_am', currentRoute.peak_view_year_default, lineColorPalette.primary);       
-    VIZ.hourly_sum = generateSvgWireframe(DATA.primaryDir_data, DATA.primaryDir_towns, peakViz_sum_div, true, null);
-    symbolizeSvgWireframe(VIZ.hourly_sum, peakViz_sum_div, 'cum_6_to_9_am', currentRoute.peak_view_year_default, lineColorPalette.primary);    
+    VIZ.hourly_1 = generateSvgWireframe(DATA.primaryDir_data, DATA.primaryDir_towns, currentRoute.peakViz_hr_1_div, true, null);
+    symbolizeSvgWireframe(VIZ.hourly_1, currentRoute.peakViz_hr_1_div, 'peak_6_to_7_am', currentRoute.peak_view_year_default, lineColorPalette.primary);       
+    VIZ.hourly_2 = generateSvgWireframe(DATA.primaryDir_data, DATA.primaryDir_towns, currentRoute.peakViz_hr_2_div, true, null);
+    symbolizeSvgWireframe(VIZ.hourly_2, currentRoute.peakViz_hr_2_div, 'peak_7_to_8_am', currentRoute.peak_view_year_default, lineColorPalette.primary);       
+    VIZ.hourly_3 = generateSvgWireframe(DATA.primaryDir_data, DATA.primaryDir_towns, currentRoute.peakViz_hr_3_div, true, null);
+    symbolizeSvgWireframe(VIZ.hourly_3, currentRoute.peakViz_hr_3_div, 'peak_8_to_9_am', currentRoute.peak_view_year_default, lineColorPalette.primary);       
+    VIZ.hourly_sum = generateSvgWireframe(DATA.primaryDir_data, DATA.primaryDir_towns, currentRoute.peakViz_sum_div, true, null);
+    symbolizeSvgWireframe(VIZ.hourly_sum, currentRoute.peakViz_sum_div, 'cum_6_to_9_am', currentRoute.peak_view_year_default, lineColorPalette.primary);    
     
     // Helper function for select_peak_period and select_direction combo boxes on-change event handlers
     function symbolizeHourlyComparison(period, direction) {
@@ -826,20 +815,20 @@ function generateViz(error, results) {
             $('#peak_' + orientation + '_caption_2').html('7 to 8 AM');
             $('#peak_' + orientation + '_caption_3').html('8 to 9 AM');
             $('#peak_' + orientation + '_caption_4').html('6 to 9 AM<br>(cumulative)');
-            symbolizeSvgWireframe(VIZ.hourly_1,   peakViz_hr_1_div, 'peak_6_to_7_am', currentRoute.peak_view_year_default, color);     
-            symbolizeSvgWireframe(VIZ.hourly_2,   peakViz_hr_2_div, 'peak_7_to_8_am', currentRoute.peak_view_year_default, color); 
-            symbolizeSvgWireframe(VIZ.hourly_3,   peakViz_hr_3_div, 'peak_8_to_9_am', currentRoute.peak_view_year_default, color); 
-            symbolizeSvgWireframe(VIZ.hourly_sum, peakViz_sum_div,  'cum_6_to_9_am',  currentRoute.peak_view_year_default, color);  
+            symbolizeSvgWireframe(VIZ.hourly_1,   currentRoute.peakViz_hr_1_div, 'peak_6_to_7_am', currentRoute.peak_view_year_default, color);     
+            symbolizeSvgWireframe(VIZ.hourly_2,   currentRoute.peakViz_hr_2_div, 'peak_7_to_8_am', currentRoute.peak_view_year_default, color); 
+            symbolizeSvgWireframe(VIZ.hourly_3,   currentRoute.peakViz_hr_3_div, 'peak_8_to_9_am', currentRoute.peak_view_year_default, color); 
+            symbolizeSvgWireframe(VIZ.hourly_sum, currentRoute.peakViz_sum_div,  'cum_6_to_9_am',  currentRoute.peak_view_year_default, color);  
         } else {
             // Assume period === "PM"
             $('#peak_' + orientation + '_caption_1').html('3 to 4 PM');
             $('#peak_' + orientation + '_caption_2').html('4 to 5 PM');
             $('#peak_' + orientation + '_caption_3').html('5 to 6 PM');
             $('#peak_' + orientation + '_caption_4').html('3 to 6 PM<br>(cumulative)');
-            symbolizeSvgWireframe(VIZ.hourly_1,   peakViz_hr_1_div, 'peak_3_to_4_pm', currentRoute.peak_view_year_default, color);     
-            symbolizeSvgWireframe(VIZ.hourly_2,   peakViz_hr_2_div, 'peak_4_to_5_pm', currentRoute.peak_view_year_default, color); 
-            symbolizeSvgWireframe(VIZ.hourly_3,   peakViz_hr_3_div, 'peak_5_to_6_pm', currentRoute.peak_view_year_default, color); 
-            symbolizeSvgWireframe(VIZ.hourly_sum, peakViz_sum_div,  'cum_3_to_6_pm',  currentRoute.peak_view_year_default, color);            
+            symbolizeSvgWireframe(VIZ.hourly_1,   currentRoute.peakViz_hr_1_div, 'peak_3_to_4_pm', currentRoute.peak_view_year_default, color);     
+            symbolizeSvgWireframe(VIZ.hourly_2,   currentRoute.peakViz_hr_2_div, 'peak_4_to_5_pm', currentRoute.peak_view_year_default, color); 
+            symbolizeSvgWireframe(VIZ.hourly_3,   currentRoute.peakViz_hr_3_div, 'peak_5_to_6_pm', currentRoute.peak_view_year_default, color); 
+            symbolizeSvgWireframe(VIZ.hourly_sum, currentRoute.peakViz_sum_div,  'cum_3_to_6_pm',  currentRoute.peak_view_year_default, color);            
         }
     } // symbolizeHourlyComparison()
 
@@ -866,14 +855,14 @@ function generateViz(error, results) {
         }
         
         // Need to cear existing SVG wireframes, and generate new ones for the newly selected direction    
-        $('#' + peakViz_hr_1_div).html('');
-        $('#' + peakViz_hr_2_div).html('');
-        $('#' + peakViz_hr_3_div).html('');
-        $('#' + peakViz_sum_div).html('');
-        VIZ.hourly_1 = generateSvgWireframe(volumeData,   townBoundaryData, peakViz_hr_1_div, true, null);        
-        VIZ.hourly_2 = generateSvgWireframe(volumeData,   townBoundaryData, peakViz_hr_2_div, true, null);      
-        VIZ.hourly_3 = generateSvgWireframe(volumeData,   townBoundaryData, peakViz_hr_3_div, true, null);       
-        VIZ.hourly_sum = generateSvgWireframe(volumeData, townBoundaryData, peakViz_sum_div,  true, null);
+        $('#' + currentRoute.peakViz_hr_1_div).html('');
+        $('#' + currentRoute.peakViz_hr_2_div).html('');
+        $('#' + currentRoute.peakViz_hr_3_div).html('');
+        $('#' + currentRoute.peakViz_sum_div).html('');
+        VIZ.hourly_1 = generateSvgWireframe(volumeData,   townBoundaryData, currentRoute.peakViz_hr_1_div, true, null);        
+        VIZ.hourly_2 = generateSvgWireframe(volumeData,   townBoundaryData, currentRoute.peakViz_hr_2_div, true, null);      
+        VIZ.hourly_3 = generateSvgWireframe(volumeData,   townBoundaryData, currentRoute.peakViz_hr_3_div, true, null);       
+        VIZ.hourly_sum = generateSvgWireframe(volumeData, townBoundaryData, currentRoute.peakViz_sum_div,  true, null);
         symbolizeHourlyComparison(period, direction);
     });        
 } // generateViz()
