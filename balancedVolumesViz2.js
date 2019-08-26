@@ -561,8 +561,9 @@ function generateViz(error, results) {
     DATA.secondaryDir_towns.forEach(cleanupCsvTownBoundaryRec);
     DATA.primaryDir_towns.forEach(cleanupCsvTownBoundaryRec);
     
+  
     ///////////////////////////////////////////////////////////////////////////////////////////////
-    // Initialize machinery for the 'main' view: 
+    // Initialize machinery for the 'main' view visualization: 
     //      1. SVG (route) wireframe and town boundary lines
     //          a. route wireframe
     //          b. town boundary lines
@@ -689,6 +690,8 @@ function generateViz(error, results) {
         }
     });
     
+
+    
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // Initialize machinery for the 'awdt comparison' view:
     //      1. SVG wireframes
@@ -702,6 +705,105 @@ function generateViz(error, results) {
     //      Primary direction, year 1 default
     //      Primary direction, year 2 default
     //
+    // (1)  Initialize SVG wireframes, and populate with AWDT data the to default 'comparison' years
+    //
+
+    VIZ.secondaryDir_yr_1 = generateSvgWireframe(DATA.secondaryDir_data, DATA.secondaryDir_towns, currentRoute.awdtViz_secondaryDir_yr_1_div, true, null);
+    symbolizeSvgWireframe(VIZ.secondaryDir_yr_1, currentRoute.awdtViz_secondaryDir_yr_1_div, 'awdt', currentRoute.awdt_year_1_default, lineColorPalette.secondary);
+    VIZ.secondaryDir_yr_2 = generateSvgWireframe(DATA.secondaryDir_data, DATA.secondaryDir_towns, currentRoute.awdtViz_secondaryDir_yr_2_div, true, null);
+    symbolizeSvgWireframe(VIZ.secondaryDir_yr_2, currentRoute.awdtViz_secondaryDir_yr_2_div, 'awdt', currentRoute.awdt_year_2_default, lineColorPalette.secondary);   
+    VIZ.primaryDir_yr_1 = generateSvgWireframe(DATA.primaryDir_data, DATA.primaryDir_towns, currentRoute.awdtViz_primaryDir_yr_1_div, false, null);  
+    symbolizeSvgWireframe(VIZ.primaryDir_yr_1, currentRoute.awdtViz_primaryDir_yr_1_div, 'awdt', currentRoute.awdt_year_1_default, lineColorPalette.primary);    
+    VIZ.primaryDir_yr_2 = generateSvgWireframe(DATA.primaryDir_data, DATA.primaryDir_towns, currentRoute.awdtViz_primaryDir_yr_2_div, false, null);  
+    symbolizeSvgWireframe(VIZ.primaryDir_yr_2,  currentRoute.awdtViz_primaryDir_yr_2_div, 'awdt', currentRoute.awdt_year_2_default, lineColorPalette.primary);   
+
+    // (2a) Arm event handlers for awdt_select_year_1 and awdt_select_year_2 combo boxes
+    $('#awdt_select_year_1').change(function(e) {             
+        var year_1 = $("#awdt_select_year_1 option:selected").attr('value');   
+        var tmp = currentRoute.secondaryDir + '&nbsp;' + year_1 + '&nbsp;AWDT&nbsp;' + '&darr;';
+        $('#awdt_caption_' + currentRoute.secondaryDirAbbrev + '_yr_1').html(tmp);   
+        tmp = currentRoute.primaryDir + '&nbsp;' + year_1 + '&nbsp;AWDT&nbsp;' + '&uarr;';
+        $('#awdt_caption_' + currentRoute.primaryDirAbbrev + '_yr_1').html(tmp);      
+        symbolizeSvgWireframe(VIZ.secondaryDir_yr_1, currentRoute.awdtViz_secondaryDir_yr_1_div, 'awdt', year_1, lineColorPalette.secondary);  
+        symbolizeSvgWireframe(VIZ.primaryDir_yr_1,   currentRoute.awdtViz_primaryDir_yr_1_div,   'awdt', year_1, lineColorPalette.primary); 
+    });
+    $('#awdt_select_year_2').change(function(e) {       
+        var year_2 = $("#awdt_select_year_2 option:selected").attr('value');      
+        var tmp = currentRoute.secondaryDir + '&nbsp;' + year_2 + '&nbsp;AWDT&nbsp;' + '&darr;';
+        $('#awdt_caption_' + currentRoute.secondaryDirAbbrev + '_yr_2').html(tmp);        
+        tmp = currentRoute.primaryDir + '&nbsp;' + year_2 + '&nbsp;AWDT&nbsp;' + '&uarr;';
+        $('#awdt_caption_' + currentRoute.primaryDirAbbrev + '_yr_2').html(tmp);         
+        symbolizeSvgWireframe(VIZ.secondaryDir_yr_2, currentRoute.awdtViz_secondaryDir_yr_2_div, 'awdt', year_2, lineColorPalette.secondary);  
+        symbolizeSvgWireframe(VIZ.primaryDir_yr_2,   currentRoute.awdtViz_primaryDir_yr_2_div,   'awdt', year_2, lineColorPalette.primary);         
+    }); 
+
+    // (2b) Arm-change handlers for sync_*_scrollbars radio buttons
+    // Documentation on the (very simple) syncscroll.js library may be found at:
+    //      https://github.com/asvd/syncscroll
+    $('.scroll_radio').on("click", function(e) {
+        var checked = $('.scroll_radio:checked').val();
+        var newName = (checked !== 'awdt_unsync_scrollbars') ? checked : '';
+        var elt;
+        switch(checked) {
+        case "awdt_sync_all_scrollbars":
+        case "awdt_unsync_scrollbars":       
+            elt = $('#' + currentRoute.primaryDirAbbrev + '_viz_yr_1').get()[0];
+            elt.setAttribute('name', newName);   
+            elt = $('#' +  currentRoute.primaryDirAbbrev + '_viz_yr_2').get()[0];
+            elt.setAttribute('name', newName);         
+            elt =  $('#' + currentRoute.secondaryDirAbbrev +  '_viz_yr_1').get()[0];
+            elt.setAttribute('name', newName);
+            elt =  $('#' + currentRoute.secondaryDirAbbrev + '_viz_yr_2').get()[0];
+            elt.setAttribute('name', newName);            
+            break;             
+        case "awdt_sync_secondary_dir_scrollbars":
+            elt = $('#' + currentRoute.primaryDirAbbrev + '_viz_yr_1').get()[0];
+            elt.setAttribute('name', 'name_1');   
+            elt = $('#' +  currentRoute.primaryDirAbbrev + '_viz_yr_2').get()[0];
+            elt.setAttribute('name', 'name_2');  
+            elt =  $('#' + currentRoute.secondaryDirAbbrev +  '_viz_yr_1').get()[0];
+            elt.setAttribute('name', newName);
+            elt =  $('#' + currentRoute.secondaryDirAbbrev + '_viz_yr_2').get()[0];
+            elt.setAttribute('name', newName);             
+            break;           
+        case "awdt_sync_primary_dir_scrollbars":
+            elt = $('#' + currentRoute.primaryDirAbbrev + '_viz_yr_1').get()[0];
+            elt.setAttribute('name', newName);   
+            elt = $('#' +  currentRoute.primaryDirAbbrev + '_viz_yr_2').get()[0];
+            elt.setAttribute('name', newName);    
+            elt =  $('#' + currentRoute.secondaryDirAbbrev +  '_viz_yr_1').get()[0];
+            elt.setAttribute('name', 'name_3');
+            elt =  $('#' + currentRoute.secondaryDirAbbrev + '_viz_yr_2').get()[0];
+            elt.setAttribute('name', 'name_4');            
+            break;
+        default:
+            // Should never get here
+            console.log("Event handler for scroll buttons in AWDT comparison view: Unrecognized 'checked' value: " + checked);
+            break;
+        }      
+        syncscroll.reset();  
+    }); 
+    
+    // Call helper function to generate the peak hours viz
+    generatePeakHoursViz();
+} // generateViz()
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+// generateAwdtViz - helper function to generateViz - CURRENTLY NOT CALLED
+//
+// Initialize machinery for the 'awdt comparison' view:
+//      1. SVG wireframes
+//      2. Event handlers for UI controls
+//          a. awdt_select_year_1 and awdt_select_year_2 combo boxes
+//          b. sync_*_scrollbars radio buttons
+//
+// (1) Initialize SVG wireframes:
+//      Secondary direction, year 1 default
+//      Secondary direction, year 2 default
+//      Primary direction, year 1 default
+//      Primary direction, year 2 default
+//
+function generateAwdtViz() {
     // (1)  Initialize SVG wireframes, and populate with AWDT data the to default 'comparison' years
     //
     VIZ.secondaryDir_yr_1 = generateSvgWireframe(DATA.secondaryDir_data, DATA.secondaryDir_towns, currentRoute.awdtViz_secondaryDir_yr_1_div, true, null);
@@ -751,8 +853,7 @@ function generateViz(error, results) {
             elt.setAttribute('name', newName);
             elt =  $('#' + currentRoute.secondaryDirAbbrev + '_viz_yr_2').get()[0];
             elt.setAttribute('name', newName);            
-            break; 
-            
+            break;             
         case "awdt_sync_secondary_dir_scrollbars":
             elt = $('#' + currentRoute.primaryDirAbbrev + '_viz_yr_1').get()[0];
             elt.setAttribute('name', 'name_1');   
@@ -762,8 +863,7 @@ function generateViz(error, results) {
             elt.setAttribute('name', newName);
             elt =  $('#' + currentRoute.secondaryDirAbbrev + '_viz_yr_2').get()[0];
             elt.setAttribute('name', newName);             
-            break;
-            
+            break;           
         case "awdt_sync_primary_dir_scrollbars":
             elt = $('#' + currentRoute.primaryDirAbbrev + '_viz_yr_1').get()[0];
             elt.setAttribute('name', newName);   
@@ -780,21 +880,23 @@ function generateViz(error, results) {
             break;
         }      
         syncscroll.reset();  
-    }); 
-    
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // Initialize machinery for the 'peak period comparison' view:
-    //      1. SVG wireframes
-    //      2. Event handlers for UI controls
-    //          a. peak_select_period and peak_select_direction combo boxes
-    //          b. sync_*_scrollbars radio buttons
-    //
-    // (1) Initialize SVG wireframes
-    //      hour 1 - default is 6-7 AM
-    //      hour 2 - default is 7-8 AM
-    //      hour 3 - default is 8-9 AM
-    //      sum    - default is 6-9 AM 
-    //
+    });      
+} // generateAwdtViz()
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+// generatePeakHoursViz - helper function to generateViz
+//
+// Initialize machinery for the 'peak period comparison' view:
+//      1. SVG wireframes
+//      2. Event handlers for UI controls: peak_select_period and peak_select_direction combo boxes
+//
+// (1) Initialize SVG wireframes
+//      hour 1 - default is 6-7 AM
+//      hour 2 - default is 7-8 AM
+//      hour 3 - default is 8-9 AM
+//      sum    - default is 6-9 AM 
+//
+function generatePeakHoursViz() {
     // (1) Initialize SVG wireframes with the data for the primary direction for the default year for this view
     //
     VIZ.hourly_1 = generateSvgWireframe(DATA.primaryDir_data, DATA.primaryDir_towns, currentRoute.peakViz_hr_1_div, true, null);
@@ -832,7 +934,7 @@ function generateViz(error, results) {
         }
     } // symbolizeHourlyComparison()
 
-     // (2a) Arm event handlers for select_peak_period and select_direction combo boxes
+     // (2) Arm event handlers for select_peak_period and select_direction combo boxes
     $('#peak_select_period').change(function(e) {
         var period = $("#peak_select_period option:selected").attr('value');   
         var direction = $("#peak_select_direction option:selected").attr('value');
@@ -864,8 +966,9 @@ function generateViz(error, results) {
         VIZ.hourly_3 = generateSvgWireframe(volumeData,   townBoundaryData, currentRoute.peakViz_hr_3_div, true, null);       
         VIZ.hourly_sum = generateSvgWireframe(volumeData, townBoundaryData, currentRoute.peakViz_sum_div,  true, null);
         symbolizeHourlyComparison(period, direction);
-    });        
-} // generateViz()
+    });
+} // generatePeakHoursViz()
+
 
 // function: generateSvgWireframe
 // parameters:
