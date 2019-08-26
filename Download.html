@@ -10,8 +10,6 @@
     border: 3px ridge #b22400; 
     padding: 25px;
     margins: 1px;
-    width: 750px;
-    height: 200px;
 }
 body {
 	font-family: Arial, Helvetica, sans-serif;
@@ -47,6 +45,27 @@ a.button:hover {
     background-color: #fff;
     color: #1d52c2;
 }
+		table {
+			border-top: 3px double black;       /* TEMP */
+			border-bottom: 3px double black;
+            width: 100%;
+		}
+        thead {
+            border-bottom: 3px double black;
+        }
+		tr {
+			font-size: 0.9em;
+		}
+       .tr_header {
+            font-size: 1.1em;
+        }
+		td {
+			padding-left: 15px;
+		}
+        th {
+			padding-left: 15px;
+            text-align: left;
+		}
 </style>
 
 <script TYPE="text/javascript">
@@ -63,24 +82,167 @@ return false;
 
 <body>
 <div id="bigbox">
+
     <div id="closeLink">
         <a href="index.html" class="button"
         onclick="return targetopener(this,true,true)">Close this window</a>   
     </div>			<!--   END OF CLOSELINK  -->
 
-<h3>Download Data</h3>
-<p>
-Download balanced volume data for I-93/SR-3 in Excel (.xls) format:
-    <ul>
-        <li>
-            <a href="https://www.ctps.org/pub/Balanced_Volumes/i93_sr3_nb_balanced_volumes.xls">I-93/SR-3 northbound</a>
-        </li>
-        <li>
-            <a href="https://www.ctps.org/pub/Balanced_Volumes/i93_sr3_sb_balanced_volumes.xls">I-93/SR-3 southbound</a>
-        </li>
-    </ul>
-</p>
-
+    <h3>Download Data</h3>
+    <p>
+    Download balanced volume data for I-93/SR-3 in Excel (.xls) format:
+        <ul>
+            <li>
+                <a href="https://www.ctps.org/pub/Balanced_Volumes/i93_sr3_nb_balanced_volumes.xls">I-93/SR-3 northbound</a>
+            </li>
+            <li>
+                <a href="https://www.ctps.org/pub/Balanced_Volumes/i93_sr3_sb_balanced_volumes.xls">I-93/SR-3 southbound</a>
+            </li>
+        </ul>
+    </p>
+    
+    <h3>Description of Database Fields</h3>   
+    <p>      
+        <table>
+            <thead>
+                <tr class="tr_header">
+                    <th>Field Name</th> 
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>data_id</td> 
+                <td>Symbolic identifier of road segment or ramp</td>
+            </tr> 
+            <tr>
+                <td>description</td> 
+                <td>Description of road segment or ramp</td>
+            </tr> 
+            <tr>
+                <td>nlanes</td>
+                <td>Number of lanes in road segment or ramp</td>
+            </tr>            
+             <tr>
+                <td>yr_1999</td>
+                <td>1 = segment was present in 1999; 0 = segment was not present in 1999</td>
+            </tr>            
+             <tr>
+                <td>yr_2010</td>
+                <td>1 = segment was present in 2010; 0 = segment was not present in 2010</td>
+            </tr>           
+            <!-- 2018 -->
+           <tr>
+                <td>awdt_2018</td>
+                <td>Balanced average weekday daily traffic volume in 2010</td>
+            </tr>            
+            <tr>
+                <td>peak_2018_6_to_7_am</td>
+                <td>Balanced volume between 6:00 a.m. to 7:00 a.m. in 2018</td>
+            </tr>   
+            <tr>
+                <td>peak_2018_7_to_8_am</td>
+                <td>Balanced volume between 7:00 a.m. to 8:00 a.m. in 2018 </td>
+            </tr>
+            <tr>
+                <td>peak_2018_8_to_9_am</td>
+                <td>Balanced volume between 8:00 a.m. to 9:00 a.m. in 2018 </td>
+            </tr>
+            <tr>
+                <td>peak_2018_9_to_10_am</td>
+                <td>Balanced volume between 9:00 a.m. to 10:00 a.m. in 2018 </td>
+            </tr>
+            <tr>
+                <td>peak_2018_3_to_4_pm</td>
+                <td>Balanced volume between 3:00 p.m. to 4:00 p.m. in 2018 </td>
+            </tr>           
+            <tr>
+                <td>peak_2018_4_to_5_pm</td>
+                <td>Balanced volume between 4:00 p.m. to 5:00 p.m. in 2018 </td>
+            </tr>            
+            <tr>
+                <td>peak_2018_5_to_6_pm</td>
+                <td>Balanced volume between 5:00 p.m. to 6:00 p.m. in 2018 </td>
+            </tr>           
+            <tr>
+                <td>peak_2018_6_to_7_pm</td>
+                <td>Balanced volume between 6:00 p.m. to 7:00 p.m. in 2018 </td>
+            </tr>  
+            <tr>
+                <td>cum_2018_6_to_9_am</td>
+                <td>Balanced volume in morning peak period (6:00 a.m. to 9:00 a.m.) in 2018 </td>
+            </tr>
+            <tr>
+                <td>cum_2018_3_to_6_pm</td>
+                <td>Balanced volume in afternoon peak period (3:00 p.m. to 6:00 p.m.) in 2018 </td>
+            </tr>                       
+            <!-- 2010 -->
+            <tr>
+                <td>awdt_2010</td>
+                <td>Balanced average weekday daily traffic volume in 2010</td>
+            </tr>            
+            <tr>
+                <td>peak_2018_6_to_7_am</td>
+                <td>Balanced volume between 6:00 a.m. to 7:00 a.m. in 2010</td>
+            </tr>   
+            <tr>
+                <td>peak_2018_7_to_8_am</td>
+                <td>Balanced volume between 7:00 a.m. to 8:00 a.m. in 2010 </td>
+            </tr>
+            <tr>
+                <td>peak_2018_8_to_9_am</td>
+                <td>Balanced volume between 8:00 a.m. to 9:00 a.m. in 2010 </td>
+            </tr>
+            <tr>
+                <td>peak_2018_9_to_10_am</td>
+                <td>Balanced volume between 9:00 a.m. to 10:00 a.m. in 2010 </td>
+            </tr>
+            <tr>
+                <td>peak_2018_3_to_4_pm</td>
+                <td>Balanced volume between 3:00 p.m. to 4:00 p.m. in 2010 </td>
+            </tr>           
+            <tr>
+                <td>peak_2018_4_to_5_pm</td>
+                <td>Balanced volume between 4:00 p.m. to 5:00 p.m. in 2010 </td>
+            </tr>            
+            <tr>
+                <td>peak_2018_5_to_6_pm</td>
+                <td>Balanced volume between 5:00 p.m. to 6:00 p.m. in 2010 </td>
+            </tr>           
+            <tr>
+                <td>peak_2018_6_to_7_pm</td>
+                <td>Balanced volume between 6:00 p.m. to 7:00 p.m. in 2010 </td>
+            </tr>  
+            <tr>
+                <td>cum_2018_6_to_9_am</td>
+                <td>Balanced volume in morning peak period (6:00 a.m. to 9:00 a.m.) in 2010 </td>
+            </tr>
+            <tr>
+                <td>cum_2018_3_to_6_pm</td>
+                <td>Balanced volume in afternoon peak period (3:00 p.m. to 6:00 p.m.) in 2010 </td>
+            </tr>             
+            <!-- 1999 -->
+           <tr>
+                <td>awdt_1999</td>
+                <td>Balanced average weekday daily traffic volume in 1999 </td>
+            </tr>
+            </tbody>
+         </table>
+    </p>
+    
+    <p>
+    Download spatial data for I-93/SR-3 in GeoJSON format:
+       <ul>
+            <li>
+                <a href="https://www.ctps.org/pub/Balanced_Volumes/i93_and_sr3_complete.geojson">I-93/SR-3 northbound and southbound</a>
+            </li>
+        </ul>
+    </p>    
+            
+    <div id="closeLink2">
+        <a href="index.html" class="button"
+        onclick="return targetopener(this,true,true)">Close this window</a>   
+    </div>			<!--   END OF CLOSELINK2  -->
 
 </div>          <!--   END OF BIGBOX    -->
 
