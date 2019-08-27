@@ -17,8 +17,8 @@ var VIZ = {};
 var map; 
 // Primary-direction (northbound or eastbound) and secondary-direction (southbound or westbound) 
 // polyline features on GoogleMap
-aPolylines_PrimDir = [], aPolylines_SecDir = [];
-lineColorPalette = { 'primary' : '#f5831a', 'secondary' : '#0066b4' };
+var aPolylines_PrimDir = [], aPolylines_SecDir = [];
+var lineColorPalette = { 'primary' : '#f5831a', 'secondary' : '#0066b4' };
 
 // Scales for width of SVG <line>s
 // Upper bound of scale domains is just a placeholder;
