@@ -707,7 +707,7 @@ function generateViz(error, results) {
     //
     // (1)  Initialize SVG wireframes, and populate with AWDT data the to default 'comparison' years
     //
-
+/*
     VIZ.secondaryDir_yr_1 = generateSvgWireframe(DATA.secondaryDir_data, DATA.secondaryDir_towns, currentRoute.awdtViz_secondaryDir_yr_1_div, true, null);
     symbolizeSvgWireframe(VIZ.secondaryDir_yr_1, currentRoute.awdtViz_secondaryDir_yr_1_div, 'awdt', currentRoute.awdt_year_1_default, lineColorPalette.secondary);
     VIZ.secondaryDir_yr_2 = generateSvgWireframe(DATA.secondaryDir_data, DATA.secondaryDir_towns, currentRoute.awdtViz_secondaryDir_yr_2_div, true, null);
@@ -783,7 +783,9 @@ function generateViz(error, results) {
         }      
         syncscroll.reset();  
     }); 
-    
+*/   
+    // Call helper function to genertae the AWDT viz
+    generateAwdtViz();
     // Call helper function to generate the peak hours viz
     generatePeakHoursViz();
 } // generateViz()
@@ -1121,10 +1123,10 @@ function generateSvgWireframe(wireframeData, townBoundaryData, div_id, yDir_is_r
     // (2) SVG <text> elements for the balanced volume data itself
     // Do not show volume data for pseudo-ramps for HOV lanes - these are just graphical decorations
    var filtered_wireframeData1 = _.filter(wireframeData, function(rec) { return (rec.type != 'ramphov'); });
-    var svgVolumeText_g = svgContainer
+   var svgVolumeText_g = svgContainer
             .append("g")
             .attr("transform", "translate(75,0)");  
-    var svgVolumeText = svgVolumeText_g
+   var svgVolumeText = svgVolumeText_g
         .selectAll("text.vol_txt")
         .data(filtered_wireframeData1)
         .enter()
@@ -1484,9 +1486,9 @@ function symbolizeSvgWireframe(vizWireframe, divId, metric, year, color) {
     // Hide linework, metric values, and descriptive text for segments not present during the selected year.
     $('#' + divId + ' .yr_1999_only').show();
     $('#' + divId + ' .yr_2010_only').show();
-    if (year === '2010' || year === '2018') {
+    if (year == '2010' || year == '2018') {
         $('#' + divId + ' .yr_1999_only').hide();
-    } else if (year === '1999') {
+    } else if (year == '1999') {
         $('#' + divId + ' .yr_2010_only').hide();
     }
     
