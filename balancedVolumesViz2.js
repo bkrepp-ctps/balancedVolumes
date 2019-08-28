@@ -72,8 +72,8 @@ var CONFIG = {  'i93_sr3'   :   {   'defaultRoute'              : true,
                                                                        
                                     'csvWireframe_primaryDir'   : 'data/csv/i90_eb_wireframe_and_volumes.csv',
                                     'csvWireframe_secondaryDir' : 'data/csv/i90_wb_wireframe_and_volumes.csv',
-                                    'csvLanes_primaryDir'       : 'data/csv/i90_eb_LANES.csv',
-                                    'csvLanes_secondaryDir'     : 'data/csv/i90_wb_LANES.csv',
+                                    'csvLanes_primaryDir'       : 'data/csv/i90_eb_LANES_2010.csv',
+                                    'csvLanes_secondaryDir'     : 'data/csv/i90_wb_LANES_2010.csv',
                                     'csvTownBoundaries_primaryDir'      : 'data/csv/i90_eb_TOWNS.csv',
                                     'csvTownBoundaries_secondaryDir'    : 'data/csv/i90_wb_TOWNS.csv' 
                                     
@@ -98,12 +98,22 @@ var NO_DATA = -9999;
 var DATA = {};
 // Global access to SVG elements for D3 visualization for currently selected route
 var VIZ = {};
-// Google Maps map object
+
+// Various pieces of data associated with Google Map:
+//      1. Google Maps 'map' object
+//      2. Primary- and secondary-direction polyline Data layer features on Google Map
+//      3. Color palette for rendering lines on Google Map
+//      4. Interval timer - used by scale-bar units hack
+//
+// (1) Google Maps 'map' object
 var map; 
-// Primary-direction (northbound or eastbound) and secondary-direction (southbound or westbound) 
-// polyline features on GoogleMap
-aPolylines_PrimDir = [], aPolylines_SecDir = [];
-lineColorPalette = { 'primary' : '#f5831a', 'secondary' : '#0066b4' };
+// (2) Primary-direction (northbound or eastbound) and secondary-direction (southbound or westbound) 
+//     polyline features on Google Map
+var aPolylines_PrimDir = [], aPolylines_SecDir = [];
+// (3) 
+var lineColorPalette = { 'primary' : '#f5831a', 'secondary' : '#0066b4' };
+// (4) Interval timer - used by scale-bar units hack
+var intervalTimer;
 
 // Scales for width of SVG <line>s
 // Upper bound of scale domains is just a placeholder;
@@ -312,10 +322,10 @@ function initializeForRoute(route) {
  
     // *** TEMP ***
     if (currentRoute.route !== 'i93_sr3' ) {
-        var s = 'Not yet rendering visualization for ' + currentRoute.route;
+        var s = 'Testing generation of visualization for ' + currentRoute.route;
         console.log(s);
-        alert(s);
-        return;
+        // alert(s);
+        // return;
     }  
     
     var q = d3.queue()
@@ -919,7 +929,14 @@ function generateSvgWireframe(wireframeData, townBoundaryData, div_id, yDir_is_r
         .append("svg")
             .attr("width", width)
             .attr("height", height);
-                      
+    
+    // (4) SVG <line> elements for schematic town boundaries  
+    // (5)  SVG <text> elements for the names of the towns on each side of each town boundary <line>
+    // (5a) Name of town "before" town boundary  
+    // (5b) Name of town "after" town boundary    
+    generateSvgTownBoundaries(svgContainer, townBoundaryData, width, height)
+
+/*                      
     // (4) SVG <line> elements for schematic town boundaries
     //
     var svgTownBoundaries_g = svgContainer.append("g");
@@ -985,13 +1002,17 @@ function generateSvgWireframe(wireframeData, townBoundaryData, div_id, yDir_is_r
                             return retval;
                 })
             .attr("text-anchor", "end")
-            .text(function(d,i) { return d.town_after; });           
+            .text(function(d,i) { return d.town_after; });  
+*/
+            
     
     // The x-offset of the main barrel of the 'wireframe' is 150 in the CSV wireframe layout data;
     // Given an SVG drawing area width of 450, translate x +75px to center the main barrel
     var svgRouteSegs_g = svgContainer
         .append("g")
             .attr("transform", "translate(75,0)");  
+
+
     
     // (1) 'wireframe' for the schematic route outline, consisting of SVG <line> elements
     //
@@ -1335,6 +1356,78 @@ function generateSvgWireframe(wireframeData, townBoundaryData, div_id, yDir_is_r
     return retval;
 } // generateSvgWireframe()
 
+
+// function: generateSvgTownBoundaries
+function generateSvgTownBoundaries(svgContainer, townBoundaryData, width, height) {
+    // (4) SVG <line> elements for schematic town boundaries
+    //
+    var svgTownBoundaries_g = svgContainer.append("g");
+    var svgTownBoundaries = svgTownBoundaries_g;
+    svgTownBoundaries
+        .selectAll("line.town_boundary")
+        .data(townBoundaryData)
+        .enter()
+        .append("line")
+            .attr("id", function(d, i) { return d.unique_id; })
+            .attr("class", "town_boundary")
+            .attr("x1", 10)
+            .attr("x2", width - 10)
+            .attr("y1", function(d,i) {
+                            var retval;
+                            retval = d.coord + 10;
+                            return retval;
+                 })                    
+            .attr("y2", function(d,i) {
+                            var retval;
+                            retval = d.coord + 10;
+                            return retval;
+                 })
+            .style("stroke", "firebrick")
+            .style("stroke-width", "2px")
+            .style("stroke-dasharray", "10, 5");
+    
+    // (5)  SVG <text> elements for the names of the towns on each side of each town boundary <line>
+    // (5a) Name of town "before" town boundary
+    var svgTownNamesBefore_g = svgContainer.append("g");
+    var svgTownNamesBefore = svgTownNamesBefore_g;
+    svgTownNamesBefore
+        .selectAll("text.town_name_before")
+        .data(townBoundaryData)
+        .enter()
+        .append("text")
+            .attr("class", "town_name_before")
+            .attr("font-size", 12)
+            .attr("fill", "firebrick")  // font color
+            .attr("x", width - 10)
+            .attr("y", function(d, i) {
+                            var retval;
+                            retval = d.coord + 5;
+                            return retval;
+                })
+            .attr("text-anchor", "end")
+            .text(function(d,i) { return d.town_before; });
+    // (5b) Name of town "after" town boundary
+    var svgTownNamesAfter_g = svgContainer.append("g");
+    var svgTownNamesAfter = svgTownNamesAfter_g;
+    svgTownNamesAfter
+        .selectAll("text.town_name_after")
+        .data(townBoundaryData)
+        .enter()
+        .append("text")
+            .attr("class", "town_name_after")
+            .attr("font-size", 12)
+            .attr("fill", "firebrick")  // font color
+            .attr("x", width - 10)
+            .attr("y", function(d, i) {
+                            var retval;
+                            retval = d.coord + 25;
+                            return retval;
+                })
+            .attr("text-anchor", "end")
+            .text(function(d,i) { return d.town_after; });   
+
+} // generateSvgTownBoundaries()
+
 // function: symbolizeSvgWireframe
 // parameters:
 //      vizWireframe : 'wireframe' of SVG <line> elements, and assocated <text> and <tspan> elements for labels
@@ -1420,6 +1513,10 @@ function symbolizeSvgWireframe(vizWireframe, divId, metric, year, color) {
 } // symbolizeSvgWireframe()
 
 function generateSvgLanesChart(lanes_data, div_id) {    
+
+    // *** Temp, during development
+    if (lanes_data.length === 0) return;
+
     var tmp = _.max(lanes_data, function(d) { return d.x2; });
     var x_max = tmp.x2;
     tmp = _.max(lanes_data, function(d) { return d.y2; });
@@ -1467,8 +1564,26 @@ function initMap(data) {
 		scaleControl: true,
 		overviewMapControl: false
 	};
+    
+    // Clear out 'residue' of previously generated Google Map
+    if (map != undefined) {
+        // Clear out the map's data layer
+        map.data.forEach(function(feature) { 
+            map.data.remove(feature); });        
+        // Clear out the map object's tmpDataLayer if it has been created
+        if (map.tmpDataLayer != undefined) {
+            map.tmpDataLayer.forEach(function(feature) { 
+                map.data.remove(feature); });
+        }
+        // 'Un-hook' the map's intervalTimer
+        if (map.intervalTimer != undefined) {
+            google.maps.event.removeListener(intervalTimer);
+        } 
+        // This may be a bit more brute-force than it need be...
+        $('#map_nbsb,#map_ebwb').html('');
+    } 
 
-	map = new google.maps.Map(document.getElementById("map_nbsb"), mapOptions); 
+	map = new google.maps.Map(document.getElementById(currentRoute.mapDiv), mapOptions); 
     google.maps.event.addListener(map, "bounds_changed", function boundsChangedHandler(e) { } );
      // Un petit hacque to get the map's "bounds_changed" event to fire.
     // Believe it or not: When a Google Maps map object is created, its bounding
@@ -1478,10 +1593,12 @@ function initMap(data) {
     map.setCenter(new google.maps.LatLng(lat + 0.000000001, lng + 0.000000001));
     
     // START of petite hacque to set scale bar units to miles/imperial instead of km/metric:
+    // N.B. 'intervalTimer' is stored in a var global to this app
+    // 
     // See: https://stackoverflow.com/questions/18067797/how-do-i-change-the-scale-displayed-in-google-maps-api-v3-to-imperial-miles-un
     // and: https://issuetracker.google.com/issues/35825255
-    var intervalTimer = window.setInterval(function() {
-        var elements = document.getElementById("map_nbsb").getElementsByClassName("gm-style-cc");
+    intervalTimer = window.setInterval(function() {
+        var elements = document.getElementById(currentRoute.mapDiv).getElementsByClassName("gm-style-cc");
         for (var i in elements) {
             // look for 'km' or 'm' in innerText via regex https://regexr.com/3hiqa
             if ((/\d\s?(km|(m\b))/g).test(elements[i].innerText)) {
@@ -1517,62 +1634,3 @@ function initMap(data) {
     });
     map.fitBounds(bounds);    
 } // initMap()
-
-function downloadData(e) {
-    // Create string of data to be downloaded
-    var newstring = '';
-    // Header line
-    newstring = 'data_id, direction, description, yr_2018, yr_1999,';
-    newstring += 'awdt_2018,';
-    newstring += 'peak_2018_6_to_7_am, peak_2018_7_to_8_am, peak_2018_8_to_9_am, peak_2018_9_to_10_am,';
-    newstring += 'peak_2018_3_to_4_pm, peak_2018_4_to_5_pm, peak_2018_5_to_6_pm, peak_2018_6_to_7_pm,';
-    newstring += 'cum_2018_6_to_9_am, cum_2018_3_to_6_pm'; 
-    newstring += 'awdt_2010,';
-    newstring += 'peak_2010_6_to_7_am, peak_2010_7_to_8_am, peak_2010_8_to_9_am, peak_9_to_10_am,';
-    newstring += 'peak_2010_3_to_4_pm, peak_2010_4_to_5_pm, peak_2010_5_to_6_pm, peak_2010_6_to_7_pm,';
-    newstring += 'cum_2010_6_to_9_am, cum_2010_3_to_6_pm'
-    newstring += 'awdt_1999';
-    newstring += '\n';
-     
-    function writeRecords(data, dirString) {
-        var i, tmp;
-        for (i = 0; i < data.length; i++) {
-            newstring += data[i].data_id + ',' + dirString + ',';
-            // N.B. The following three fields may contain commas, and are combined into a single field in the generated CSV.
-            tmp = data[i].description + ' ' +  data[i].description2 + ' ' + data[i].description3; 
-            newstring += '"' + tmp + '"' + ',';
-            newstring += data[i].yr_2018 + ',';
-            newstring += data[i].yr_1999 + ',';
-            newstring += data[i].awdt_2018 + ',';      
-            newstring += data[i].peak_2018_6_to_7_am + ',';
-            newstring += data[i].peak_2018_7_to_8_am + ',';
-            newstring += data[i].peak_2018_8_to_9_am + ',';
-            newstring += data[i].peak_2018_9_to_10_am + ',';
-            newstring += data[i].peak_2018_3_to_4_pm + ',';
-            newstring += data[i].peak_2018_4_to_5_pm + ',';
-            newstring += data[i].peak_2018_5_to_6_pm + ',';
-            newstring += data[i].peak_2018_6_to_7_pm + ',';     
-            newstring += data[i].cum_2018_6_to_9_am + ',';
-            newstring += data[i].cum_2018_3_to_6_pm + ',';
-            newstring += data[i].awdt_2010 + ',';
-            newstring += data[i].peak_2010_6_to_7_am + ',';
-            newstring += data[i].peak_2010_7_to_8_am + ',';
-            newstring += data[i].peak_2010_8_to_9_am + ',';
-            newstring += data[i].peak_2010_9_to_10_am + ',';
-            newstring += data[i].peak_2010_3_to_4_pm + ',';
-            newstring += data[i].peak_2010_4_to_5_pm + ',';
-            newstring += data[i].peak_2010_5_to_6_pm + ',';
-            newstring += data[i].peak_2010_6_to_7_pm + ',';     
-            newstring += data[i].cum_2010_6_to_9_am + ',';
-            newstring += data[i].cum_2010_3_to_6_pm + ',';
-            newstring += data[i].awdt_1999;
-            newstring += '\n';   
-        }
-    } // writeRecords()
-     
-    // Data lines, NB and SB
-    writeRecords(DATA.primaryDir_data, 'nb');
-    writeRecords(DATA.secondaryDir_data, 'sb');
-    sessionStorage.setItem("sent", newstring); 
-    download(newstring, "i93_sr3_balanced_volumes.csv", "text/csv");
-} // downloadData()
