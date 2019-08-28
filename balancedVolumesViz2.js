@@ -920,10 +920,17 @@ function generatePeakHoursViz() {
 //                                town names on either side of a schematic town boundary
 //
 function generateSvgWireframe(wireframeData, townBoundaryData, div_id, yDir_is_routeDir, handlers) {	
-    var verticalPadding = 10;
-    var width = 450;
-    var height = d3.max([d3.max(wireframeData, function(d) { return d.y1; }),
+    var verticalPadding = 10, horizontalPadding = 10;
+    var width, height;
+    if (currentRoute.orientation === 'nbsb') {
+        width = 450;
+        height = d3.max([d3.max(wireframeData, function(d) { return d.y1; }),
                          d3.max(wireframeData, function(d) { return d.y2; })]) + verticalPadding; 
+    } else {
+        width = d3.max([d3.max(wireframeData, function(d) { return d.x1; }),
+                         d3.max(wireframeData, function(d) { return d.x2; })]) + horizontalPadding; 
+        height = 130;   
+    }
     
    var svgContainer = d3.select('#' + div_id)
         .append("svg")
@@ -936,75 +943,9 @@ function generateSvgWireframe(wireframeData, townBoundaryData, div_id, yDir_is_r
     // (5b) Name of town "after" town boundary    
     generateSvgTownBoundaries(svgContainer, townBoundaryData, width, height)
 
-/*                      
-    // (4) SVG <line> elements for schematic town boundaries
-    //
-    var svgTownBoundaries_g = svgContainer.append("g");
-    var svgTownBoundaries = svgTownBoundaries_g;
-    svgTownBoundaries
-        .selectAll("line.town_boundary")
-        .data(townBoundaryData)
-        .enter()
-        .append("line")
-            .attr("id", function(d, i) { return d.unique_id; })
-            .attr("class", "town_boundary")
-            .attr("x1", 10)
-            .attr("x2", width - 10)
-            .attr("y1", function(d,i) {
-                            var retval;
-                            retval = d.coord + 10;
-                            return retval;
-                 })                    
-            .attr("y2", function(d,i) {
-                            var retval;
-                            retval = d.coord + 10;
-                            return retval;
-                 })
-            .style("stroke", "firebrick")
-            .style("stroke-width", "2px")
-            .style("stroke-dasharray", "10, 5");
-    
-    // (5)  SVG <text> elements for the names of the towns on each side of each town boundary <line>
-    // (5a) Name of town "before" town boundary
-    var svgTownNamesBefore_g = svgContainer.append("g");
-    var svgTownNamesBefore = svgTownNamesBefore_g;
-    svgTownNamesBefore
-        .selectAll("text.town_name_before")
-        .data(townBoundaryData)
-        .enter()
-        .append("text")
-            .attr("class", "town_name_before")
-            .attr("font-size", 12)
-            .attr("fill", "firebrick")  // font color
-            .attr("x", width - 10)
-            .attr("y", function(d, i) {
-                            var retval;
-                            retval = d.coord + 5;
-                            return retval;
-                })
-            .attr("text-anchor", "end")
-            .text(function(d,i) { return d.town_before; });
-    // (5b) Name of town "after" town boundary
-    var svgTownNamesAfter_g = svgContainer.append("g");
-    var svgTownNamesAfter = svgTownNamesAfter_g;
-    svgTownNamesAfter
-        .selectAll("text.town_name_after")
-        .data(townBoundaryData)
-        .enter()
-        .append("text")
-            .attr("class", "town_name_after")
-            .attr("font-size", 12)
-            .attr("fill", "firebrick")  // font color
-            .attr("x", width - 10)
-            .attr("y", function(d, i) {
-                            var retval;
-                            retval = d.coord + 25;
-                            return retval;
-                })
-            .attr("text-anchor", "end")
-            .text(function(d,i) { return d.town_after; });  
-*/
-            
+
+
+    // Code to generate main viz starts here   
     
     // The x-offset of the main barrel of the 'wireframe' is 150 in the CSV wireframe layout data;
     // Given an SVG drawing area width of 450, translate x +75px to center the main barrel
@@ -1012,8 +953,6 @@ function generateSvgWireframe(wireframeData, townBoundaryData, div_id, yDir_is_r
         .append("g")
             .attr("transform", "translate(75,0)");  
 
-
-    
     // (1) 'wireframe' for the schematic route outline, consisting of SVG <line> elements
     //
     var svgRouteSegs = svgRouteSegs_g     
@@ -1358,6 +1297,7 @@ function generateSvgWireframe(wireframeData, townBoundaryData, div_id, yDir_is_r
 
 
 // function: generateSvgTownBoundaries
+//
 function generateSvgTownBoundaries(svgContainer, townBoundaryData, width, height) {
     // (4) SVG <line> elements for schematic town boundaries
     //
@@ -1370,24 +1310,49 @@ function generateSvgTownBoundaries(svgContainer, townBoundaryData, width, height
         .append("line")
             .attr("id", function(d, i) { return d.unique_id; })
             .attr("class", "town_boundary")
-            .attr("x1", 10)
-            .attr("x2", width - 10)
+            .attr("x1", function(d,i) {
+                            var retval;
+                            if (currentRoute.orientation === 'nbsb') {
+                                retval = 10;
+                            } else {
+                                retval = d.coord + 10;
+                            }
+                            return retval;
+                        })
+            .attr("x2", function(d,i) {
+                            var retval;
+                            if (currentRoute.orientation === 'nbsb') {
+                                retval = width - 10;
+                            } else {
+                                retval = d.coord + 10;
+                            }
+                            return retval;
+                        })
             .attr("y1", function(d,i) {
                             var retval;
-                            retval = d.coord + 10;
+                            if (currentRoute.orientation === 'nbsb') {
+                                retval = d.coord + 10;
+                            } else {
+                                retval = 10;
+                            }
                             return retval;
-                 })                    
+                        })                    
             .attr("y2", function(d,i) {
                             var retval;
-                            retval = d.coord + 10;
+                            if (currentRoute.orientation === 'nbsb') {
+                                retval = d.coord + 10;
+                            } else {
+                                retval = height - 10;
+                            }
                             return retval;
-                 })
+                        })
             .style("stroke", "firebrick")
             .style("stroke-width", "2px")
-            .style("stroke-dasharray", "10, 5");
+            .style("stroke-dasharray", "10, 5");   
     
     // (5)  SVG <text> elements for the names of the towns on each side of each town boundary <line>
     // (5a) Name of town "before" town boundary
+    // N.B. "before" refers to the direction of rendering (top-to-bottom, left-to-right) not direction of traffic!
     var svgTownNamesBefore_g = svgContainer.append("g");
     var svgTownNamesBefore = svgTownNamesBefore_g;
     svgTownNamesBefore
@@ -1398,15 +1363,29 @@ function generateSvgTownBoundaries(svgContainer, townBoundaryData, width, height
             .attr("class", "town_name_before")
             .attr("font-size", 12)
             .attr("fill", "firebrick")  // font color
-            .attr("x", width - 10)
+            .attr("x", function(d,i) {
+                            var retval;
+                            if (currentRoute.orientation === 'nbsb') {
+                                retval =  width - 10;
+                            } else {
+                                retval = d.coord + 5;
+                            }
+                            return retval;
+                        })          
             .attr("y", function(d, i) {
                             var retval;
-                            retval = d.coord + 5;
+                            if (currentRoute.orientation === 'nbsb') {
+                                retval = d.coord + 5;
+                            } else {
+                                retval = 20; 
+                            }
                             return retval;
-                })
+                        })
             .attr("text-anchor", "end")
             .text(function(d,i) { return d.town_before; });
+            
     // (5b) Name of town "after" town boundary
+    // N.B. "after" refers to the direction of rendering (top-to-bottom, left-to-right) not direction of traffic!
     var svgTownNamesAfter_g = svgContainer.append("g");
     var svgTownNamesAfter = svgTownNamesAfter_g;
     svgTownNamesAfter
@@ -1417,15 +1396,28 @@ function generateSvgTownBoundaries(svgContainer, townBoundaryData, width, height
             .attr("class", "town_name_after")
             .attr("font-size", 12)
             .attr("fill", "firebrick")  // font color
-            .attr("x", width - 10)
+            .attr("x", function(d,i) {
+                            var retval;
+                            if (currentRoute.orientation === 'nbsb') {
+                                retval = width - 10;
+                            } else {
+                                retval = d.coord + 15; 
+                            }
+                            return retval;
+                        })
             .attr("y", function(d, i) {
                             var retval;
-                            retval = d.coord + 25;
+                            if (currentRoute.orientation === 'nbsb') {
+                                retval = d.coord + 25;
+                            } else {
+                                retval = 20;
+                            }
                             return retval;
-                })
-            .attr("text-anchor", "end")
+                        })
+            .attr("text-anchor", function(d,i) {
+                                    return (currentRoute.orientation === 'nbsb' ? "end" : "start");
+                                })
             .text(function(d,i) { return d.town_after; });   
-
 } // generateSvgTownBoundaries()
 
 // function: symbolizeSvgWireframe
