@@ -5,7 +5,7 @@ i90_eb_250,i90_eb_250,I-90 eastbound between Interchange 11A off-ramp and on-ram
 R11526,R11526,Interchange 11A on-ramp,385,410,90,70,ramp_on_below,1,none,2,1,1,i90_eb,20000,1800,1900,2500,1900,1000,1200,1400,1200,6200,3600
 i90_eb_260,i90_eb_260,I-90 eastbound between Interchange 11A on-ramp and Interchange 12 off-ramp,410,610,70,70,main,0,none,3,1,1,i90_eb,55000,4000,4300,5400,4100,3000,3300,3400,3000,13700,9700
 R11527,R11527,Interchange 12 off-ramp,610,635,70,90,ramp_off_below,1,none,1,1,1,i90_eb,5000,500,900,900,400,200,300,300,200,2300,800
-i90_eb_270,i90_eb_270,I-90 eastbound between Interchange 12 off-ramp and on-ramp,610,910,70,70,main,0,none,3,1,1,i90_eb,5000,3500,3400,4500,3700,2800,3000,3100,2800,11400,8900
+i90_eb_270,i90_eb_270,I-90 eastbound between Interchange 12 off-ramp and on-ramp,610,910,70,70,main,0,none,3,1,1,i90_eb,50000,3500,3400,4500,3700,2800,3000,3100,2800,11400,8900
 R11528,R11528,Interchange 12 on-ramp,885,910,90,70,ramp_on_below,1,none,1,1,1,i90_eb,11500,900,900,900,800,700,900,1100,900,2700,2700
 i90_eb_280,i90_eb_280,I-90 eastbound between Interchange 12 on-ramp and Interchange 13 off-ramp,910,1110,70,70,main,0,none,3,1,1,i90_eb,61500,4400,4300,5400,4500,3500,3900,4200,3700,14100,11600
 R50105,R50105,Interchange 13 off-ramp,1110,1135,70,90,ramp_off_below,1,none,1,1,1,i90_eb,9500,400,500,1500,800,400,500,700,400,2400,1600
@@ -28,11 +28,11 @@ R11705,R11705,Interchange 20 on-ramp,3185,3210,90,70,ramp_on_below,1,none,2,1,1,
 i90_eb_370,i90_eb_370,I-90 eastbound between Interchange 20 on-ramp and Interchange 22 off-ramp,3210,3510,70,70,main,0,none,4,1,1,i90_eb,73500,4100,6100,6900,5300,4400,4900,5200,4800,17100,14500
 R11708,R11708,Interchange 22 off-ramp,3510,3535,70,90,ramp_off_below,1,none,2,1,1,i90_eb,17500,850,1600,2000,1400,800,1000,1300,1200,4450,3100
 i90_eb_380,i90_eb_380,I-90 eastbound between Interchange 22 off-ramp and Interchange 24 off-ramp,3510,3710,70,70,main,0,none,1,1,1,i90_eb,56000,3250,4500,4900,3900,3600,3900,3900,3600,12650,11400
-R50130_part_1,R50130,Interchange 24 off-ramp,3710,3735,70,50,ramp_off_above,0,none,1,1,1,i90_eb,33000,1850,2900,3150,2600,2150,2200,2250,2100,7900,6600
-R50130_part_2,R50130,Interchange 24 off-ramp,3805,3830,50,30,ramp_off_above,0,none,1,1,1,i90_eb,33000,1850,2900,3150,2600,2150,2200,2250,2100,7900,6600
+R50130_part_1,R50130_part_1,Interchange 24 off-ramp,3710,3735,70,50,ramp_off_above,0,none,1,1,1,i90_eb,35000,1850,2900,3150,2600,2150,2200,2250,2100,7900,6600
+R11709,R11709,Interchange 24A |off-ramp to South Station,3735,3805,50,50,rampleftmain,1,none,1,1,1,i90_eb,9500,650,1100,1200,950,400,400,450,450,2950,1250
+R50130_part_2,R50130_part_2,Interchange 24 off-ramp,3805,3830,50,30,ramp_off_above,0,none,1,1,1,i90_eb,25500,1200,1800,1950,1650,1750,1800,1800,1650,4950,5350
+R11713,R11713,Interchange 24B |off-ramp to I-93 northbound,3830,3900,30,30,rampleftmain,1,none,1,1,1,i90_eb,12500,650,50,1100,900,800,850,800,850,1800,2450
 R11714,R11714,Interchange 24C |off-ramp to I-93 southbound,3830,3855,30,10,ramp_off_above,1,none,1,1,1,i90_eb,13000,550,850,850,750,950,950,1000,800,2250,2900
-R11713,R11713,Interchange 24B |off-ramp to I-93 northbound,3830,3900,30,30,rampleftmain,1,none,1,1,1,i90_eb,11000,650,50,1100,900,800,850,800,850,1800,2450
-R11709,R11709,Interchange 24A |off-ramp to South Station,3735,3805,50,50,rampleftmain,1,none,1,1,1,i90_eb,9000,650,1100,1200,950,400,400,450,450,2950,1250
 i90_eb_390,i90_eb_390,I-90 eastbound between Interchange 24 off-ramp and Interchange 25 off-ramp,3710,4110,70,70,main,0,none,2,1,1,i90_eb,21000,1400,1600,1750,1300,1450,1700,1650,1500,4750,4800
 R11715,R11715,Interchange 25 off-ramp,4110,4135,70,90,ramp_off_below,1,none,1,1,1,i90_eb,6000,350,700,950,600,350,400,550,450,2000,1300
 i90_eb_400,i90_eb_400,I-90 eastbound between Interchange 25 off-ramp and on-ramp from I-93 NB and Frontage Road,4110,4410,70,70,main,0,none,2,1,1,i90_eb,15000,1050,900,800,700,1100,1300,1100,1050,2750,3500
