@@ -683,7 +683,15 @@ function initializeApp(error, results) {
 //                 the SVG <line>-work. If these are non-null, they are bound to
 //                 to the SVG <line>-work; otherwise no function9s) is/are so bound
 //
+// return value:
+//      an object containing the following properties:
+//          volumeLines - SVG <line> elements for the route 'wireframe'
+//          volume_txt  - SVG <text> elements for the balanced volume data values
+//          label_txt_1 - SVG <tspan> elements for line 1 of descriptive text
+//          label_txt_2 - SVG <tspan> elements for line 2 of descriptive text
+//          label_txt_3 - SVG <tspan> elements for line 3 of descriptive text
 // notes: This function generates four SVG structures, each contained within 
+//
 //        an SVG <g> element:
 //          1. svgRouteSegs_g  - contains <line> elements comprising the schematic route 'wireframe'
 //          2. svgVolumeText_g - contains <text> elements containing balanced volume numbers
