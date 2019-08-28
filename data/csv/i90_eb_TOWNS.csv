@@ -1,5 +1,5 @@
 unique_id,seg_x1,seg_x2,coord,town_before,town_after
-boundary_i90_eb_260,410,610,510, ,Framingham
+boundary_i90_eb_260,410,610,510,Hopkinton/Westborough/Southborough/Ashland,Framingham/Natick/Wayland
 boundary_i90_eb_300,1410,1610,1510,Framingham/Natick/ Wayland,Weston
 boundary_i90_eb_320,1910,2210,2060,Weston,Newton
 boundary_i90_eb_350,2710,2910,2810,Newton,Boston
