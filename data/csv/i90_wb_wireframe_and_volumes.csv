@@ -34,8 +34,8 @@ R11736,R11736,On-ramp from Clarendon Street,3735,3710,50,70,ramp_on_above,1,none
 i90_wb_090,i90_wb_090,I-90 westbound between Interchange 23 on-ramp and Clarendon Street on-ramp,3710,3910,70,70,main,0,none,3,1,1,i90_wb,55000,2485,3600,3900,2900,3700,4275,4550,3600,9985,12525
 R11735,R11735,Interchange 23 |on-ramp from Arlington Street,3935,3910,50,70,ramp_on_above,1,none,1,1,1,i90_wb,5000,85,200,300,200,400,475,600,400,585,1475
 i90_wb_080,i90_wb_080,I-90 westbound between I-93 on-ramp and Interchange 23 on-ramp,3910,4110,70,70,main,0,none,3,1,1,i90_wb,50000,2400,3400,3600,2700,3300,3800,3950,3200,9400,11050
-R12123,R12123,On-ramp from I-93 southbound |and Kneeland Street,4135,4110,50,70,ramp_on_above,1,none,1,1,1,i90_wb,16000,700,850,950,850,1150,1250,1350,1150,2500,3750
-R50132,R50132,On-ramp |from I-93 northbound,4135,4235,50,50,rampabovemain,1,none,1,1,1,i90_wb,11000,600,700,750,700,800,800,800,750,2050,2400
+R12123,R12123,On-ramp from I-93 southbound |and Kneeland Street,4135,4110,50,70,ramp_on_above_internal,1,none,1,1,1,i90_wb,16000,700,850,950,850,1150,1250,1350,1150,2500,3750
+R50132,R50132,On-ramp |from I-93 northbound,4135,4235,50,50,ramp_main_above,1,none,1,1,1,i90_wb,11000,600,700,750,700,800,800,800,750,2050,2400
 R12122,R12122,On-ramp from Kneeland Street,4160,4135,30,50,ramp_on_above,1,none,1,1,1,i90_wb,5000,100,150,200,150,350,450,550,400,450,1350
 i90_wb_070,i90_wb_070,I-90 westbound between I-93/Frontage Road on-ramp and on-ramp from I-93/Kneeland Street,4110,4410,70,70,main,0,none,2,1,1,i90_wb,34000,1700,2550,2650,1850,2150,2550,2600,2050,6900,7300
 R12086,R12086,On-ramp from I-93 northbound |and Frontage Road,4435,4410,50,70,ramp_on_above,1,none,1,1,1,i90_wb,15500,965,1365,1365,980,950,1050,1100,825,3695,3100
@@ -43,9 +43,9 @@ i90_wb_060,i90_wb_060,I-90 westbound between South Station HOV off-ramp and I-93
 R11734,R11734,South Station HOV off-ramp,4710,4685,70,50,ramp_off_above,1,none,1,1,1,i90_wb,500,15,15,15,30,50,50,50,25,45,150
 i90_wb_050,i90_wb_050,I-90 westbound between South Boston on-ramp and Sout Station HOV off-ramp,4710,4910,70,70,main,0,none,2,1,1,i90_wb,19000,750,1200,1300,900,1250,1550,1550,2350,3250,4350
 R11733,R11733,On-ramp from South Boston,4935,4910,50,70,ramp_on_above,1,none,1,1,1,i90_wb,5500,150,300,400,250,450,600,800,500,850,1850
-sr_1a_sb_120,sr_1a_sb_120,Ramp from I-90 and South Boston to I-93,5185,5115,50,50,rampabovemain,0,none,1,1,1,i90_wb,26000,1200,1550,1350,1200,1800,1950,1950,1600,4100,5700
-sr_1a_sb_110,sr_1a_sb_110,Interchange 25 ramp between off-ramp to South Boston and on-ramp from South Boston to I-93,5285,5185,50,50,rampabovemain,0,none,1,1,1,i90_wb,18000,1000,1150,900,850,1100,1150,1050,1000,3050,3300
-sr_1a_sb_100,sr_1a_sb_100,Interchange 24-25 off-ramp,5310,5285,70,50,ramp_off_above,1,none,1,1,1,i90_wb,27000,15000,1900,1900,1550,1700,1750,1650,1450,18800,5100
+sr_1a_sb_120,sr_1a_sb_120,Ramp from I-90 and South Boston to I-93,5185,5115,50,50,ramp_main_above,0,none,1,1,1,i90_wb,26000,1200,1550,1350,1200,1800,1950,1950,1600,4100,5700
+sr_1a_sb_110,sr_1a_sb_110,Interchange 25 ramp between off-ramp to South Boston and on-ramp from South Boston to I-93,5285,5185,50,50,ramp_main_above,0,none,1,1,1,i90_wb,18000,1000,1150,900,850,1100,1150,1050,1000,3050,3300
+sr_1a_sb_100,sr_1a_sb_100,Interchange 24-25 off-ramp,5310,5285,70,50,ramp_off_above_internal,1,none,1,1,1,i90_wb,27000,15000,1900,1900,1550,1700,1750,1650,1450,18800,5100
 R11725,R11725,On-ramp |from South Boston to I-93,5210,5185,30,50,ramp_on_above,1,none,1,1,1,i90_wb,8000,200,400,450,350,700,800,900,600,1050,2400
 R11724,R11724,Interchange 25 |off-ramp to South Boston,5285,5260,50,30,ramp_off_above,1,none,1,1,1,i90_wb,9000,500,750,1000,700,600,600,600,450,2250,1800
 i90_wb_040,i90_wb_040,I-90 westbound between Interchange 24-25 off-ramp and South Boston on-ramp,4910,5310,70,70,main,0,none,2,1,1,i90_wb,13500,600,900,900,650,800,950,750,750,2400,2500

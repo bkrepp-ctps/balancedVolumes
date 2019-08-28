@@ -1352,7 +1352,7 @@ function generateSvgTextForEBWB(svgContainer, wireframeData, yDir_is_routeDir, w
    var filtered_wireframeData1 = _.filter(wireframeData, function(rec) { return (rec.type != 'ramphov'); });
    var svgVolumeText_g = svgContainer
             .append("g");
-            // .attr("transform", "translate(75,0)");  
+ 
    var svgVolumeText = svgVolumeText_g
         .selectAll("text.vol_txt")
         .data(filtered_wireframeData1)
@@ -1365,23 +1365,25 @@ function generateSvgTextForEBWB(svgContainer, wireframeData, yDir_is_routeDir, w
                 return retval;    
             })
             .attr("x", function(d, i) {
-                    var tmp, retval;
+                    var tmp, max, min, retval;
                     switch(d.type) {
                     case 'main':
+                    case 'ramp_main_above':
+                    case 'ramp_main_below':
+                    case 'ramp_off_above_internal':
+                    case 'ramp_on_above_internal':
+                    case 'ramp_off_below_internal':
+                    case 'ramp_on_below_internal':
                         retval = d.x1 + ((d.x2 - d.x1)/2); 
                         break;
-
-/*                    
+                  
                     case 'ramp_off_below':
                     case 'ramp_off_above':                   
                     case 'ramp_on_below':
                     case 'ramp_off_above':                   
-                    case 'rampbelowmain':
-                    case 'rampleftmain':
+                        retval = d.x1;
+                        break;                       
                         
-                    
-*/ 
-
                     default:
                         // Segments not 'labeled' with volume data, e.g., HOV 'ramps' - x and y ccordinates are abritrary (since these segments are unlabeled with data)
                         console.log(d.unique_id + ' : segment type is: ' + d.type);
@@ -1395,27 +1397,35 @@ function generateSvgTextForEBWB(svgContainer, wireframeData, yDir_is_routeDir, w
                     switch(d.type) {
                     case 'main':               
                         retval = mainline_yOffset - 10;     
-                        break;                      
+                        break; 
+                    case 'ramp_main_above':
+                        retval = d.x1 - 10;
+                        break;
+                    case 'ramp_main_below':
+                        retval = d.xl + 10;
+                        break;
+ 
+                    case 'ramp_off_above_internal':
+                    case 'ramp_on_above_internal':
+                    case 'ramp_off_below_internal':
+                    case 'ramp_on_below_internal':
+                        min = d3.min([d.y1,d.y2]);
+                        max = d3.max([d.y1,d.y2]);
+                        retval = min + ((max-min)/2); 
+                        break;
+                        
                     case 'ramp_off_below':                   
                     case 'ramp_on_below':
-                    case 'rampbelowmain':
-                        // retval = ramp_below_yOffset + 15;
                         tmp = d3.max([d.y1,d.y2]);
                         retval = tmp + 15;                        
                         break;
                         
                     case 'ramp_off_above':                    
                     case 'ramp_on_above':
-                    case 'rampabovemain':
-                        // retval = ramp_above_yOffset - 10;
                         tmp = d3.min([d.y1,d.y2]);
                         retval = tmp - 10;
                         break;
-                                       
-                   
-                    case 'rampleftmain':
-                        // Fallthrough, for the moment...
-                       
+                                                            
                     default:
                         // Segments not 'labeled' with volume data, e.g., HOV 'ramps' - x and y ccordinates are abritrary (since these segments are unlabeled with data)
                         retval = d.y1 + ((d.y2 - d.y1)/2);
