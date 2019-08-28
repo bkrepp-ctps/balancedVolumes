@@ -127,7 +127,7 @@
     border: 2px solid #B87F32;
     margin-bottom: none; 
     overflow: scroll;
-    overflow-:  hidden;    
+    overflow-y:  hidden;    
 }
 #eb_viz {
     width: 1400px;
@@ -161,7 +161,7 @@
     border: 2px solid #B87F32;;
     margin-top: none; 
     overflow: scroll; 
-    overflow-x:  hidden;    
+    overflow-y:  hidden;    
 }      
 /* End of rules for elements of the main view. */
 
