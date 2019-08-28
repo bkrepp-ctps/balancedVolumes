@@ -173,12 +173,22 @@ function primaryDirectionP(backboneRouteName) {
 // Function to synchronize the bounds of the Google Map with the elements in the relevant viewport
 // Moved to the top-level scope in case it needs to be visible throughout the file
 function scrollHandler(e) {
+    var elts;
     var container = $('#' + e.target.id);   // Get ID of the <div> being scrolled
-    var contHeight = container.height();
-    var contTop = container.scrollTop();
-    var contBottom = contTop + contHeight;
-    // console.log('top = ' + contTop + ' bottom = ' + contBottom);
-    var elts = _.filter(DATA.secondaryDir_data, function(rec) { return rec.y1 >= contTop && rec.y2 <= contBottom; });       
+    if (currentRoute.orientation === 'nbsb') {
+        var contHeight = container.height();
+        var contTop = container.scrollTop();
+        var contBottom = contTop + contHeight;
+        // console.log('top = ' + contTop + ' bottom = ' + contBottom);
+        elts = _.filter(DATA.secondaryDir_data, function(rec) { return rec.y1 >= contTop && rec.y2 <= contBottom; }); 
+    } else {
+        var contWidth = container.width();
+        var contLeft = container.scrollLeft();
+        var contRight = contLeft + contWidth;
+        // console.log('left = ' + contLeft + ' right = ' + contRight);
+        elts = _.filter(DATA.secondaryDir_data, function(rec) { return rec.x1 >= contLeft && rec.x2 <= contRight; }); 
+    }
+   
     // Get the data_ids to search for in the GeoJSON; filter out HOV lanes and ramps
     var searchIds = _.pluck(elts, 'data_id');
     searchIds = _.filter(searchIds, function(id) { return  id.contains('hov') === false && id.startsWith('R') === false; });
@@ -956,13 +966,17 @@ function generateSvgWireframe(wireframeData, townBoundaryData, div_id, yDir_is_r
 
     // Code to generate main viz starts here   
     
-    // The x-offset of the main barrel of the 'wireframe' is 150 in the CSV wireframe layout data;
-    // Given an SVG drawing area width of 450, translate x +75px to center the main barrel
+    // For routes with NE/SB orientation:
+    //     The x-offset of the main barrel of the 'wireframe' is 150 in the CSV wireframe layout data;
+    //     Given an SVG drawing area width of 450, translate x +75px to center the main barrel.
+    // For routes with EB/WB orientation, there is no need for this transformation.
     var svgRouteSegs_g = svgContainer
-        .append("g")
-            .attr("transform", "translate(75,0)");  
+        .append("g");
+    if (currentRoute.orientation === 'nbsb') {
+            svgRouteSegs_g.attr("transform", "translate(75,0)");
+    }
 
-    // (1) 'wireframe' for the schematic route outline, consisting of SVG <line> elements
+    // (1) The 'wireframe' for the schematic route outline, consisting of SVG <line> elements
     //
     var svgRouteSegs = svgRouteSegs_g     
         .selectAll("line.wireframe")
@@ -1002,327 +1016,6 @@ function generateSvgWireframe(wireframeData, townBoundaryData, div_id, yDir_is_r
     retval = { volumeLines : svgRouteSegs, volume_txt : svgTextInfo.volume_txt,  
                 label_txt_1 : svgTextInfo.label_txt_1, label_txt_2 : svgTextInfo.label_txt_2, label_txt_3: svgTextInfo.label_txt_3 };
      
-
-    
- /************************************  
-   
-    var mainline_xOffset = 150;
-    var volumeText_xOffset = 250;
-    
-    // (2) SVG <text> elements for the balanced volume data itself
-    // Do not render volume data for pseudo-ramps for HOV lanes - these are just graphical decorations
-   var filtered_wireframeData1 = _.filter(wireframeData, function(rec) { return (rec.type != 'ramphov'); });
-   var svgVolumeText_g = svgContainer
-            .append("g")
-            .attr("transform", "translate(75,0)");  
-   var svgVolumeText = svgVolumeText_g
-        .selectAll("text.vol_txt")
-        .data(filtered_wireframeData1)
-        .enter()
-        .append("text")
-            .attr("id", function(d, i) { return 'vol_txt_' +d.unique_id; })
-            .attr("class", function(d,i) {
-                var retval = 'vol_txt';
-                retval += ' ' + d.year_restriction;
-                return retval;    
-            })
-            .attr("x", function(d, i) {
-                    var tmp, retval;
-                    switch(d.type) {
-                    case 'main':
-                        retval = volumeText_xOffset;
-                        break;
-                    case 'mainleft':
-                        retval = d.x1 - 30;
-                        break;
-                    case 'mainright':
-                        retval = d.x1 + 30;
-                        break;
-                    case 'hovleft':
-                        retval = d.x1; 
-                        break;
-                    case 'hovright':
-                        retval = d.x1;
-                        break;
-                    case 'rampleftmain':
-                        // These ramps are 'vertical' in the wireframe display; the 2 x-coordinates are identical
-                        retval = d.x1
-                        break;                            
-                    case 'ramp_on_left':
-                    case 'ramp_off_left':
-                         // Since the ramp is to the left, use the x-coordinate with the lesser value
-                        tmp = (d.x1 < d.x2) ? d.x1 - 25 : d.x2 - 25;
-                        retval = tmp;
-                        break;                    
-                    case 'ramp_on_right':
-                    case 'ramp_off_right': 
-                        // Since the ramp is to the right, use the x-coordinate with the greater value
-                        tmp = (d.x1 > d.x2) ? d.x1 + 25 : d.x2 + 25;
-                        retval = tmp;
-                        break;   
-                    case 'ramphov':
-                        // Fallthrough is deliberate
-                    default:
-                        // Segments not 'labeled' with volume data, e.g., HOV 'ramps' - x and y ccordinates are abritrary (since these segments are unlabeled with data)
-                        console.log(d.unique_id + ' : segment type is: ' + d.type);
-                        retval = d.x1;
-                        break;
-                    } // switch 
-                    return retval;
-                 })
-            .attr("y", function(d, i) { 
-                    var tmp, retval;
-                    switch(d.type) {
-                    case 'main':
-                    case 'mainleft':
-                    case 'mainright':                 
-                        retval = d.y1 + ((d.y2 - d.y1)/2);    
-                        break;
-                    case 'hovleft':
-                        // Note: We have to futz with the *Y*-coordinate because the text for 'hov{left,right}' segments is rotated
-                       retval = d.y1 + ((d.y2 - d.y1)/2) - 15;
-                       break;
-                    case 'hovright':
-                        // Note: We have to futz with the *Y*-coordinate because the text for 'hov{left,right}' segments is rotated
-                        retval = d.y1 + ((d.y2 - d.y1)/2) + 15;  
-                        break;
-                    case 'rampleftmain':
-                        // Place the data value below the 'loose end' of 'vertical ramps'
-                        tmp = (d.y1 > d.y2) ? d.y1 + 20 : d.y2 + 20;
-                        retval = tmp;
-                        break;                        
-                    case 'ramp_on_left':
-                    case 'ramp_off_left':
-                         // Since the ramp is to the left, the x-coordinate with the lesser value indicates the 'loose end' of the ramp
-                        tmp = (d.x1 < d.x2) ? d.y1 - 10 : d.y2 - 10;
-                        retval = tmp;
-                        break;                    
-                    case 'ramp_on_right':
-                    case 'ramp_off_right':               
-                        // Since the ramp is the right, the x-coordinate with the greater value indicates the 'loose end' of the ramp
-                        tmp = (d.x1 > d.x2) ? d.y1 + 10 : d.y2 + 10;
-                        retval = tmp;
-                        break;                    
-                    case 'ramphov':
-                        // Fallthrough is deliberate
-                    default:
-                        // Segments not 'labeled' with volume data, e.g., HOV 'ramps' - x and y ccordinates are abritrary (since these segments are unlabeled with data)
-                        retval = d.y1 + ((d.y2 - d.y1)/2);
-                        break;
-                    } // switch                   
-                    return retval;
-                })
-            .attr("text-anchor", function(d, i) {
-                    var retval; 
-                    switch(d.type) {
-                    case 'main':
-                    case 'mainleft':
-                    case 'mainright':
-                    case 'hovright':
-                    case 'hovleft':
-                    case 'rampleftmain':
-                        // Fallthroughs above are deliberate
-                        retval = "middle";
-                        break;
-                    case 'rampleft':
-                        retval = "end";
-                        break;
-                    case 'rampright':
-                        retval = "start";
-                        break;
-                    case 'ramphov':
-                        // Fallthrough is deliberate
-                    default:
-                        // Segments not 'labeled' with volume data, e.g., HOV 'ramps' - text-anchor value is arbitrary (since these are unlabeled with data)
-                        retval = "middle";
-                        break;
-                    }
-                    return retval;
-                    })
-            .attr("transform", function(d, i) 
-                {
-                    var retval;
-                    if (d.type !== 'hovleft' && d.type !== 'hovright') {
-                        retval = 'rotate(0,0,0)';
-                    } else {
-                        // Rotate HOV labels 90 degrees counter-clockwise, i.e., -90 degrees in SVG-speak
-                        // The (x,y) point around which the rotation is performed is the (x,y) midpoint of the line in question
-                        // For reference, the syntax of the SVG rotate transform in pseudo-BNF form is:
-                        //      transform='rotate(<degrees>, <x_origin>, <y_origin>)'
-                        retval = 'rotate(-90,' ;
-                        retval += d.x1 + ((d.x2 - d.x1)/2);
-                        retval += ',';
-                        retval += d.y1 + ((d.y2 - d.y1)/2);
-                        retval += ')' ;
-                    }
-                    return retval;
-                }) 
-            .text('');  // Placeholder value
-
-
-    // *** TEMP - for now, during development
-    if (currentRoute.orientation !== 'nbsb') {
-        return { volumeLines : svgRouteSegs,  volume_txt : svgVolumeText,  label_txt_1 : null,  label_txt_2 : null,  label_txt_3: null };
-    }
-    
-
-    // (3) SVG <text> and <tspan> elements for descriptive labels, e.g., "Interchange X off-ramp to Y"
-    // These are only applied for certain records in the input data, essentially interchange on/off ramps
-    var filtered_wireframeData2 = _.filter(wireframeData, function(rec) { return (rec.showdesc === 1); });
-    var svgLabelText_g = svgContainer.append("g");
-    var svgLabelText = svgLabelText_g
-        .selectAll("text.label_txt")
-        .data(filtered_wireframeData2)
-        .enter()
-        .append("text")
-            .attr("id", function(d, i) { return 'label_txt_' + d.unique_id; })
-            .attr("class", function(d, i) {
-                retval = 'label_text';
-                retval += ' ' + d.year_restriction;
-                return retval;
-            })
-            .attr("font-size", 12)
-            .attr("x", function(d, i) { 
-                var retval;
-                switch(d.type) {
-                case 'ramp_on_left':
-                case 'ramp_on_right':
-                case 'ramp_off_left':
-                case 'ramp_off_right':
-                case 'rampleftmain':              
-                    retval = 5; 
-                    break;
-                default:   
-                    // The following cases should never occur in practice: main, mainright, mainleft, hovleft, hovright, and ramphov.
-                    // If they do, something is amiss.
-                    console.log('Attempt to create descriptive label text placeholder for: ' + d.unique_id + '. Type = ' + d.type);
-                    retval = 0; // Retval is arbitrary choice   
-                    break;
-                }
-                return retval;
-             })
-            .attr("y", function(d, i) { 
-                var retval;
-                switch(d.type) {
-                // General comment on the placement of descriptive labels for ramps.
-                // The general principle here is to place the descriptive label for 
-                // ramps at the Y-coordinate of the 'tip' ('loose end') of the ramp.
-                // Which end is the 'tip' depends upon (1) whether the direction of the 
-                // route corresponds to increasing Y-values in SVG space, and (2) whether
-                // the ramp is an on- or off-ramp.
-                //
-                case 'ramp_on_left':
-                case 'ramp_on_right':
-                    retval = (yDir_is_routeDir === true) ? d3.min([d.y1,d.y2]) : d3.max([d.y1,d.y2]);
-                    break;
-                case 'ramp_off_left':
-                case 'ramp_off_right':
-                    retval = (yDir_is_routeDir === true) ? d3.max([d.y1,d.y2]) : d3.min([d.y1,d.y2]);
-                    break;
-                case 'rampleftmain':
-                    // These are 'vertical' off-ramps
-                    retval = (yDir_is_routeDir === true) ? d3.max([d.y1,d.y2]) : d3.min([d.y1,d.y2]);
-                    break;
-                default:
-                    // The following cases should never occur in practice:
-                    // main, mainright, mainleft, hovleft, hovright, and ramphov.
-                    console.log(d.unique_id + ' type = ' + d.type);
-                    retval = 0; // Retval is arbitrary choice
-                    break;
-                }
-                return retval;
-            })
-            .attr("text-anchor", function(d, i) {
-                    var retval; 
-                    retval = "start";   // TBD if this will be OK
-                    return retval;
-            });
-    // First line of descriptive label text
-    var line1 = svgLabelText.append("tspan")
-        .attr("class", function(d, i) {
-            var retval = 'label_tspan_1';
-            retval += ' ' + d.year_restriction;
-            return retval;
-        })
-        .text(''); // Placeholder     
-    // Second line of descriptive label text
-    var line2 = svgLabelText.append("tspan")
-        .attr("class", function(d, i) {
-            var retval = 'label_tspan_2';
-            retval += ' ' + d.year_restriction;
-            return retval;
-        })
-        .attr("x", 5)
-        .attr("y", function(d, i) { 
-            var retval;
-            // Place descriptive label at the Y-coordinate of the 'tip' ('loose end') of the ramp.
-            // Which end is the 'tip' depends upon (1) whether the direction of the 
-            // route corresponds to increasing Y-values in SVG space, and (2) whether
-            // the ramp is an on- or off-ramp.
-            switch(d.type) {
-            case 'ramp_on_left':
-            case 'ramp_on_right':
-                retval = (yDir_is_routeDir === true) ? d3.min([d.y1,d.y2]) : d3.max([d.y1,d.y2]);
-                break;
-            case 'ramp_off_left':
-            case 'ramp_off_right':
-                retval = (yDir_is_routeDir === true) ? d3.max([d.y1,d.y2]) : d3.min([d.y1,d.y2]);
-                break;
-            case 'rampleftmain':
-                // These are 'vertical' off-ramps
-                retval = (yDir_is_routeDir === true) ? d3.max([d.y1,d.y2]) : d3.min([d.y1,d.y2]);
-                break;                
-            default:
-                // The following cases should never occur in practice:
-                // main, mainright, mainleft, hovleft, hovright, and ramphov.              
-                retval = 0;  // Retval is arbitrary choice
-                break;   
-            }
-            return retval; 
-        }) 
-        .attr("dy", 10)
-        .text(''); // Placeholder
-    // Third line of descriptive label text
-    var line3 = svgLabelText.append("tspan")
-        .attr("class", function(d, i) {
-            var retval = 'label_tspan_3';
-            retval += ' ' + d.year_restriction;
-            return retval;
-        })
-        .attr("x", 5)
-        .attr("y", function(d, i) { 
-            var retval;
-            // Place descriptive label at the Y-coordinate of the 'tip' ('loose end') of the ramp.
-            // Which end is the 'tip' depends upon (1) whether the direction of the 
-            // route corresponds to increasing Y-values in SVG space, and (2) whether
-            // the ramp is an on- or off-ramp.
-            switch(d.type) {
-            case 'ramp_on_left':
-            case 'ramp_on_right':
-                retval = (yDir_is_routeDir === true) ? d3.min([d.y1,d.y2]) : d3.max([d.y1,d.y2]);
-                break;
-            case 'ramp_off_left':
-            case 'ramp_off_right':
-                retval = (yDir_is_routeDir === true) ? d3.max([d.y1,d.y2]) : d3.min([d.y1,d.y2]);
-                break;
-            case 'rampleftmain':
-                // These are 'vertical' off-ramps
-                retval = (yDir_is_routeDir === true) ? d3.max([d.y1,d.y2]) : d3.min([d.y1,d.y2]);
-                break;                
-            default:
-                // The following cases should never occur in practice:
-                // main, mainright, mainleft, hovleft, hovright, and ramphov.              
-                retval = 0;  // Retval is arbitrary choice
-                break;   
-            }
-            return retval; 
-        }) 
-        .attr("dy", 20)
-        .text(''); // Placeholder     
-        
-    var retval = { volumeLines : svgRouteSegs,  volume_txt : svgVolumeText,  label_txt_1 : line1,  label_txt_2 : line2,  label_txt_3: line3 };
-    
-***************************************/
     return retval;
 } // generateSvgWireframe()
 
@@ -1646,15 +1339,20 @@ function generateSvgTextForNBSB(svgContainer, wireframeData, yDir_is_routeDir, w
 // function: generateSvgTextForEBWB(svgContainer, wireframeData, yDir_is_routeDir, width, height)
 //
 function generateSvgTextForEBWB(svgContainer, wireframeData, yDir_is_routeDir, width, height) {
-    var mainline_xOffset = 150;
+    var mainline_yOffset = 70,
+        ramp_above_yOffset = 50,
+        ramp_below_yOffset = 90,
+        rampbelowmain_yOffset = 110;
+    
+    // ???
     var volumeText_xOffset = 250;
     
     // (2) SVG <text> elements for the balanced volume data itself
     // Do not render volume data for pseudo-ramps for HOV lanes - these are just graphical decorations
    var filtered_wireframeData1 = _.filter(wireframeData, function(rec) { return (rec.type != 'ramphov'); });
    var svgVolumeText_g = svgContainer
-            .append("g")
-            .attr("transform", "translate(75,0)");  
+            .append("g");
+            // .attr("transform", "translate(75,0)");  
    var svgVolumeText = svgVolumeText_g
         .selectAll("text.vol_txt")
         .data(filtered_wireframeData1)
@@ -1670,38 +1368,20 @@ function generateSvgTextForEBWB(svgContainer, wireframeData, yDir_is_routeDir, w
                     var tmp, retval;
                     switch(d.type) {
                     case 'main':
-                        retval = volumeText_xOffset;
+                        retval = d.x1 + ((d.x2 - d.x1)/2); 
                         break;
-                    case 'mainleft':
-                        retval = d.x1 - 30;
-                        break;
-                    case 'mainright':
-                        retval = d.x1 + 30;
-                        break;
-                    case 'hovleft':
-                        retval = d.x1; 
-                        break;
-                    case 'hovright':
-                        retval = d.x1;
-                        break;
+
+/*                    
+                    case 'ramp_off_below':
+                    case 'ramp_off_above':                   
+                    case 'ramp_on_below':
+                    case 'ramp_off_above':                   
+                    case 'rampbelowmain':
                     case 'rampleftmain':
-                        // These ramps are 'vertical' in the wireframe display; the 2 x-coordinates are identical
-                        retval = d.x1
-                        break;                            
-                    case 'ramp_on_left':
-                    case 'ramp_off_left':
-                         // Since the ramp is to the left, use the x-coordinate with the lesser value
-                        tmp = (d.x1 < d.x2) ? d.x1 - 25 : d.x2 - 25;
-                        retval = tmp;
-                        break;                    
-                    case 'ramp_on_right':
-                    case 'ramp_off_right': 
-                        // Since the ramp is to the right, use the x-coordinate with the greater value
-                        tmp = (d.x1 > d.x2) ? d.x1 + 25 : d.x2 + 25;
-                        retval = tmp;
-                        break;   
-                    case 'ramphov':
-                        // Fallthrough is deliberate
+                        
+                    
+*/ 
+
                     default:
                         // Segments not 'labeled' with volume data, e.g., HOV 'ramps' - x and y ccordinates are abritrary (since these segments are unlabeled with data)
                         console.log(d.unique_id + ' : segment type is: ' + d.type);
@@ -1713,38 +1393,29 @@ function generateSvgTextForEBWB(svgContainer, wireframeData, yDir_is_routeDir, w
             .attr("y", function(d, i) { 
                     var tmp, retval;
                     switch(d.type) {
-                    case 'main':
-                    case 'mainleft':
-                    case 'mainright':                 
-                        retval = d.y1 + ((d.y2 - d.y1)/2);    
+                    case 'main':               
+                        retval = mainline_yOffset - 10;     
+                        break;                      
+                    case 'ramp_off_below':                   
+                    case 'ramp_on_below':
+                    case 'rampbelowmain':
+                        // retval = ramp_below_yOffset + 15;
+                        tmp = d3.max([d.y1,d.y2]);
+                        retval = tmp + 15;                        
                         break;
-                    case 'hovleft':
-                        // Note: We have to futz with the *Y*-coordinate because the text for 'hov{left,right}' segments is rotated
-                       retval = d.y1 + ((d.y2 - d.y1)/2) - 15;
-                       break;
-                    case 'hovright':
-                        // Note: We have to futz with the *Y*-coordinate because the text for 'hov{left,right}' segments is rotated
-                        retval = d.y1 + ((d.y2 - d.y1)/2) + 15;  
+                        
+                    case 'ramp_off_above':                    
+                    case 'ramp_on_above':
+                    case 'rampabovemain':
+                        // retval = ramp_above_yOffset - 10;
+                        tmp = d3.min([d.y1,d.y2]);
+                        retval = tmp - 10;
                         break;
+                                       
+                   
                     case 'rampleftmain':
-                        // Place the data value below the 'loose end' of 'vertical ramps'
-                        tmp = (d.y1 > d.y2) ? d.y1 + 20 : d.y2 + 20;
-                        retval = tmp;
-                        break;                        
-                    case 'ramp_on_left':
-                    case 'ramp_off_left':
-                         // Since the ramp is to the left, the x-coordinate with the lesser value indicates the 'loose end' of the ramp
-                        tmp = (d.x1 < d.x2) ? d.y1 - 10 : d.y2 - 10;
-                        retval = tmp;
-                        break;                    
-                    case 'ramp_on_right':
-                    case 'ramp_off_right':               
-                        // Since the ramp is the right, the x-coordinate with the greater value indicates the 'loose end' of the ramp
-                        tmp = (d.x1 > d.x2) ? d.y1 + 10 : d.y2 + 10;
-                        retval = tmp;
-                        break;                    
-                    case 'ramphov':
-                        // Fallthrough is deliberate
+                        // Fallthrough, for the moment...
+                       
                     default:
                         // Segments not 'labeled' with volume data, e.g., HOV 'ramps' - x and y ccordinates are abritrary (since these segments are unlabeled with data)
                         retval = d.y1 + ((d.y2 - d.y1)/2);
@@ -1756,22 +1427,17 @@ function generateSvgTextForEBWB(svgContainer, wireframeData, yDir_is_routeDir, w
                     var retval; 
                     switch(d.type) {
                     case 'main':
-                    case 'mainleft':
-                    case 'mainright':
-                    case 'hovright':
-                    case 'hovleft':
                     case 'rampleftmain':
-                        // Fallthroughs above are deliberate
                         retval = "middle";
                         break;
-                    case 'rampleft':
+                    case 'ramp_off_below':
+                    case 'ramp_off_above':
                         retval = "end";
                         break;
-                    case 'rampright':
+                    case 'ramp_on_below':
+                    case 'ramp_on_above':
                         retval = "start";
                         break;
-                    case 'ramphov':
-                        // Fallthrough is deliberate
                     default:
                         // Segments not 'labeled' with volume data, e.g., HOV 'ramps' - text-anchor value is arbitrary (since these are unlabeled with data)
                         retval = "middle";
