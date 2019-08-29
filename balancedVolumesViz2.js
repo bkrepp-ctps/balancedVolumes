@@ -947,7 +947,7 @@ function generateSvgWireframe(wireframeData, townBoundaryData, div_id, yDir_is_r
     } else {
         width = d3.max([d3.max(wireframeData, function(d) { return d.x1; }),
                          d3.max(wireframeData, function(d) { return d.x2; })]) + horizontalPadding; 
-        height = 130;   
+        height = 180;   
     }
     
    var svgContainer = d3.select('#' + div_id)
@@ -1338,15 +1338,7 @@ function generateSvgTextForNBSB(svgContainer, wireframeData, yDir_is_routeDir, w
 
 // function: generateSvgTextForEBWB(svgContainer, wireframeData, yDir_is_routeDir, width, height)
 //
-function generateSvgTextForEBWB(svgContainer, wireframeData, yDir_is_routeDir, width, height) {
-    var mainline_yOffset = 70,
-        ramp_above_yOffset = 50,
-        ramp_below_yOffset = 90,
-        rampbelowmain_yOffset = 110;
-    
-    // ???
-    var volumeText_xOffset = 250;
-    
+function generateSvgTextForEBWB(svgContainer, wireframeData, yDir_is_routeDir, width, height) { 
     // (2) SVG <text> elements for the balanced volume data itself
     // Do not render volume data for pseudo-ramps for HOV lanes - these are just graphical decorations
    var filtered_wireframeData1 = _.filter(wireframeData, function(rec) { return (rec.type != 'ramphov'); });
@@ -1358,7 +1350,7 @@ function generateSvgTextForEBWB(svgContainer, wireframeData, yDir_is_routeDir, w
         .data(filtered_wireframeData1)
         .enter()
         .append("text")
-            .attr("id", function(d, i) { return 'vol_txt_' +d.unique_id; })
+            .attr("id", function(d, i) { return 'vol_txt_' + d.unique_id; })
             .attr("class", function(d,i) {
                 var retval = 'vol_txt';
                 retval += ' ' + d.year_restriction;
@@ -1370,84 +1362,109 @@ function generateSvgTextForEBWB(svgContainer, wireframeData, yDir_is_routeDir, w
                     case 'main':
                     case 'ramp_main_above':
                     case 'ramp_main_below':
-                    case 'ramp_off_above_internal':
-                    case 'ramp_on_above_internal':
-                    case 'ramp_off_below_internal':
-                    case 'ramp_on_below_internal':
                         retval = d.x1 + ((d.x2 - d.x1)/2); 
-                        break;
-                  
-                    case 'ramp_off_below':
-                    case 'ramp_off_above':                   
+                        break;                                           
+                    case 'ramp_on_below_internal':     
+                    case 'ramp_on_above_internal':
+                        max = d3.max([d.x1,d.x2]);
+                        min = d3.min([d.x1,d.x2]);  
+                        tmp = (d.backbone_rte.endsWith('eb')) ? min : max;
+                        retval = tmp;
+                        break;                                        
+                    case 'ramp_off_below_internal':                    
+                    case 'ramp_off_above_internal':
+                        max = d3.max([d.x1,d.x2]);
+                        min = d3.min([d.x1,d.x2]);
+                        tmp = (d.backbone_rte.endsWith('eb')) ? max : min;
+                        retval = tmp;                        
+                        break;                   
                     case 'ramp_on_below':
-                    case 'ramp_off_above':                   
-                        retval = d.x1;
-                        break;                       
-                        
+                    case 'ramp_on_above':                   
+                        max = d3.max([d.x1,d.x2]);
+                        min = d3.min([d.x1,d.x2]);  
+                        tmp = (d.backbone_rte.endsWith('eb')) ? min : max;
+                        retval = tmp;
+                        break;                                        
+                    case 'ramp_off_below':
+                    case 'ramp_off_above':   
+                        max = d3.max([d.x1,d.x2]);
+                        min = d3.min([d.x1,d.x2]);
+                        tmp = (d.backbone_rte.endsWith('eb')) ? max : min;
+                        retval = tmp;                        
+                        break;                                        
                     default:
                         // Segments not 'labeled' with volume data, e.g., HOV 'ramps' - x and y ccordinates are abritrary (since these segments are unlabeled with data)
                         console.log(d.unique_id + ' : segment type is: ' + d.type);
                         retval = d.x1;
                         break;
-                    } // switch 
+                    } // switch                  
                     return retval;
                  })
             .attr("y", function(d, i) { 
                     var tmp, retval;
                     switch(d.type) {
                     case 'main':               
-                        retval = mainline_yOffset - 10;     
+                        retval = d.y1 - 10;     
                         break; 
                     case 'ramp_main_above':
-                        retval = d.x1 - 10;
+                        retval = d.y1 - 10;
                         break;
                     case 'ramp_main_below':
-                        retval = d.xl + 10;
+                        retval = d.y1 + 15;
                         break;
- 
                     case 'ramp_off_above_internal':
                     case 'ramp_on_above_internal':
                     case 'ramp_off_below_internal':
                     case 'ramp_on_below_internal':
                         min = d3.min([d.y1,d.y2]);
-                        max = d3.max([d.y1,d.y2]);
+                        max = d3.max([d.y1,d.y2]); 
                         retval = min + ((max-min)/2); 
-                        break;
-                        
+                        break;                        
                     case 'ramp_off_below':                   
                     case 'ramp_on_below':
                         tmp = d3.max([d.y1,d.y2]);
                         retval = tmp + 15;                        
-                        break;
-                        
+                        break;                       
                     case 'ramp_off_above':                    
                     case 'ramp_on_above':
                         tmp = d3.min([d.y1,d.y2]);
                         retval = tmp - 10;
-                        break;
-                                                            
+                        break;                                                           
                     default:
                         // Segments not 'labeled' with volume data, e.g., HOV 'ramps' - x and y ccordinates are abritrary (since these segments are unlabeled with data)
                         retval = d.y1 + ((d.y2 - d.y1)/2);
                         break;
-                    } // switch                   
+                    } // switch     
                     return retval;
                 })
             .attr("text-anchor", function(d, i) {
                     var retval; 
                     switch(d.type) {
                     case 'main':
-                    case 'rampleftmain':
+                    case 'ramp_main_above':
+                    case 'ramp_main_below':                 
                         retval = "middle";
-                        break;
-                    case 'ramp_off_below':
-                    case 'ramp_off_above':
-                        retval = "end";
-                        break;
+                        break;                                             
+                    case 'ramp_on_below_internal':     
+                    case 'ramp_on_above_internal':
+                        tmp = (d.backbone_rte.endsWith('eb')) ? "end" : "start";
+                        retval = tmp;
+                        break;                                       
+                    case 'ramp_off_below_internal':                    
+                    case 'ramp_off_above_internal':
+                        tmp = (d.backbone_rte.endsWith('eb')) ? "start" : "end";
+                        retval = tmp;                        
+                        break; 
                     case 'ramp_on_below':
-                    case 'ramp_on_above':
-                        retval = "start";
-                        break;
+                    case 'ramp_on_above':                                     
+                        tmp = (d.backbone_rte.endsWith('eb')) ? "end" : "start";
+                        retval = tmp;
+                        break;                                               
+                    case 'ramp_off_below':
+                    case 'ramp_off_above':                    
+                        tmp = (d.backbone_rte.endsWith('eb')) ? "start" : "end";
+                        retval = tmp;                        
+                        break;                                           
                     default:
                         // Segments not 'labeled' with volume data, e.g., HOV 'ramps' - text-anchor value is arbitrary (since these are unlabeled with data)
                         retval = "middle";
@@ -1455,31 +1472,16 @@ function generateSvgTextForEBWB(svgContainer, wireframeData, yDir_is_routeDir, w
                     }
                     return retval;
                     })
-            .attr("transform", function(d, i) 
-                {
-                    var retval;
-                    if (d.type !== 'hovleft' && d.type !== 'hovright') {
-                        retval = 'rotate(0,0,0)';
-                    } else {
-                        // Rotate HOV labels 90 degrees counter-clockwise, i.e., -90 degrees in SVG-speak
-                        // The (x,y) point around which the rotation is performed is the (x,y) midpoint of the line in question
-                        // For reference, the syntax of the SVG rotate transform in pseudo-BNF form is:
-                        //      transform='rotate(<degrees>, <x_origin>, <y_origin>)'
-                        retval = 'rotate(-90,' ;
-                        retval += d.x1 + ((d.x2 - d.x1)/2);
-                        retval += ',';
-                        retval += d.y1 + ((d.y2 - d.y1)/2);
-                        retval += ')' ;
-                    }
-                    return retval;
-                }) 
             .text('');  // Placeholder value
-
-
+            
+            
+    // ***
     // *** TEMP - for now, during development
     // ***
     return { volume_txt : svgVolumeText,  label_txt_1 : null,  label_txt_2 : null,  label_txt_3: null };
     
+    // The code in this function below this point is currently just a copy-and-paste
+    // of the correspoinding code for NB/SB routes.
     
 
     // (3) SVG <text> and <tspan> elements for descriptive labels, e.g., "Interchange X off-ramp to Y"
