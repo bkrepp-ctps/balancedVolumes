@@ -2,7 +2,7 @@ unique_id,data_id,description,x1,x2,y1,y2,type,showdesc,restriction,nlanes,yr_19
 i90_eb_250,i90_eb_250,I-90 westbound between Interchange 11A on-ramp and the MPO boundary,10,110,100,100,main,0,none,3,1,1,i90_wb,49500,1100,1900,2200,2200,3800,4500,4800,3700,5200,13100
 R11547,R11547,Interchange 11A |on-ramp from I-495,135,110,70,100,ramp_on_above,1,none,1,1,1,i90_wb,15000,300,500,800,800,1000,1300,1700,1100,1600,4000
 i90_wb_240,i90_wb_240,I-90 westbound between Interchange 11A off-ramp and on-ramp,110,410,100,100,main,0,none,3,1,1,i90_wb,34500,800,1400,1400,1400,2800,3200,3100,2600,3600,9100
-R1146,R1146,Interchange 11A |off-ramp to I-495,410,385,100,70,ramp_off_above,1,none,2,1,1,i90_wb,20000,600,1200,1200,900,1700,2100,2200,1800,3000,6000
+R11546,R11546,Interchange 11A |off-ramp to I-495,410,385,100,70,ramp_off_above,1,none,2,1,1,i90_wb,20000,600,1200,1200,900,1700,2100,2200,1800,3000,6000
 i90_wb_230,i90_wb_230,I-90 westbound between Interchange 12 on-ramp and Interchange 11A off-ramp,410,610,100,100,main,0,none,3,1,1,i90_wb,54500,1400,2600,2600,2300,4500,5300,5300,4400,6600,15100
 R11545,R11545,Interchagne 12 |on-ramp from SR-9,635,610,70,100,ramp_on_above,1,none,1,1,1,i90_wb,4500,100,200,200,200,400,600,900,700,500,1900
 i90_wb_220,i90_wb_220,I-90 westbound between Interchange 12 on-ramp and off-ramp,610,910,100,100,main,0,none,3,1,1,i90_wb,50000,1300,2400,2400,2100,4100,4700,4400,3700,6100,13200
@@ -54,7 +54,7 @@ R11722,R11722,On-ramp |from Logan Airport,5535,5510,70,100,ramp_on_above,1,none,
 i90_wb_020,i90_wb_020,I-90 between Logan Airport off- ramp and on-ramp,5510,5810,100,100,main,0,none,2,1,1,i90_wb,16500,1250,1800,1850,1200,1100,900,800,650,4900,2800
 R11721,R11721,Off-ramp to Logan Airport,5810,5785,100,70,ramp_off_above,1,none,1,1,1,i90_wb,10500,700,550,600,550,600,600,500,500,1850,1700
 i90_wb_010,i90_wb_010,I-90 westbound between off-ramp to SR-1A and off-ramp to Logan Airport,5810,6110,100,100,main,0,none,2,1,1,i90_wb,27000,1950,2350,2450,1750,1700,1500,1300,1150,6750,4500
-n47601_sb,n47601_sb,Off-ramp to SR-1A,6110,6085,100,70,ramp_off_above,1,none,1,1,1,i90_wb,10000,650,850,800,700,500,500,500,450,2300,1500
+N47601_sb,N47601_sb,Off-ramp to SR-1A,6110,6085,100,70,ramp_off_above,1,none,1,1,1,i90_wb,10000,650,850,800,700,500,500,500,450,2300,1500
 sr_1a_sb_050,sr_1a_sb_050,SR 1A southbound between Benninton Street on-ramp and beginning of I-90,6110,6310,100,100,main,0,none,2,1,1,i90_wb,37000,2600,3200,3250,2450,2200,2000,1800,1600,9050,6000
 R27012,R27012,On-ramp| from Bennington Street,6335,6310,70,100,ramp_on_above,1,none,1,1,1,i90_wb,11000,750,1000,1050,650,700,600,550,450,2800,1850
 sr_1a_sb_040,sr_1a_sb_040,SR 1A southbound east of Bennington Street on-ramp,6310,6510,100,100,main,0,none,2,1,1,i90_wb,26000,1850,2200,2200,1800,1500,1400,1250,1150,6250,4150
