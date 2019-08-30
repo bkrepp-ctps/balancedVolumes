@@ -1373,7 +1373,12 @@ function generateSvgTextForEBWB(svgContainer, wireframeData, yDir_is_routeDir, w
                     case 'ramp_off_above_internal':
                         max = d3.max([d.x1,d.x2]);
                         min = d3.min([d.x1,d.x2]);
-                        tmp = (d.backbone_rte.endsWith('eb')) ? max : min;
+                        // Workaround for problematical R50130_part_2
+                        if (d.backbone_rte.endsWith('eb')) {
+                            tmp = (d.data_id !== 'R50130_part_2') ? max : min;
+                        } else {
+                            tmp = min;
+                        }
                         retval = tmp;                        
                         break;                   
                     case 'ramp_on_below':
@@ -1450,7 +1455,12 @@ function generateSvgTextForEBWB(svgContainer, wireframeData, yDir_is_routeDir, w
                         break;                                       
                     case 'ramp_off_below_internal':                    
                     case 'ramp_off_above_internal':
-                        tmp = (d.backbone_rte.endsWith('eb')) ? "start" : "end";
+                        // Workaround for problematical R50130_part_2
+                        if (d.backbone_rte.endsWith('eb')) {                            
+                            tmp = (d.data_id != 'R50130_part_2') ? "start" : "end";
+                        } else {
+                            tmp = "end";
+                        }
                         retval = tmp;                        
                         break; 
                     case 'ramp_on_below':
