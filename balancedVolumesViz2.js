@@ -84,14 +84,6 @@ var currentRoute = null;
 
 var geojsonURL = 'data/geojson/roadsegments.geojson';
 
-var csvWireFrame_sb_URL = 'data/csv/join_i93_sr3_sb_wireframe_and_volumes.csv';
-var csvWireFrame_nb_URL = 'data/csv/join_i93_sr3_nb_wireframe_and_volumes.csv';
-var csvLanes_sb_URL = 'data/csv/i93_sr3_sb_LANES_2010.csv';
-var csvLanes_nb_URL = 'data/csv/i93_sr3_nb_LANES_2010.csv';
-
-var csvTownBoundaries_sb_URL = 'data/csv/i93_sr3_sb_TOWNS.csv';
-var csvTownBoundaries_nb_URL = 'data/csv/i93_sr3_nb_TOWNS.csv';
-
 // Pseudo-const "var" for NO_DATA flag value
 var NO_DATA = -9999;
 // Global "database" of data read in from CSV and JSON files for currently selected route
@@ -112,7 +104,7 @@ var map;
 var aPolylines_PrimDir = [], aPolylines_SecDir = [];
 // (3) 
 var lineColorPalette = { 'primary' : '#f5831a', 'secondary' : '#0066b4' };
-// (4) Interval timer - used by scale-bar units hack
+// (4) Interval timer - used by scale-bar units hack for Google Map
 var intervalTimer;
 
 // Scales for width of SVG <line>s
@@ -334,8 +326,6 @@ function initializeForRoute(route) {
     if (currentRoute.route !== 'i93_sr3' ) {
         var s = 'Testing generation of visualization for ' + currentRoute.route;
         console.log(s);
-        // alert(s);
-        // return;
     }  
     
     var q = d3.queue()
@@ -899,7 +889,8 @@ function generatePeakHoursViz() {
 } // generatePeakHoursViz()
 
 
-// function: generateSvgWireframe
+// generateSvgWireframe
+//
 // parameters:
 //      wireframeData -  data from main CSV file containing data on layout of the SVG <line>
 //                       elements (a 'wireframe') that will be symbolized to represent
@@ -924,8 +915,9 @@ function generatePeakHoursViz() {
 //          label_txt_2 - SVG <tspan> elements for line 2 of descriptive text
 //          label_txt_3 - SVG <tspan> elements for line 3 of descriptive text
 //
-// notes: This function generates four SVG structures, all of which are contained within 
-//        an enclosing SVG <g> element:
+// overview: 
+//        This function (and the two subordinate functions it calls) generate the following five 
+//        SVG structures, all of which are contained within an overall enclosing SVG <g> element:
 //          1. svgRouteSegs_g  - contains <line> elements comprising the schematic route 'wireframe'
 //          2. svgVolumeText_g - contains <text> elements containing balanced volume numbers
 //          3. svgLabelText_g  - contains <text> and <tspan> elements containing descriptive 
@@ -936,6 +928,10 @@ function generatePeakHoursViz() {
 //                                   is rendered on top of it
 //          5. svgTownNamesBefore_g and svgTownNamesAfter_g - contains <text> elements for
 //                                town names on either side of a schematic town boundary
+//
+//      This function itself generates (1), (4), and (5) itself, and calls one of two subordinate
+//      functions to generate (2) and (3). Which subordinate function is called depends upon the
+//      the orientation of the current route (north/south) or (east/west).
 //
 function generateSvgWireframe(wireframeData, townBoundaryData, div_id, yDir_is_routeDir, handlers) {	
     var verticalPadding = 10, horizontalPadding = 10;
@@ -1019,6 +1015,11 @@ function generateSvgWireframe(wireframeData, townBoundaryData, div_id, yDir_is_r
 
 
 // generateSvgTextForNBSB(svgContainer, wireframeData, yDir_is_routeDir, width, height)
+//
+// parameters:  See header comment block for "generateSvgWireframe".
+//
+// overview: This function generates svgVolumeText_g and svgLabelText_g for routes
+//           whose orientation is north-south.
 //
 function generateSvgTextForNBSB(svgContainer, wireframeData, yDir_is_routeDir, width, height) {
     var mainline_xOffset = 150;
@@ -1333,8 +1334,14 @@ function generateSvgTextForNBSB(svgContainer, wireframeData, yDir_is_routeDir, w
 } // generateSvgTextForNBSB()
 
 
-
-// function: generateSvgTextForEBWB(svgContainer, wireframeData, yDir_is_routeDir, width, height)
+// generateSvgTextForEBWB(svgContainer, wireframeData, yDir_is_routeDir, width, height)
+//
+// parameters:  See header comment block for "generateSvgWireframe".
+//
+// overview: This function generates svgVolumeText_g and svgLabelText_g for routes
+//           whose orientation is east-west.
+//
+// notes:   The implementation of the generation of svgLabelText_g is currently only a stub.
 //
 function generateSvgTextForEBWB(svgContainer, wireframeData, yDir_is_routeDir, width, height) { 
     // (2) SVG <text> elements for the balanced volume data itself
@@ -1484,12 +1491,12 @@ function generateSvgTextForEBWB(svgContainer, wireframeData, yDir_is_routeDir, w
             
             
     // ***
-    // *** TEMP - for now, during development
+    // *** NOTE - NOTE - NOTE - for now, we just return
     // ***
     return { volume_txt : svgVolumeText,  label_txt_1 : null,  label_txt_2 : null,  label_txt_3: null };
     
-    // The code in this function below this point is currently just a copy-and-paste
-    // of the correspoinding code for NB/SB routes.
+    // The code in this function below this point is currently merely "boilerplate", to be filled in later.
+
     
 
     // (3) SVG <text> and <tspan> elements for descriptive labels, e.g., "Interchange X off-ramp to Y"
@@ -1511,17 +1518,18 @@ function generateSvgTextForEBWB(svgContainer, wireframeData, yDir_is_routeDir, w
             .attr("x", function(d, i) { 
                 var retval;
                 switch(d.type) {
-                case 'ramp_on_left':
-                case 'ramp_on_right':
-                case 'ramp_off_left':
-                case 'ramp_off_right':
-                case 'rampleftmain':              
-                    retval = 5; 
-                    break;
+                case 'ramp_main_above':
+                case 'ramp_main_below':                    
+                case 'ramp_on_below_internal':     
+                case 'ramp_on_above_internal':                   
+                case 'ramp_off_below_internal':                    
+                case 'ramp_off_above_internal':
+                case 'ramp_on_below':
+                case 'ramp_on_above':                     
+                case 'ramp_off_below':
+                case 'ramp_off_above':                                       
                 default:   
-                    // The following cases should never occur in practice: main, mainright, mainleft, hovleft, hovright, and ramphov.
-                    // If they do, something is amiss.
-                    console.log('Attempt to create descriptive label text placeholder for: ' + d.unique_id + '. Type = ' + d.type);
+                    // console.log('Attempt to create descriptive label text placeholder for: ' + d.unique_id + '. Type = ' + d.type);
                     retval = 0; // Retval is arbitrary choice   
                     break;
                 }
@@ -1530,29 +1538,18 @@ function generateSvgTextForEBWB(svgContainer, wireframeData, yDir_is_routeDir, w
             .attr("y", function(d, i) { 
                 var retval;
                 switch(d.type) {
-                // General comment on the placement of descriptive labels for ramps.
-                // The general principle here is to place the descriptive label for 
-                // ramps at the Y-coordinate of the 'tip' ('loose end') of the ramp.
-                // Which end is the 'tip' depends upon (1) whether the direction of the 
-                // route corresponds to increasing Y-values in SVG space, and (2) whether
-                // the ramp is an on- or off-ramp.
-                //
-                case 'ramp_on_left':
-                case 'ramp_on_right':
-                    retval = (yDir_is_routeDir === true) ? d3.min([d.y1,d.y2]) : d3.max([d.y1,d.y2]);
-                    break;
-                case 'ramp_off_left':
-                case 'ramp_off_right':
-                    retval = (yDir_is_routeDir === true) ? d3.max([d.y1,d.y2]) : d3.min([d.y1,d.y2]);
-                    break;
-                case 'rampleftmain':
-                    // These are 'vertical' off-ramps
-                    retval = (yDir_is_routeDir === true) ? d3.max([d.y1,d.y2]) : d3.min([d.y1,d.y2]);
-                    break;
+                case 'ramp_main_above':
+                case 'ramp_main_below':                    
+                case 'ramp_on_below_internal':     
+                case 'ramp_on_above_internal':                   
+                case 'ramp_off_below_internal':                    
+                case 'ramp_off_above_internal':
+                case 'ramp_on_below':
+                case 'ramp_on_above':                     
+                case 'ramp_off_below':
+                case 'ramp_off_above': 
                 default:
-                    // The following cases should never occur in practice:
-                    // main, mainright, mainleft, hovleft, hovright, and ramphov.
-                    console.log(d.unique_id + ' type = ' + d.type);
+                    // console.log(d.unique_id + ' type = ' + d.type);
                     retval = 0; // Retval is arbitrary choice
                     break;
                 }
@@ -1581,29 +1578,7 @@ function generateSvgTextForEBWB(svgContainer, wireframeData, yDir_is_routeDir, w
         .attr("x", 5)
         .attr("y", function(d, i) { 
             var retval;
-            // Place descriptive label at the Y-coordinate of the 'tip' ('loose end') of the ramp.
-            // Which end is the 'tip' depends upon (1) whether the direction of the 
-            // route corresponds to increasing Y-values in SVG space, and (2) whether
-            // the ramp is an on- or off-ramp.
-            switch(d.type) {
-            case 'ramp_on_left':
-            case 'ramp_on_right':
-                retval = (yDir_is_routeDir === true) ? d3.min([d.y1,d.y2]) : d3.max([d.y1,d.y2]);
-                break;
-            case 'ramp_off_left':
-            case 'ramp_off_right':
-                retval = (yDir_is_routeDir === true) ? d3.max([d.y1,d.y2]) : d3.min([d.y1,d.y2]);
-                break;
-            case 'rampleftmain':
-                // These are 'vertical' off-ramps
-                retval = (yDir_is_routeDir === true) ? d3.max([d.y1,d.y2]) : d3.min([d.y1,d.y2]);
-                break;                
-            default:
-                // The following cases should never occur in practice:
-                // main, mainright, mainleft, hovleft, hovright, and ramphov.              
-                retval = 0;  // Retval is arbitrary choice
-                break;   
-            }
+            retval = 0;  // Retval is arbitrary choice 
             return retval; 
         }) 
         .attr("dy", 10)
@@ -1617,30 +1592,8 @@ function generateSvgTextForEBWB(svgContainer, wireframeData, yDir_is_routeDir, w
         })
         .attr("x", 5)
         .attr("y", function(d, i) { 
-            var retval;
-            // Place descriptive label at the Y-coordinate of the 'tip' ('loose end') of the ramp.
-            // Which end is the 'tip' depends upon (1) whether the direction of the 
-            // route corresponds to increasing Y-values in SVG space, and (2) whether
-            // the ramp is an on- or off-ramp.
-            switch(d.type) {
-            case 'ramp_on_left':
-            case 'ramp_on_right':
-                retval = (yDir_is_routeDir === true) ? d3.min([d.y1,d.y2]) : d3.max([d.y1,d.y2]);
-                break;
-            case 'ramp_off_left':
-            case 'ramp_off_right':
-                retval = (yDir_is_routeDir === true) ? d3.max([d.y1,d.y2]) : d3.min([d.y1,d.y2]);
-                break;
-            case 'rampleftmain':
-                // These are 'vertical' off-ramps
-                retval = (yDir_is_routeDir === true) ? d3.max([d.y1,d.y2]) : d3.min([d.y1,d.y2]);
-                break;                
-            default:
-                // The following cases should never occur in practice:
-                // main, mainright, mainleft, hovleft, hovright, and ramphov.              
-                retval = 0;  // Retval is arbitrary choice
-                break;   
-            }
+            var retval;         
+            retval = 0;  // Retval is arbitrary choice   
             return retval; 
         }) 
         .attr("dy", 20)
