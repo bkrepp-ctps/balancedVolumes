@@ -30,9 +30,9 @@ R11708,R11708,Interchange 22 off-ramp,3510,3535,115,145,ramp_off_below,1,none,2,
 i90_eb_380,i90_eb_380,I-90 eastbound between Interchange 22 off-ramp and Interchange 24 off-ramp,3510,3710,115,115,main,0,none,1,1,1,i90_eb,56000,3250,4500,4900,3900,3600,3900,3900,3600,12650,11400
 R50130_part_1,R50130_part_1,Interchange 24 off-ramp,3710,3735,115,85,ramp_off_above_internal,0,none,1,1,1,i90_eb,35000,1850,2900,3150,2600,2150,2200,2250,2100,7900,6600
 R11709,R11709,Interchange 24A |off-ramp to South Station,3735,3850,85,85,ramp_main_above,1,none,1,1,1,i90_eb,9500,650,1100,1200,950,400,400,450,450,2950,1250
-R50130_part_2,R50130_part_2,Interchange 24 off-ramp,3850,3875,85,55,ramp_off_above_internal,0,none,1,1,1,i90_eb,25500,1200,1800,1950,1650,1750,1800,1800,1650,4950,5350
-R11713,R11713,Interchange 24B |off-ramp to I-93 northbound,3875,3990,55,55,ramp_main_above,1,none,1,1,1,i90_eb,12500,650,50,1100,900,800,850,800,850,1800,2450
-R11714,R11714,Interchange 24C |off-ramp to I-93 southbound,3875,3900,55,25,ramp_off_above,1,none,1,1,1,i90_eb,13000,550,850,850,750,950,950,1000,800,2250,2900
+R50130_part_2,R50130_part_2,Interchange 24 off-ramp,3735,3760,85,55,ramp_off_above_internal,0,none,1,1,1,i90_eb,25500,1200,1800,1950,1650,1750,1800,1800,1650,4950,5350
+R11713,R11713,Interchange 24B |off-ramp to I-93 northbound,3760,3875,55,55,ramp_main_above,1,none,1,1,1,i90_eb,12500,650,50,1100,900,800,850,800,850,1800,2450
+R11714,R11714,Interchange 24C |off-ramp to I-93 southbound,3760,3785,55,25,ramp_off_above,1,none,1,1,1,i90_eb,13000,550,850,850,750,950,950,1000,800,2250,2900
 i90_eb_390,i90_eb_390,I-90 eastbound between Interchange 24 off-ramp and Interchange 25 off-ramp,3710,4110,115,115,main,0,none,2,1,1,i90_eb,21000,1400,1600,1750,1300,1450,1700,1650,1500,4750,4800
 R11715,R11715,Interchange 25 off-ramp,4110,4135,115,145,ramp_off_below,1,none,1,1,1,i90_eb,6000,350,700,950,600,350,400,550,450,2000,1300
 i90_eb_400,i90_eb_400,I-90 eastbound between Interchange 25 off-ramp and on-ramp from I-93 NB and Frontage Road,4110,4410,115,115,main,0,none,2,1,1,i90_eb,15000,1050,900,800,700,1100,1300,1100,1050,2750,3500
