@@ -947,7 +947,7 @@ function generateSvgWireframe(wireframeData, townBoundaryData, div_id, yDir_is_r
     } else {
         width = d3.max([d3.max(wireframeData, function(d) { return d.x1; }),
                          d3.max(wireframeData, function(d) { return d.x2; })]) + horizontalPadding; 
-        height = 180;   
+        height = 200;   
     }
     
    var svgContainer = d3.select('#' + div_id)
@@ -955,16 +955,14 @@ function generateSvgWireframe(wireframeData, townBoundaryData, div_id, yDir_is_r
             .attr("width", width)
             .attr("height", height);
     
-    // First: 
+    // We first generate: 
     //     (4)  SVG <line> elements for schematic town boundaries  
     //     (5)  SVG <text> elements for the names of the towns on each side of each town boundary <line>
     //     (5a) Name of town "before" town boundary  
     //     (5b) Name of town "after" town boundary    
     generateSvgTownBoundaries(svgContainer, townBoundaryData, width, height)
 
-
-
-    // Code to generate main viz starts here   
+    // Code to generate the "volumes" content of the main viz starts here   
     
     // For routes with NE/SB orientation:
     //     The x-offset of the main barrel of the 'wireframe' is 150 in the CSV wireframe layout data;
@@ -1013,9 +1011,9 @@ function generateSvgWireframe(wireframeData, townBoundaryData, div_id, yDir_is_r
     } else {
         svgTextInfo = generateSvgTextForEBWB(svgContainer, wireframeData, yDir_is_routeDir, width, height);
     }
-    retval = { volumeLines : svgRouteSegs, volume_txt : svgTextInfo.volume_txt,  
-                label_txt_1 : svgTextInfo.label_txt_1, label_txt_2 : svgTextInfo.label_txt_2, label_txt_3: svgTextInfo.label_txt_3 };
-     
+    retval = { volumeLines : svgRouteSegs,
+               volume_txt : svgTextInfo.volume_txt,  
+               label_txt_1 : svgTextInfo.label_txt_1, label_txt_2 : svgTextInfo.label_txt_2, label_txt_3: svgTextInfo.label_txt_3 };    
     return retval;
 } // generateSvgWireframe()
 
