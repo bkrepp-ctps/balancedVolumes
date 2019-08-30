@@ -1661,7 +1661,7 @@ function generateSvgTownBoundaries(svgContainer, townBoundaryData, width, height
                             if (currentRoute.orientation === 'nbsb') {
                                 retval = 10;
                             } else {
-                                retval = d.coord + 10;
+                                retval = d.coord + 30;
                             }
                             return retval;
                         })
@@ -1670,7 +1670,7 @@ function generateSvgTownBoundaries(svgContainer, townBoundaryData, width, height
                             if (currentRoute.orientation === 'nbsb') {
                                 retval = width - 10;
                             } else {
-                                retval = d.coord + 10;
+                                retval = d.coord + 30; 
                             }
                             return retval;
                         })
@@ -1714,7 +1714,7 @@ function generateSvgTownBoundaries(svgContainer, townBoundaryData, width, height
                             if (currentRoute.orientation === 'nbsb') {
                                 retval =  width - 10;
                             } else {
-                                retval = d.coord + 5;
+                                retval = d.coord + 25;
                             }
                             return retval;
                         })          
@@ -1747,7 +1747,7 @@ function generateSvgTownBoundaries(svgContainer, townBoundaryData, width, height
                             if (currentRoute.orientation === 'nbsb') {
                                 retval = width - 10;
                             } else {
-                                retval = d.coord + 15; 
+                                retval = d.coord + 35; 
                             }
                             return retval;
                         })
