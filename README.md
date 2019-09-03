@@ -1,8 +1,8 @@
 # balancedVolumes
 
-This repository is devoted to the visualizations of balanced traffic volume data.
+This repository is devoted to the visualizations of balanced traffic volume data for I-93 and Massachusetts SR-3 within the boundary of the Boston Region Metropolitan Planning Organization.
 
-The raw balanced volume data for I-93 and Massachusetts SR-3 in the study area, and the data used to generate a schematic visualization of this data is found in the subdiretory data/csv. The balanced volume data for 2018 was produced by Bill Kuttner; the balanced volume data for 2010 and 1999 was produced by Tom Lisco. The GeoJSON data for geometry of I-93, SR-3, and associated ramps within the study area is found in the subdirectory data/geojson.
+The balanced volume data for I-93 and Massachusetts SR-3 in the study area, and the data used to generate a schematic visualization of this data is found in the subdiretory data/csv. The balanced volume data for 2018 was produced by Bill Kuttner; the balanced volume data for 2010 and 1999 was produced by Tom Lisco. The GeoJSON data for the geometry of I-93 and SR-3 within the study area is found in the subdirectory data/geojson.
 
 This application relies upon the following libraries that are not part of this repository:
 1. jQuery version 2.2.4 (see https://jquery.com/)
