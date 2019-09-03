@@ -1,6 +1,6 @@
-var geojsonURL = 'data/geojson/i93_and_sr3_complete.geojson';
-var csvWireFrame_sb_URL = 'data/csv/join_i93_sr3_sb_wireframe_and_volumes.csv';
-var csvWireFrame_nb_URL = 'data/csv/join_i93_sr3_nb_wireframe_and_volumes.csv';
+var geojsonURL = 'data/geojson/i93_and_sr3.geojson';
+var csvWireFrame_sb_URL = 'data/csv/i93_sr3_sb_wireframe_and_volumes.csv';
+var csvWireFrame_nb_URL = 'data/csv/i93_sr3_nb_wireframe_and_volumes.csv';
 var csvLanes_sb_URL = 'data/csv/i93_sr3_sb_LANES_2010.csv';
 var csvLanes_nb_URL = 'data/csv/i93_sr3_nb_LANES_2010.csv';
 
