@@ -1,7 +1,12 @@
 // Visualization of balanced volume data for I-93 and SR-3 within the Boston Region MPO boundary.
+// Developed as part of UPWP Project #13291 of the Boston Region Metropolitan Planning Agency for Federal Fiscal Year 2019.
 // 
-
-
+// Author: Benjamin Krepp (bkrepp@ctps.org)
+//         Data Resources Group
+//         Central Transportation Planning Staff
+//         Boston Region Metropolitan Planning Organization
+//         10 Park Plaza, Suite 2150
+//         Boston, MA 02116-3968
 
 var geojsonURL = 'data/geojson/i93_and_sr3.geojson';
 var csvWireFrame_sb_URL = 'data/csv/i93_sr3_sb_wireframe_and_volumes.csv';
