@@ -1,9 +1,13 @@
+// Visualization of balanced volume data for I-93 and SR-3 within the Boston Region MPO boundary.
+// 
+
+
+
 var geojsonURL = 'data/geojson/i93_and_sr3.geojson';
 var csvWireFrame_sb_URL = 'data/csv/i93_sr3_sb_wireframe_and_volumes.csv';
 var csvWireFrame_nb_URL = 'data/csv/i93_sr3_nb_wireframe_and_volumes.csv';
 var csvLanes_sb_URL = 'data/csv/i93_sr3_sb_LANES_2010.csv';
 var csvLanes_nb_URL = 'data/csv/i93_sr3_nb_LANES_2010.csv';
-
 var csvTownBoundaries_sb_URL = 'data/csv/i93_sr3_sb_TOWNS.csv';
 var csvTownBoundaries_nb_URL = 'data/csv/i93_sr3_nb_TOWNS.csv';
 
@@ -667,6 +671,7 @@ function initializeApp(error, results) {
 } // initializeApp()
 
 // function: generateSvgWireframe
+//
 // parameters:
 //      wireframeData -  data from main CSV file containing data on layout of the SVG <line>
 //                       elements (a 'wireframe') that will be symbolized to represent
@@ -690,9 +695,10 @@ function initializeApp(error, results) {
 //          label_txt_1 - SVG <tspan> elements for line 1 of descriptive text
 //          label_txt_2 - SVG <tspan> elements for line 2 of descriptive text
 //          label_txt_3 - SVG <tspan> elements for line 3 of descriptive text
-// notes: This function generates four SVG structures, each contained within 
 //
-//        an SVG <g> element:
+// overview:
+//        This function (and the two subordinate functions it calls) generate the following five 
+//        SVG structures, all of which are contained within an overall enclosing SVG <g> element:
 //          1. svgRouteSegs_g  - contains <line> elements comprising the schematic route 'wireframe'
 //          2. svgVolumeText_g - contains <text> elements containing balanced volume numbers
 //          3. svgLabelText_g  - contains <text> and <tspan> elements containing descriptive 
@@ -702,7 +708,12 @@ function initializeApp(error, results) {
 //                                   this is generated first, so the schematic linework
 //                                   is rendered on top of it
 //          5. svgTownNamesBefore_g and svgTownNamesAfter_g - contains <text> elements for
-//                                town names on either side of a schematic town boundary
+//                                town names on either side of a schematic town boundary;
+//          Items (4) and (5) are generated first, so the balanced volume data will be
+//          overlayed on top of them.
+//
+// With the implementation of many features requested by test users, this function has
+// grown to the point that it needs to be divided into several sub-functcions.
 //
 function generateSvgWireframe(wireframeData, townBoundaryData, div_id, yDir_is_routeDir, handlers) {	
     var verticalPadding = 10;
@@ -714,73 +725,14 @@ function generateSvgWireframe(wireframeData, townBoundaryData, div_id, yDir_is_r
         .append("svg")
             .attr("width", width)
             .attr("height", height);
-                      
-    // (4) SVG <line> elements for schematic town boundaries
-    //
-    var svgTownBoundaries_g = svgContainer.append("g");
-    var svgTownBoundaries = svgTownBoundaries_g;
-    svgTownBoundaries
-        .selectAll("line.town_boundary")
-        .data(townBoundaryData)
-        .enter()
-        .append("line")
-            .attr("id", function(d, i) { return d.unique_id; })
-            .attr("class", "town_boundary")
-            .attr("x1", 10)
-            .attr("x2", width - 10)
-            .attr("y1", function(d,i) {
-                            var retval;
-                            retval = d.coord + 10;
-                            return retval;
-                 })                    
-            .attr("y2", function(d,i) {
-                            var retval;
-                            retval = d.coord + 10;
-                            return retval;
-                 })
-            .style("stroke", "firebrick")
-            .style("stroke-width", "2px")
-            .style("stroke-dasharray", "10, 5");
-    
-    // (5)  SVG <text> elements for the names of the towns on each side of each town boundary <line>
-    // (5a) Name of town "before" town boundary
-    var svgTownNamesBefore_g = svgContainer.append("g");
-    var svgTownNamesBefore = svgTownNamesBefore_g;
-    svgTownNamesBefore
-        .selectAll("text.town_name_before")
-        .data(townBoundaryData)
-        .enter()
-        .append("text")
-            .attr("class", "town_name_before")
-            .attr("font-size", 12)
-            .attr("fill", "firebrick")  // font color
-            .attr("x", width - 10)
-            .attr("y", function(d, i) {
-                            var retval;
-                            retval = d.coord + 5;
-                            return retval;
-                })
-            .attr("text-anchor", "end")
-            .text(function(d,i) { return d.town_before; });
-    // (5b) Name of town "after" town boundary
-    var svgTownNamesAfter_g = svgContainer.append("g");
-    var svgTownNamesAfter = svgTownNamesAfter_g;
-    svgTownNamesAfter
-        .selectAll("text.town_name_after")
-        .data(townBoundaryData)
-        .enter()
-        .append("text")
-            .attr("class", "town_name_after")
-            .attr("font-size", 12)
-            .attr("fill", "firebrick")  // font color
-            .attr("x", width - 10)
-            .attr("y", function(d, i) {
-                            var retval;
-                            retval = d.coord + 25;
-                            return retval;
-                })
-            .attr("text-anchor", "end")
-            .text(function(d,i) { return d.town_after; });           
+            
+    // We first generate: 
+    //     (4)  SVG <line> elements for schematic town boundaries  
+    //     (5)  SVG <text> elements for the names of the towns on each side of each town boundary <line>
+    //     (5a) Name of town "before" town boundary  
+    //     (5b) Name of town "after" town boundary    
+    generateSvgTownBoundaries(svgContainer, townBoundaryData, width, height)     
+                     
     
     // The x-offset of the main barrel of the 'wireframe' is 150 in the CSV wireframe layout data;
     // Given an SVG drawing area width of 450, translate x +75px to center the main barrel
@@ -1129,6 +1081,66 @@ function generateSvgWireframe(wireframeData, townBoundaryData, div_id, yDir_is_r
     var retval = { volumeLines : svgRouteSegs,  volume_txt : svgVolumeText,  label_txt_1 : line1,  label_txt_2 : line2,  label_txt_3: line3 };
     return retval;
 } // generateSvgWireframe()
+
+
+// function: generateSvgTownBoundaries
+//
+function generateSvgTownBoundaries(svgContainer, townBoundaryData, width, height) {
+    // (4) SVG <line> elements for schematic town boundaries
+    //
+    var svgTownBoundaries_g = svgContainer.append("g");
+    var svgTownBoundaries = svgTownBoundaries_g;
+    svgTownBoundaries
+        .selectAll("line.town_boundary")
+        .data(townBoundaryData)
+        .enter()
+        .append("line")
+            .attr("id", function(d, i) { return d.unique_id; })
+            .attr("class", "town_boundary")
+            .attr("x1", 10) 
+            .attr("x2", function(d, i) { return width - 10; })
+            .attr("y1", function(d, i) { return d.coord + 10; })                                         
+            .attr("y2", function(d, i) { return d.coord + 10; })
+            .style("stroke", "firebrick")
+            .style("stroke-width", "2px")
+            .style("stroke-dasharray", "10, 5");   
+    
+    // (5)  SVG <text> elements for the names of the towns on each side of each town boundary <line>
+    // (5a) Name of town "before" town boundary
+    // N.B. "before" refers to the direction of rendering (top-to-bottom, left-to-right) not direction of traffic!
+    var svgTownNamesBefore_g = svgContainer.append("g");
+    var svgTownNamesBefore = svgTownNamesBefore_g;
+    svgTownNamesBefore
+        .selectAll("text.town_name_before")
+        .data(townBoundaryData)
+        .enter()
+        .append("text")
+            .attr("class", "town_name_before")
+            .attr("font-size", 12)
+            .attr("fill", "firebrick")  // font color
+            .attr("x", function(d, i) { return width - 10; })         
+            .attr("y", function(d, i) { return d.coord + 5; })
+            .attr("text-anchor", "end")
+            .text(function(d,i) { return d.town_before; });
+            
+    // (5b) Name of town "after" town boundary
+    // N.B. "after" refers to the direction of rendering (top-to-bottom, left-to-right) not direction of traffic!
+    var svgTownNamesAfter_g = svgContainer.append("g");
+    var svgTownNamesAfter = svgTownNamesAfter_g;
+    svgTownNamesAfter
+        .selectAll("text.town_name_after")
+        .data(townBoundaryData)
+        .enter()
+        .append("text")
+            .attr("class", "town_name_after")
+            .attr("font-size", 12)
+            .attr("fill", "firebrick")  // font color
+            .attr("x", function(d, i) { return width - 10; })
+            .attr("y", function(d, i) { return d.coord + 25; })
+            .attr("text-anchor", "end") 
+            .text(function(d,i) { return d.town_after; });   
+} // generateSvgTownBoundaries()
+
 
 // function: symbolizeSvgWireframe
 // parameters:
