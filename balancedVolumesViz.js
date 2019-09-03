@@ -732,8 +732,7 @@ function generateSvgWireframe(wireframeData, townBoundaryData, div_id, yDir_is_r
     //     (5a) Name of town "before" town boundary  
     //     (5b) Name of town "after" town boundary    
     generateSvgTownBoundaries(svgContainer, townBoundaryData, width, height)     
-                     
-    
+                         
     // The x-offset of the main barrel of the 'wireframe' is 150 in the CSV wireframe layout data;
     // Given an SVG drawing area width of 450, translate x +75px to center the main barrel
     var svgRouteSegs_g = svgContainer
@@ -770,17 +769,37 @@ function generateSvgWireframe(wireframeData, townBoundaryData, div_id, yDir_is_r
     if (handlers !== null && handlers.mouseout !== null) {
         svgRouteSegs.on("mouseout", handlers.mouseout);
     }    
-   
+
+    // (2) svgVolumeText_g - contains <text> elements containing balanced volume numbers
+    // (3)  svgLabelText_g  - contains <text> and <tspan> elements containing descriptive text about route segments
+    var svgTextInfo = {}, retval = {};
+    svgTextInfo = generateSvgText(svgContainer, wireframeData, yDir_is_routeDir, width, height); 
+    retval = { volumeLines : svgRouteSegs,
+               volume_txt : svgTextInfo.volume_txt,  
+               label_txt_1 : svgTextInfo.label_txt_1, label_txt_2 : svgTextInfo.label_txt_2, label_txt_3: svgTextInfo.label_txt_3 };    
+    return retval;
+} // generateSvgWireframe()
+
+
+// generateSvgText(svgContainer, wireframeData, yDir_is_routeDir, width, height)
+//
+// parameters:  See header comment block for "generateSvgWireframe".
+//
+// return value: object containing the following keys: volume_text, label_txt_1, label_txt_2, label_txt_3: line3
+//
+// overview: This function generates svgVolumeText_g and svgLabelText_g 
+//
+function generateSvgText(svgContainer, wireframeData, yDir_is_routeDir, width, height) {
     var mainline_xOffset = 150;
     var volumeText_xOffset = 250;
     
     // (2) SVG <text> elements for the balanced volume data itself
-    // Do not show volume data for pseudo-ramps for HOV lanes - these are just graphical decorations
+    // Do not render volume data for pseudo-ramps for HOV lanes - these are just graphical decorations
    var filtered_wireframeData1 = _.filter(wireframeData, function(rec) { return (rec.type != 'ramphov'); });
-    var svgVolumeText_g = svgContainer
+   var svgVolumeText_g = svgContainer
             .append("g")
             .attr("transform", "translate(75,0)");  
-    var svgVolumeText = svgVolumeText_g
+   var svgVolumeText = svgVolumeText_g
         .selectAll("text.vol_txt")
         .data(filtered_wireframeData1)
         .enter()
@@ -923,7 +942,7 @@ function generateSvgWireframe(wireframeData, townBoundaryData, div_id, yDir_is_r
                     return retval;
                 }) 
             .text('');  // Placeholder value
-
+    
     // (3) SVG <text> and <tspan> elements for descriptive labels, e.g., "Interchange X off-ramp to Y"
     // These are only applied for certain records in the input data, essentially interchange on/off ramps
     var filtered_wireframeData2 = _.filter(wireframeData, function(rec) { return (rec.showdesc === 1); });
@@ -1076,14 +1095,15 @@ function generateSvgWireframe(wireframeData, townBoundaryData, div_id, yDir_is_r
             return retval; 
         }) 
         .attr("dy", 20)
-        .text(''); // Placeholder     
-        
-    var retval = { volumeLines : svgRouteSegs,  volume_txt : svgVolumeText,  label_txt_1 : line1,  label_txt_2 : line2,  label_txt_3: line3 };
-    return retval;
-} // generateSvgWireframe()
+        .text(''); // Placeholder       
 
+    var retval = { volume_txt : svgVolumeText,  label_txt_1 : line1,  label_txt_2 : line2,  label_txt_3: line3 };
+    return retval;     
+} // generateSvgText()
 
-// function: generateSvgTownBoundaries
+// function: generateSvgTownBoundaries(svgContainer, townBoundaryData, width, height)
+//
+// parameters:  See header comment block for "generateSvgWireframe".
 //
 function generateSvgTownBoundaries(svgContainer, townBoundaryData, width, height) {
     // (4) SVG <line> elements for schematic town boundaries
