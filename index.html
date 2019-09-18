@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <head lang="en">
 <meta charset="utf-8">
-<title>Balanced Volumes Visualization - Development Version</title>
+<title>Balanced Volumes Visualization</title>
 <link rel="stylesheet" href="libs/jquery-ui-1.12.1.custom/jquery-ui.min.css"/>
 <link rel="stylesheet" href="libs/jquery-ui-1.12.1.custom/jquery-ui.structure.min.css"/>
 <link rel="stylesheet" href="libs/jquery-ui-1.12.1.custom/jquery-ui.theme.min.css"/>
@@ -12,7 +12,6 @@
 <script src="libs/d3.js"></script>
 <script src="libs/underscore-min.js"></script>
 <script src="libs/es6string.js"></script>
-<!-- <script src="libs/turf.min.js"></script> -->
 <script src="libs/turf-5.1.6.js"></script>
 <script src="libs/syncscroll.js"></script>
 <script src="libs/download.js"></script>
@@ -24,18 +23,9 @@
 	<div class="darkBlue"></div>
     <div id="banner"><a href="https://www.ctps.org/" target="_blank" title="Boston MPO"><img style="height:59px" src="./img/ctps_header.png" title="Opens Boston MPO website in a new window"></a></div>
 </div>
-<h1 class="pagetitle">Balanced Volumes Visualization - Development Version</h1>
+<h1 class="pagetitle">Balanced Volumes Visualization</h1>
 <div id="header_div">
     <div class="options_div">
-    <!--
-        <div class="options_div">
-            Select route:
-            <select id="select_route" class="app_select_box">
-                <option value="I93-SR3" selected>I-93 / SR-3</option>
-                <option value="I90">I-90</option>
-            </select> 
-        </div>
-    -->
         <div class="options_div">
             <label for="select_main_view">Main View</label>
             <input type="radio" name="select_view" class="select_view" id="select_main_view"  value="select_main_view" checked>     
@@ -48,7 +38,6 @@
 </div> <!-- header_div -->
 
 <div id="main_view_wrapper">
-    <!-- <h3>Main View</h3> -->
     <div id="main_view_options_1" class="options_div">
         <span>
             Select year:
@@ -76,8 +65,7 @@
             &nbsp;
             <label for="main_show_lane_config">Display current (2018) lane configuration</label>
             <input type="checkbox" id="main_show_lane_config" name="main_show_lane_config" value="main_show_lane_config"> 
-            &nbsp;           
-            
+            &nbsp;                      
             <input type="button" id="download_button" name="download_button" value="Download Data">
         </span>
     </div>   
@@ -119,12 +107,7 @@
             </tr>
         </table> 
     </div> <!-- gfx_wrapper_main_nb_sb -->
-    
-    <div id="gfx_wrapper_main_ebwb">
-    </div>
-    
 </div> <!-- main_view_wrapper div -->
-
 
 <div id="awdt_comp_view_wrapper">
     <div id="awdt_comp_view_options_1" class="options_div">
@@ -155,7 +138,6 @@
     </div>
     
     <div id="gfx_wrapper_awdt_nbsb">
-        <!-- Gross, but effective, table layout... for now -->
         <table>
             <tr>
                 <!-- Southbound, year 1 -->
@@ -191,9 +173,6 @@
             </tr>
         </table> 
     </div> <!-- gfx_wrapper_awdt_nbsb -->
-    
-    <div id="gfx_wrapper_awdt_ebwb">
-    </div>
 </div> <!-- awdt_comp_view_wrapper div -->
 
 <div id="peak_comp_view_wrapper">
@@ -214,7 +193,6 @@
     </div>
 
     <div id="gfx_wrapper_peak_nbsb">
-        <!-- Gross, but effective, table layout... for now -->
         <table>
             <tr>
                 <td id="peak_comp_caption_1" class="viz_caption_nbsb">6 to 7 AM</td>
@@ -247,9 +225,6 @@
             </tr>
         </table> 
     </div> <!-- gfx_wrapper_peak_nbsb -->
-    
-    <div id="gfx_wrapper_peak_ebwb">
-    </div>
 </div> <!-- peak_comp_view_wrapper div -->
 
 <script src="balancedVolumesViz.js"></script>
