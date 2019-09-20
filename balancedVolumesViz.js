@@ -18,9 +18,9 @@ var csvTownBoundaries_nb_URL = 'data/csv/i93_sr3_nb_TOWNS.csv';
 
 // Pseudo-const "var" for NO_DATA flag value
 var NO_DATA = -9999;
-// Global "database" of data read in from CSV and JSON files
+// Data read in from CSV and JSON files
 var DATA = {};
-// Global access to SVG elements for D3 visualization
+// Object providing access to SVG elements for D3 visualization
 var VIZ = {};
 // Google Maps map object
 var map; 
@@ -30,8 +30,7 @@ var aPolylines_PrimDir = [], aPolylines_SecDir = [];
 var lineColorPalette = { 'primary' : '#f5831a', 'secondary' : '#0066b4' };
 
 // Scales for width of SVG <line>s
-// Upper bound of scale domains is just a placeholder;
-// these values are adjusted when app initializes
+// Upper bound of scale domains is just a placeholder; these values are adjusted when app initializes
 var widthPalettes = {
     'absolute': {  
                     'awdt'  :   d3.scaleLinear()
@@ -83,7 +82,6 @@ function primaryDirectionP(backboneRouteName) {
     return (backboneRouteName.endsWith('_nb') || backboneRouteName.endsWith('_eb'));
 } // primaryDirectionP
 
-
 // Function to synchronize the bounds of the Google Map with the elements in the relevant viewport
 // Moved to the top-level scope in case it needs to be visible throughout the file
 function scrollHandler(e) {
@@ -91,7 +89,6 @@ function scrollHandler(e) {
     var contHeight = container.height();
     var contTop = container.scrollTop();
     var contBottom = contTop + contHeight;
-    // console.log('top = ' + contTop + ' bottom = ' + contBottom);
     var elts = _.filter(DATA.secondaryDir_data, function(rec) { return rec.y1 >= contTop && rec.y2 <= contBottom; });       
     // Get the data_ids to search for in the GeoJSON; filter out HOV lanes and ramps
     var searchIds = _.pluck(elts, 'data_id');
@@ -106,7 +103,6 @@ function scrollHandler(e) {
         for (i = 0; i < searchIds.length; i++) {
             if (rec.properties['data_id'] === searchIds[i]) {
                 retval = true;
-                // console.log('Found ' + searchIds[i]);
                 break;
             }
         }
@@ -172,8 +168,7 @@ function initializeApp(error, results) {
         return;         
     }        
     DATA.geojsonAll = results[0];  // This is the GeoJSON for *all* limited-access routes processed thus far
-    // Extract subset of this for the currently selected route 
-    // *** NOTE: This is currently  hard-wired to 'i93_sr3'
+    // Extract subset of this for the currently selected route (this is currently  hard-wired to 'i93_sr3')
     DATA.geojsonCurrentRoute = Object.assign({}, DATA.geojsonAll);
     DATA.geojsonCurrentRoute.features = _.filter(DATA.geojsonCurrentRoute.features, function(rec) {
             return rec.properties['backbone_rte'].startsWith('i93_sr3');
@@ -286,7 +281,7 @@ function initializeApp(error, results) {
     // Handlers for various events on the main SVG <line>-work (a.k.a. 'stick diagram')
     var handlers = {
         'click' :       function(d,i) {
-                            console.log('On-click handler: unique_id = ' + d.unique_id + ' data_id = ' + d.data_id); 
+                            // console.log('On-click handler: unique_id = ' + d.unique_id + ' data_id = ' + d.data_id); 
                             var primaryDir, color;
                             var dottedLine = false;
                             var lineFeature = _.find(DATA.geojsonCurrentRoute.features, function(f) { return f.properties['data_id'] == d.data_id; } );
@@ -332,7 +327,7 @@ function initializeApp(error, results) {
                             map.fitBounds(googleBounds);                        
         },
         'mouseover' :   function(d,i) {
-                            var tmpstr, metric, metricTxt, year, yearTxt, attrName, backgroundColor;
+                            var tmpstr, metric, metricTxt, year, yearTxt, attrName, color;
                             tmpstr = d.description + '<br>' + d.description2 + '<br>';
                             tmpstr += (d.description3 !== '') ? d.description3 + '<br>' : '';
                             metric = $("#select_metric option:selected").attr('value');
@@ -342,14 +337,15 @@ function initializeApp(error, results) {
                             attrName = getAttrName(metric,year); 
                             tmpstr += yearTxt + ' ' + metricTxt + ': ' + d[attrName].toLocaleString();
                             tmpstr += '<br>'+ 'Number of lanes: ' + d.nlanes + '<br>';
-                            backgroundColor = (primaryDirectionP(d.backbone_rte)) ? lineColorPalette.primary : lineColorPalette.secondary;                 
+                            color = (primaryDirectionP(d.backbone_rte)) ? lineColorPalette.primary : lineColorPalette.secondary;                 
                             tooltipDiv.transition()		
                                 .duration(200)		
                                 .style("opacity", .9);                              
                             tooltipDiv.html(tmpstr)
-                                .style("background", backgroundColor)
+                                .style("border-color", color)
                                 .style("left", (d3.event.pageX) + "px")		
-                                .style("top", (d3.event.pageY - 28) + "px");            
+                                .style("top", (d3.event.pageY - 28) + "px");     
+                           var _DEBUG_HOOK_0 = 0;
                         },
         'mouseout'  :   function(d,i) {
                             tooltipDiv.transition()		
@@ -853,7 +849,6 @@ function generateSvgText(svgContainer, wireframeData, yDir_is_routeDir, width, h
                         // Fallthrough is deliberate
                     default:
                         // Segments not 'labeled' with volume data, e.g., HOV 'ramps' - x and y ccordinates are abritrary (since these segments are unlabeled with data)
-                        console.log(d.unique_id + ' : segment type is: ' + d.type);
                         retval = d.x1;
                         break;
                     } // switch 
@@ -1006,10 +1001,10 @@ function generateSvgText(svgContainer, wireframeData, yDir_is_routeDir, width, h
                     retval = (yDir_is_routeDir === true) ? d3.max([d.y1,d.y2]) : d3.min([d.y1,d.y2]);
                     break;
                 default:
-                    // The following cases should never occur in practice:
-                    // main, mainright, mainleft, hovleft, hovright, and ramphov.
+                    // The following cases should never occur in practice: main, mainright, mainleft, hovleft, hovright, and ramphov;
+                    // Retval is arbitrary choice
                     console.log(d.unique_id + ' type = ' + d.type);
-                    retval = 0; // Retval is arbitrary choice
+                    retval = 0; 
                     break;
                 }
                 return retval;
@@ -1270,15 +1265,12 @@ function generateSvgLanesChart(lanes_data, div_id) {
 		.data(lanes_data)
 		.enter()
 		.append("line")
-            // .attr("id", function(d, i) { return d.unique_id; })
             .attr("x1", function(d, i) { return d.x1; })
             .attr("y1", function(d, i) { return d.y1; })
             .attr("x2", function(d, i) { return d.x2; })
             .attr("y2", function(d, i) { return d.y2; })
-            // .attr("class", function(d, i) { return d.type; })
 			.style("stroke", "black")
-			.style("stroke-width", "2px")
-			.on("click", function(d, i) { console.log(d.unique_id); });    
+			.style("stroke-width", "2px");    
 } // generateSvgLanesChart()
 
 function initMap(data) {
