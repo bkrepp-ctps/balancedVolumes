@@ -1331,6 +1331,19 @@ function initMap(data) {
         return retval;
     });
     
+	map.data.addListener("click", function(e) {
+		var data_id, backbone_rte, data_to_query, results, i, desc;
+		data_id = e.feature.getProperty("data_id");
+		backbone_rte = e.feature.getProperty("backbone_rte");
+		console.log('data_id = ' + data_id + '; backbone_rte = ' + backbone_rte);
+		data_to_query = primaryDirectionP(backbone_rte) ? DATA.primaryDir_data : DATA.secondaryDir_data;
+		results = _.filter(data_to_query, function(rec) { return rec['data_id'] == data_id; });
+		for (i = 0; i < results.length; i++ ) {
+			desc = results[i]['description'] + ' ' + results[i]['description2'] + ' ' + results[i]['description3'];
+			console.log(desc);
+		}
+	});    
+    
     //  Now pan/zoom map to the full extent of the route
     //  With credit to: https://stackoverflow.com/questions/32615267/zoom-on-google-maps-data-layer
     var bounds = new google.maps.LatLngBounds(); 
