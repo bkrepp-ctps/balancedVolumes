@@ -1,0 +1,108 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Disclaimer</title>
+
+<style type="text/css">
+
+#bigbox {
+    border: 3px ridge #b22400; 
+    padding: 25px;
+    margins: 1px;
+}
+body {
+	font-family: Arial, Helvetica, sans-serif;
+}
+h2 {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 1.2em;
+	color: #1d52c2;
+	width: 600px;
+	margin: 0 40px 0 0;	
+}
+h3 {
+    color: #b22400;
+    border-bottom: 1px solid #1d52c2;
+	overflow: hidden;
+}
+p {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: .9em;
+	color: #000000;
+}
+a {
+    text-decoration: none;
+}
+a.button {    
+    border: solid 1px #1d52c2;
+    background-color: #1d52c2;
+    padding: 2px 2px 2px 2px;
+    color: #fff;
+    
+}
+a.button:hover {
+    background-color: #fff;
+    color: #1d52c2;
+}
+		table {
+			border-top: 3px double black;       /* TEMP */
+			border-bottom: 3px double black;
+            width: 100%;
+		}
+        thead {
+            border-bottom: 3px double black;
+        }
+		tr {
+			font-size: 0.9em;
+		}
+       .tr_header {
+            font-size: 1.1em;
+        }
+		td {
+			padding-left: 15px;
+		}
+        th {
+			padding-left: 15px;
+            text-align: left;
+		}
+</style>
+
+<script TYPE="text/javascript">
+function targetopener(mylink, closeme, closeonly)
+{
+if (! (window.focus && window.opener))return true;
+window.opener.focus();
+if (! closeonly)window.opener.location.href=mylink.href;
+if (closeme)window.close();
+return false;
+}
+</script>
+</head>
+
+<body>
+<div id="bigbox">
+
+    <h3>Disclaimer</h3>
+
+	<p>The Boston MPO are providing these Average Weekday Daily Traffic (AWDT) and hourly balanced volumes for planning purposes only. 
+	   They should not be utilized for design or engineering analysis. 
+	   The balanced volumes are based upon data provided by 
+	   <a href="https://mhd.ms2soft.com/tcds/tsearch.asp" target="_blank">MassDOT’s MS2 Transportation Data Management System website</a> . 
+	   The balanced volumes utilized the most recent (2018 and 2019) available permanent count data whenever possible
+	   for a representative weekday (Tuesdays, Wednesdays, and Thursdays - a similar data process used for the Boston Region MPO’s
+	   Congestion Management Process) on the mainline and on-and-off ramps of the interstate. 
+	   The volume data have been balanced and rounded to the nearest 100 vehicles per hour.  
+	   The balanced volumes are a synthetic representation of what volumes along the given interstate could look like on a representative weekday. 
+	   The balanced volumes are not meant to replace the data on the MS2 site but to compliment it.
+	</p>
+
+    <div id="closeLink2">
+        <a href="index.html" class="button"
+        onclick="return targetopener(this,true,true)">Close this window</a>   
+    </div>			<!--   END OF CLOSELINK2  -->
+
+</div>          <!--   END OF BIGBOX    -->
+
+</body>
+</html>
