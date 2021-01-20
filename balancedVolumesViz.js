@@ -392,6 +392,7 @@ function initializeApp(error, results) {
     //          b. select_metric combo box
     //          c. sync_scrollbars checkbox
     //      4. Download data button
+	//      5. Disclaimer button
     // 
     // (1)  Initialize SVG wireframes
     VIZ.secondaryDir = generateSvgWireframe(DATA.secondaryDir_data, DATA.secondaryDir_towns, 'sb_viz', true, handlers);
@@ -511,6 +512,14 @@ function initializeApp(error, results) {
         var url = 'Download.html'
         window.open(url,'popUpWindow','height=700,width=900,left=10,top=10,resizable=yes,scrollbars=yes,toolbar=no,menubar=no,location=no,directories=no,status=yes')
     });
+	
+	// (5) "Disclaimer" button
+    // 
+    $('#disclaimer_button').click(function(e) {
+        var url = 'Disclaimer.html'
+        window.open(url,'popUpWindow','height=700,width=900,left=10,top=10,resizable=yes,scrollbars=yes,toolbar=no,menubar=no,location=no,directories=no,status=yes')
+    });
+	
     
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // Initialize machinery for the 'awdt comparison' view:
