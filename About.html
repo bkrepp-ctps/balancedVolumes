@@ -31,6 +31,12 @@ p {
 	font-size: .9em;
 	color: #000000;
 }
+p.disclaimer_text {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: .9em;
+	font-weight: bold;
+	color: #ff0000;
+}
 a {
     text-decoration: none;
 }
@@ -91,19 +97,25 @@ return false;
 	</p>
 
     <h3>Disclaimer</h3>
-
-	<p>The Boston Region MPO is providing these Average Weekday Daily Traffic (AWDT) and hourly balanced volumes for planning purposes only. 
-	   They should not be utilized for design or engineering analysis. 
-	   <br/><br/>
-	   The balanced volumes are based upon data provided by 
-	   <a href="https://mhd.ms2soft.com/tcds/tsearch.asp" target="_blank">MassDOT’s MS2 Transportation Data Management System website</a>. 
-	   <br/><br/>
-	   The balanced volumes utilize the most recent (2018 and 2019) available permanent count data whenever possible
-	   for a representative weekday (Tuesdays, Wednesdays, and Thursdays) - a similar data process used for the Boston Region MPO’s
-	   Congestion Management Process on the mainline and on-and-off ramps of the interstate. 
-	   The volume data have been balanced and rounded to the nearest 100 vehicles per hour.  
-	   The balanced volumes are a synthetic representation of what volumes along the given interstate could look like on a representative weekday. 
-	   The balanced volumes are not meant to replace the data on the MS2 site but to complement it.
+	
+	<p class="disclaimer_text">
+	The Boston MPO are providing these Average Weekday Daily Traffic (AWDT) and hourly balanced volumes for planning purposes only.
+	They should not be utilized for design or engineering analysis. 
+	</p>
+	
+	<p class="disclaimer_text">
+	The balanced volumes are based upon data provided by 
+	<a href="https://mhd.ms2soft.com/tcds/tsearch.asp" target="_blank">MassDOT’s MS2 Transportation Data Management System website</a>.
+	</p>
+	
+	<p class="disclaimer_text">
+	The balanced volumes utilized the most recent (2018 and 2019) available permanent count data whenever possible
+	for a representative weekday (Tuesdays, Wednesdays, and Thursdays - a similar data process used for the
+	Boston Region MPO’s Congestion Management Process) on the mainlines and ramps of the interstate highways in the region. 
+	The volume data have been balanced and rounded to the nearest 100 vehicles per hour.  
+	The balanced volumes are a synthetic representation of what volumes along the given interstate could look like
+	on a representative weekday. 
+	These balanced volumes are not meant to replace the data on the MS2 site but to complement it.
 	</p>
 
     <div id="closeLink2">
